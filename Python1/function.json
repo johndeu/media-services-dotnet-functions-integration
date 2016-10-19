@@ -1,0 +1,25 @@
+{
+  "bindings": [
+    {
+      "type": "httpTrigger",
+      "name": "req",
+      "authLevel": "anonymous",
+      "direction": "in"
+    },
+    {
+      "type": "http",
+      "name": "res",
+      "direction": "out"
+    },
+    {
+      "type": "documentDB",
+      "name": "outputDocument",
+      "databaseName": "outDatabase",
+      "collectionName": "Functions",
+      "createIfNotExists": true,
+      "connection": "johndeudoc_DOCUMENTDB",
+      "direction": "out"
+    }
+  ],
+  "disabled": false
+}
