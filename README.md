@@ -113,3 +113,6 @@ The format of the json file is:
     ]
 
 
+### License
+This sample project is licensed under [the MIT License](LICENSE.txt)
+
