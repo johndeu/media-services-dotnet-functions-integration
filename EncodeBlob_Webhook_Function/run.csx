@@ -34,19 +34,42 @@ private static CloudStorageAccount _destinationStorageAccount = null;
 // Set the output container name here.
 private static string _outputContainerName = "output";
 
+// default MES Preset
+private static string _MESPresetName = "H264 Multiple Bitrate 720p";
+
+// Delete source file
+private static string _DeleteSourceFileIfSuccess = false;
+
+
 // Field for service context.
 private static CloudMediaContext _context = null;
 private static MediaServicesCredentials _cachedCredentials = null;
 
 public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 {
+    // INPUT:
+    // required data.fileName (string) Example: "movie.mp4" 
+    // optional data.MESPresetName (string) default "H264 Multiple Bitrate 720p"
+    // optional data.DeleteSourceFileIfSuccess (bool) default false
+
+
     log.Info($"Webhook was triggered!");
 
     string jsonContent = await req.Content.ReadAsStringAsync();
     dynamic data = JsonConvert.DeserializeObject(jsonContent);
 
-    // data.fileName  "movie.mp4"
 
+    // Optional MES Preset
+    if (data.MESPresetName != null)
+    {
+        _MESPresetName = data.MESPresetName;
+    }
+
+    // Optional Delete Source File
+    if (data.DeleteSourceFileIfSuccess != null)
+    {
+        _DeleteSourceFileIfSuccess = data.DeleteSourceFileIfSuccess;
+    }
 
     if (data.fileName == null)
     {
@@ -80,14 +103,11 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
 
             // Step 1:  Copy the Blob into a new Input Asset for the Job
-            // ***NOTE: Ideally we would have a method to ingest a Blob directly here somehow. 
             // using code from this sample - https://azure.microsoft.com/en-us/documentation/articles/media-services-copying-existing-blob/
 
             IAsset newAsset = CreateAssetFromBlob(inputBlob, fileName, log).GetAwaiter().GetResult();
 
-
             // Step 2: Create an Encoding Job
-
 
             // Declare a new encoding job with the Standard encoder
             IJob job = _context.Jobs.Create("Azure Function - MES Job");
@@ -95,14 +115,11 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             // processor to use for the specific task.
             IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
 
-            // Change or modify the custom preset JSON used here.
-            // string preset = File.ReadAllText("D:\home\site\wwwroot\Presets\H264 Multiple Bitrate 720p.json");
-
             // Create a task with the encoding details, using a string preset.
-            // In this case "H264 Multiple Bitrate 720p" system defined preset is used.
+            // Default H264 Multiple Bitrate 720p" system defined preset is used if no preset was passed to the function.
             ITask task = job.Tasks.AddNew("My encoding task",
                 processor,
-                "H264 Multiple Bitrate 720p",
+                _MESPresetName,
                 TaskOptions.None);
 
             // Specify the input asset to be encoded.
@@ -162,14 +179,25 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             log.Info($"TargetContainer = {targetContainer.Name}");
             CopyBlobsToTargetContainer(outContainer, targetContainer, log).Wait();
 
+            // Delete the source file if user want to
+            if (_DeleteSourceFileIfSuccess)
+            {
+                inputBlob.DeleteIfExists();
+            }
         }
         catch (Exception ex)
         {
             log.Error("ERROR: failed.");
             log.Info($"StackTrace : {ex.StackTrace}");
-            throw ex;
+
+            return req.CreateResponse(HttpStatusCode.BadRequest, new
+            {
+                error = ex.StackTrace
+            });
         }
     }
+
+
 
     return req.CreateResponse(HttpStatusCode.OK, new
     {
