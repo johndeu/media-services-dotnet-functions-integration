@@ -38,7 +38,7 @@ private static string _outputContainerName = "output";
 private static string _MESPresetName = "H264 Multiple Bitrate 720p";
 
 // Delete source file
-private static string _DeleteSourceFileIfSuccess = false;
+private static bool _DeleteSourceFileIfSuccess = false;
 
 
 // Field for service context.
