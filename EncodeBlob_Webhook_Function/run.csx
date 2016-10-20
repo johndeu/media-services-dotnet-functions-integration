@@ -43,7 +43,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     // data.fileName  "movie.mp4"
   
 
-    if (data.filename == null)
+    if (data.fileName == null)
     {
         return req.CreateResponse(HttpStatusCode.BadRequest, new
         {
