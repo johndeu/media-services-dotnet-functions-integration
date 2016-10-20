@@ -10,13 +10,6 @@
       "type": "http",
       "direction": "out",
       "name": "res"
-    },
-    {
-      "type": "blob",
-      "name": "inputBlob",
-      "path": "ftprec/{name}",
-      "connection": "StorageConnection",
-      "direction": "in"
     }
   ],
   "disabled": false

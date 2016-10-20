@@ -24,6 +24,11 @@ private static readonly string _mediaServicesAccountKey = Environment.GetEnviron
 
 static string _storageAccountName = Environment.GetEnvironmentVariable("MediaServicesStorageAccountName");
 static string _storageAccountKey = Environment.GetEnvironmentVariable("MediaServicesStorageAccountKey");
+
+static string _sourceStorageAccountName = Environment.GetEnvironmentVariable("SourceStorageAccountName");
+static string _sourceStorageAccountKey = Environment.GetEnvironmentVariable("SourceStorageAccountKey");
+static string _sourceStorageContainer = Environment.GetEnvironmentVariable("SourceStorageContainer");
+
 private static CloudStorageAccount _destinationStorageAccount = null;
 
 // Set the output container name here.
@@ -41,7 +46,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     dynamic data = JsonConvert.DeserializeObject(jsonContent);
 
     // data.fileName  "movie.mp4"
-  
+
 
     if (data.fileName == null)
     {
@@ -63,6 +68,15 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
             // Used the chached credentials to create CloudMediaContext.
             _context = new CloudMediaContext(_cachedCredentials);
+
+
+            // let get the inputBlob of the new file
+            StorageCredentials SourceStorageCredentials = new StorageCredentials(_storageAccountName, _storageAccountKey);
+            CloudStorageAccount sourceStorageAccount = new CloudStorageAccount(SourceStorageCredentials, false);
+            CloudBlobClient sourceBlobStorageClient = sourceStorageAccount.CreateCloudBlobClient();
+            CloudBlobContainer assetContainer = sourceBlobStorageClient.GetContainerReference(_sourceStorageContainer);
+            CloudBlockBlob inputBlob = assetContainer.GetBlockBlobReference(fileName);
+
 
             // Step 1:  Copy the Blob into a new Input Asset for the Job
             // ***NOTE: Ideally we would have a method to ingest a Blob directly here somehow. 
