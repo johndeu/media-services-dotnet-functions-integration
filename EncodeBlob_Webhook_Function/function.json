@@ -15,7 +15,7 @@
       "type": "blob",
       "name": "inputBlob",
       "path": "ftprec/{name}",
-      "connection": "storageconnection",
+      "connection": "StorageConnection",
       "direction": "in"
     }
   ],
