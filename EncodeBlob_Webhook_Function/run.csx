@@ -69,9 +69,10 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             // Used the chached credentials to create CloudMediaContext.
             _context = new CloudMediaContext(_cachedCredentials);
 
+            log.Info("fileName: {fileName}");
 
             // let get the inputBlob of the new file
-            StorageCredentials SourceStorageCredentials = new StorageCredentials(_storageAccountName, _storageAccountKey);
+            StorageCredentials SourceStorageCredentials = new StorageCredentials(_sourceStorageAccountName, _sourceStorageAccountKey);
             CloudStorageAccount sourceStorageAccount = new CloudStorageAccount(SourceStorageCredentials, false);
             CloudBlobClient sourceBlobStorageClient = sourceStorageAccount.CreateCloudBlobClient();
             CloudBlobContainer assetContainer = sourceBlobStorageClient.GetContainerReference(_sourceStorageContainer);
