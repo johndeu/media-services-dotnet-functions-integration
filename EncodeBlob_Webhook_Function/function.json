@@ -1,0 +1,23 @@
+{
+  "bindings": [
+    {
+      "type": "httpTrigger",
+      "direction": "in",
+      "webHookType": "genericJson",
+      "name": "req"
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
+    },
+    {
+      "type": "blob",
+      "name": "inputBlob",
+      "path": "ftprec/{name}",
+      "connection": "storageconnection",
+      "direction": "in"
+    }
+  ],
+  "disabled": false
+}
