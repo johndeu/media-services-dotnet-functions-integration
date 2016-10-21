@@ -61,28 +61,16 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     HttpResponseMessage responseMessage = req.CreateResponse(HttpStatusCode.Accepted);
     responseMessage.Headers.Add("location", String.Format("{0}://{1}/api/status/{2}", req.RequestUri.Scheme, req.RequestUri.Host, id));  //Where the engine will poll to check status
     responseMessage.Headers.Add("retry-after", "20");   //How many seconds it should wait (20 is default if not included)
-    var client = new HttpClient();
-    await client.SendAsync(responseMessage);
-     
+      
     var MyController = new AsyncController();
-    MyController.Init(log, id);
+    MyController.Init(id, req, log);
 
-    log.Error("Starting work");
-    Task.Delay(120000).Wait(); //Do work will work for 120 seconds)
-    log.Error("Work completed");
-    MyController.Finished(id);
-
-    log.Info($"task ended");
-    Task.Delay(120000).Wait(); //Do work will work for 120 seconds)
 
     //new Thread(() => doWork(id, req, log)).Start();   //Start the thread of work, but continue on before it completes
     // HttpResponseMessage responseMessage = req.CreateResponse(HttpStatusCode.Accepted);
     // responseMessage.Headers.Add("location", String.Format("{0}://{1}/api/status/{2}", req.RequestUri.Scheme, req.RequestUri.Host, id));  //Where the engine will poll to check status
     //responseMessage.Headers.Add("retry-after", "20");   //How many seconds it should wait (20 is default if not included)
-    return;
-
-  
-
+    return responseMessage;
 }
 
 private static async void doWork(Guid id, HttpRequestMessage req, TraceWriter log)
@@ -251,14 +239,17 @@ public class AsyncController : ApiController
     private static Dictionary<Guid, bool> runningTasks = new Dictionary<Guid, bool>();
 
     
-    public async void Init(Guid id)
+    public async void Init(Guid id, HttpRequestMessage req, TraceWriter log)
     {
         runningTasks[id] = false;  //Job isn't done yet
+        new Thread(() => doWork(id, req, log)).Start();   //Start the thread of work, but continue on before it completes
     }
-    
-    public async void Finished(Guid id)
+
+    public async void doWork(Guid id, HttpRequestMessage req, TraceWriter log)
     {
+        Task.Delay(120000).Wait(); //Do work will work for 120 seconds)
         runningTasks[id] = true;  //Job is done
+        Task.Delay(120000).Wait(); //let's wait for 120 seconds
     }
 
     /// <summary>
