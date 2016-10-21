@@ -54,20 +54,22 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     // optional data.MESPresetName (string) default "H264 Multiple Bitrate 720p"
     // optional data.DeleteSourceFileIfSuccess (bool) default false
 
-
     log.Info($"Webhook was triggered!");
 
-    var MyController = new AsyncController();
     Guid id = Guid.NewGuid();  //Generate tracking Id
-    var res = MyController.longrunningtask(req, log, id);
+ 
+   
+    
+    var MyController = new AsyncController();
+     await MyController.doWork(req, log, id);
 
-    log.Info($"response generated");
+    log.Info($"task ended");
 
     //new Thread(() => doWork(id, req, log)).Start();   //Start the thread of work, but continue on before it completes
     // HttpResponseMessage responseMessage = req.CreateResponse(HttpStatusCode.Accepted);
     // responseMessage.Headers.Add("location", String.Format("{0}://{1}/api/status/{2}", req.RequestUri.Scheme, req.RequestUri.Host, id));  //Where the engine will poll to check status
     //responseMessage.Headers.Add("retry-after", "20");   //How many seconds it should wait (20 is default if not included)
-    return res;
+    return;
 
   
 
@@ -240,36 +242,35 @@ public class AsyncController : ApiController
     private static TraceWriter _log;
 
 
-    /// <summary>
-    /// This is the method that starts the task running.  It creates a new thread to complete the work on, and returns an ID which can be passed in to check the status of the job.  
-    /// In a real world scenario your dictionary may contain the object you want to return when the work is done.
-    /// </summary>
-    /// <returns>HTTP Response with needed headers</returns>
-
-    public async Task<HttpResponseMessage> longrunningtask(HttpRequestMessage req, TraceWriter log)
-    {
-        Guid id = Guid.NewGuid();  //Generate tracking Id
-        runningTasks[id] = false;  //Job isn't done yet
-        new Thread(() => doWork(id, log)).Start();   //Start the thread of work, but continue on before it completes
-
-        HttpResponseMessage responseMessage = req.CreateResponse(HttpStatusCode.Accepted);
-        responseMessage.Headers.Add("location", String.Format("{0}://{1}/api/status/{2}", req.RequestUri.Scheme, req.RequestUri.Host, id));  //Where the engine will poll to check status
-        responseMessage.Headers.Add("retry-after", "20");   //How many seconds it should wait (20 is default if not included)
-        return responseMessage;
-    }
+  
 
 
     /// <summary>
     /// This is where the actual long running work would occur.
     /// </summary>
     /// <param name="id"></param>
-    private void doWork(Guid id, TraceWriter log)
+    public async void doWork(HttpRequestMessage req, Guid id, TraceWriter log)
     {
+        runningTasks[id] = false;  //Job isn't done yet
+
+        log.Error("submit accepted");
+
+        HttpResponseMessage responseMessage = req.CreateResponse(HttpStatusCode.Accepted);
+        responseMessage.Headers.Add("location", String.Format("{0}://{1}/api/status/{2}", req.RequestUri.Scheme, req.RequestUri.Host, id));  //Where the engine will poll to check status
+        responseMessage.Headers.Add("retry-after", "20");   //How many seconds it should wait (20 is default if not included)
+
+        var client = new HttpClient();
+
+        var task = client.SendAsync(responseMessage).ContinueWith((t) => ResponseOutboundFinished(t.Result));
+        //task.Wait();
+
         _log = log;
         log.Error("Starting work");
         Task.Delay(120000).Wait(); //Do work will work for 120 seconds)
         log.Error("Work completed");
         runningTasks[id] = true;  //Set the flag to true - work done
+        Task.Delay(120000).Wait(); //wait for 2 min
+
     }
 
     /// <summary>
