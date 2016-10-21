@@ -60,7 +60,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info($"Webhook was triggered!");
 
     var MyController = new AsyncController();
-    MyController.longrunningtask();
+    return MyController.longrunningtask();
 
     /*
 
@@ -267,9 +267,9 @@ public class AsyncController : ApiController
     /// <param name="id"></param>
     private void doWork(Guid id)
     {
-        Debug.WriteLine("Starting work");
+        log.Error("Starting work");
         Task.Delay(120000).Wait(); //Do work will work for 120 seconds)
-        Debug.WriteLine("Work completed");
+        log.Error("SWork completed");
         runningTasks[id] = true;  //Set the flag to true - work done
     }
 
