@@ -60,7 +60,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     Guid id = Guid.NewGuid();  //Generate tracking Id
     runningTasks[id] = false;  //Job isn't done yet
-    new Thread(() => doWork(id)).Start();   //Start the thread of work, but continue on before it completes
+    new Thread(() => doWork(id, req, log)).Start();   //Start the thread of work, but continue on before it completes
     HttpResponseMessage responseMessage = Request.CreateResponse(HttpStatusCode.Accepted);
     responseMessage.Headers.Add("location", String.Format("{0}://{1}/api/status/{2}", Request.RequestUri.Scheme, Request.RequestUri.Host, id));  //Where the engine will poll to check status
     responseMessage.Headers.Add("retry-after", "20");   //How many seconds it should wait (20 is default if not included)
@@ -68,7 +68,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
 }
 
-private void doWork(Guid id)
+private void doWork(Guid id, HttpRequestMessage req, TraceWriter log)
 {
 
     string jsonContent = await req.Content.ReadAsStringAsync();
