@@ -282,6 +282,8 @@ public class AsyncController : ApiController
     [Route("api/status/{id}")]
      public HttpResponseMessage checkStatus([FromUri] Guid id)
     {
+        log.Error("Logic Apps check status");
+
         //If the job is complete
         if (runningTasks.ContainsKey(id) && runningTasks[id])
         {
