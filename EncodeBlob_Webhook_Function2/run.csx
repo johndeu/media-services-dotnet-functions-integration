@@ -17,6 +17,7 @@ using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Auth;
+using System.Web.Http;
 
 // Read values from the App.config file.
 private static readonly string _mediaServicesAccountName = Environment.GetEnvironmentVariable("AMSAccount");
@@ -66,6 +67,30 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     responseMessage.Headers.Add("retry-after", "20");   //How many seconds it should wait (20 is default if not included)
     return responseMessage;
 
+}
+
+[HttpGet]
+[Route("api/status/{id}")]
+public HttpResponseMessage checkStatus([FromUri] Guid id)
+{
+    //If the job is complete
+    if (runningTasks.ContainsKey(id) && runningTasks[id])
+    {
+        runningTasks.Remove(id);
+        return Request.CreateResponse(HttpStatusCode.OK, "Some data could be returned here");
+    }
+    //If the job is still running
+    else if (runningTasks.ContainsKey(id))
+    {
+        HttpResponseMessage responseMessage = Request.CreateResponse(HttpStatusCode.Accepted);
+        responseMessage.Headers.Add("location", String.Format("{0}://{1}/api/status/{2}", Request.RequestUri.Scheme, Request.RequestUri.Host, id));  //Where the engine will poll to check status
+        responseMessage.Headers.Add("retry-after", "20");
+        return responseMessage;
+    }
+    else
+    {
+        return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "No job exists with the specified ID");
+    }
 }
 
 private static async void doWork(Guid id, HttpRequestMessage req, TraceWriter log)
@@ -223,4 +248,6 @@ private static async void doWork(Guid id, HttpRequestMessage req, TraceWriter lo
             greeting = $"Ok {data.Source}, {data.Mode} mode"
         });
         */
+
+    runningTasks[id] = true;  //Set the flag to true - work done
 }
