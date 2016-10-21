@@ -62,10 +62,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     responseMessage.Headers.Add("location", String.Format("{0}://{1}/api/status/{2}", req.RequestUri.Scheme, req.RequestUri.Host, id));  //Where the engine will poll to check status
     responseMessage.Headers.Add("retry-after", "20");   //How many seconds it should wait (20 is default if not included)
     var client = new HttpClient();
-    var task = client.SendAsync(responseMessage).ContinueWith((t) => ResponseOutboundFinished(t.Result));
-    task.Wait();
-
-    
+    await client.SendAsync(responseMessage);
+     
     var MyController = new AsyncController();
     MyController.Init(log, id);
 
