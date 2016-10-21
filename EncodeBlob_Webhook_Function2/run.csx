@@ -68,7 +68,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
 }
 
-private static void doWork(Guid id, HttpRequestMessage req, TraceWriter log)
+private static async void doWork(Guid id, HttpRequestMessage req, TraceWriter log)
 {
 
     string jsonContent = await req.Content.ReadAsStringAsync();
