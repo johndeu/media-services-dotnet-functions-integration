@@ -240,6 +240,7 @@ public class AsyncController : ApiController
 {
     //State dictionary for sample - stores the state of the working thread
     private static Dictionary<Guid, bool> runningTasks = new Dictionary<Guid, bool>();
+    private static TraceWriter _log;
 
 
     /// <summary>
@@ -247,7 +248,7 @@ public class AsyncController : ApiController
     /// In a real world scenario your dictionary may contain the object you want to return when the work is done.
     /// </summary>
     /// <returns>HTTP Response with needed headers</returns>
-   
+
     public async Task<HttpResponseMessage> longrunningtask(HttpRequestMessage req, TraceWriter log)
     {
         Guid id = Guid.NewGuid();  //Generate tracking Id
@@ -267,6 +268,7 @@ public class AsyncController : ApiController
     /// <param name="id"></param>
     private void doWork(Guid id, TraceWriter log)
     {
+        _log = log;
         log.Error("Starting work");
         Task.Delay(120000).Wait(); //Do work will work for 120 seconds)
         log.Error("Work completed");
@@ -280,9 +282,9 @@ public class AsyncController : ApiController
     /// <returns></returns>
     [HttpGet]
     [Route("api/status/{id}")]
-     public HttpResponseMessage checkStatus([FromUri] Guid id)
+    public HttpResponseMessage checkStatus([FromUri] Guid id)
     {
-        log.Error("Logic Apps check status");
+        _log.Error("Logic Apps check status");
 
         //If the job is complete
         if (runningTasks.ContainsKey(id) && runningTasks[id])
