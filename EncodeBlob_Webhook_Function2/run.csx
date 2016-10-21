@@ -60,7 +60,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info($"Webhook was triggered!");
 
     var MyController = new AsyncController();
-    return MyController.longrunningtask();
+    return MyController.longrunningtask(req, log);
 
     /*
 
@@ -249,11 +249,12 @@ public class AsyncController : ApiController
     /// <returns>HTTP Response with needed headers</returns>
     [HttpPost]
     [Route("api/startwork")]
-    public async Task<HttpResponseMessage> longrunningtask()
+    public async Task<HttpResponseMessage> longrunningtask(HttpRequestMessage Request, TraceWriter log)
     {
         Guid id = Guid.NewGuid();  //Generate tracking Id
         runningTasks[id] = false;  //Job isn't done yet
-        new Thread(() => doWork(id)).Start();   //Start the thread of work, but continue on before it completes
+        new Thread(() => doWork(id, log)).Start();   //Start the thread of work, but continue on before it completes
+
         HttpResponseMessage responseMessage = Request.CreateResponse(HttpStatusCode.Accepted);
         responseMessage.Headers.Add("location", String.Format("{0}://{1}/api/status/{2}", Request.RequestUri.Scheme, Request.RequestUri.Host, id));  //Where the engine will poll to check status
         responseMessage.Headers.Add("retry-after", "20");   //How many seconds it should wait (20 is default if not included)
@@ -265,7 +266,7 @@ public class AsyncController : ApiController
     /// This is where the actual long running work would occur.
     /// </summary>
     /// <param name="id"></param>
-    private void doWork(Guid id)
+    private void doWork(Guid id, TraceWriter log)
     {
         log.Error("Starting work");
         Task.Delay(120000).Wait(); //Do work will work for 120 seconds)
