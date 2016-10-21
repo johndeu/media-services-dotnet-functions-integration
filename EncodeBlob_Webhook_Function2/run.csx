@@ -247,16 +247,15 @@ public class AsyncController : ApiController
     /// In a real world scenario your dictionary may contain the object you want to return when the work is done.
     /// </summary>
     /// <returns>HTTP Response with needed headers</returns>
-    [HttpPost]
-    [Route("api/startwork")]
-    public async Task<HttpResponseMessage> longrunningtask(HttpRequestMessage Request, TraceWriter log)
+   
+    public async Task<HttpResponseMessage> longrunningtask(HttpRequestMessage req, TraceWriter log)
     {
         Guid id = Guid.NewGuid();  //Generate tracking Id
         runningTasks[id] = false;  //Job isn't done yet
         new Thread(() => doWork(id, log)).Start();   //Start the thread of work, but continue on before it completes
 
-        HttpResponseMessage responseMessage = Request.CreateResponse(HttpStatusCode.Accepted);
-        responseMessage.Headers.Add("location", String.Format("{0}://{1}/api/status/{2}", Request.RequestUri.Scheme, Request.RequestUri.Host, id));  //Where the engine will poll to check status
+        HttpResponseMessage responseMessage = req.CreateResponse(HttpStatusCode.Accepted);
+        responseMessage.Headers.Add("location", String.Format("{0}://{1}/api/status/{2}", req.RequestUri.Scheme, req.RequestUri.Host, id));  //Where the engine will poll to check status
         responseMessage.Headers.Add("retry-after", "20");   //How many seconds it should wait (20 is default if not included)
         return responseMessage;
     }
@@ -270,7 +269,7 @@ public class AsyncController : ApiController
     {
         log.Error("Starting work");
         Task.Delay(120000).Wait(); //Do work will work for 120 seconds)
-        log.Error("SWork completed");
+        log.Error("Work completed");
         runningTasks[id] = true;  //Set the flag to true - work done
     }
 
