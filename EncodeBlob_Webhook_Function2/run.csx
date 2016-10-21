@@ -46,8 +46,6 @@ private static bool _DeleteSourceFileIfSuccess = false;
 private static CloudMediaContext _context = null;
 private static MediaServicesCredentials _cachedCredentials = null;
 
-private static Dictionary<Guid, bool> runningTasks = new Dictionary<Guid, bool>();
-
 
 public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 {
@@ -60,19 +58,18 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info($"Webhook was triggered!");
 
     var MyController = new AsyncController();
-    return MyController.longrunningtask(req, log);
-
-    /*
-
     Guid id = Guid.NewGuid();  //Generate tracking Id
-    runningTasks[id] = false;  //Job isn't done yet
-    new Thread(() => doWork(id, req, log)).Start();   //Start the thread of work, but continue on before it completes
-    HttpResponseMessage responseMessage = req.CreateResponse(HttpStatusCode.Accepted);
-    responseMessage.Headers.Add("location", String.Format("{0}://{1}/api/status/{2}", req.RequestUri.Scheme, req.RequestUri.Host, id));  //Where the engine will poll to check status
-    responseMessage.Headers.Add("retry-after", "20");   //How many seconds it should wait (20 is default if not included)
-    return responseMessage;
+    var res = MyController.longrunningtask(req, log, id);
 
-    */
+    log.Info($"response generated");
+
+    //new Thread(() => doWork(id, req, log)).Start();   //Start the thread of work, but continue on before it completes
+    // HttpResponseMessage responseMessage = req.CreateResponse(HttpStatusCode.Accepted);
+    // responseMessage.Headers.Add("location", String.Format("{0}://{1}/api/status/{2}", req.RequestUri.Scheme, req.RequestUri.Host, id));  //Where the engine will poll to check status
+    //responseMessage.Headers.Add("retry-after", "20");   //How many seconds it should wait (20 is default if not included)
+    return res;
+
+  
 
 }
 
