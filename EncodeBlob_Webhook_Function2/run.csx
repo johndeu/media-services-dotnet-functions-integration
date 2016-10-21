@@ -280,10 +280,7 @@ public class AsyncController : ApiController
     /// <returns></returns>
     [HttpGet]
     [Route("api/status/{id}")]
-    [Swashbuckle.Swagger.Annotations.SwaggerResponse(HttpStatusCode.BadRequest, "No job exists with the specified id")]
-    [Swashbuckle.Swagger.Annotations.SwaggerResponse(HttpStatusCode.Accepted, "The job is still running")]
-    [Swashbuckle.Swagger.Annotations.SwaggerResponse(HttpStatusCode.OK, "The job has completed")]
-    public HttpResponseMessage checkStatus([FromUri] Guid id)
+     public HttpResponseMessage checkStatus([FromUri] Guid id)
     {
         //If the job is complete
         if (runningTasks.ContainsKey(id) && runningTasks[id])
