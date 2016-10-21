@@ -57,13 +57,25 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info($"Webhook was triggered!");
 
     Guid id = Guid.NewGuid();  //Generate tracking Id
- 
-   
+
+    HttpResponseMessage responseMessage = req.CreateResponse(HttpStatusCode.Accepted);
+    responseMessage.Headers.Add("location", String.Format("{0}://{1}/api/status/{2}", req.RequestUri.Scheme, req.RequestUri.Host, id));  //Where the engine will poll to check status
+    responseMessage.Headers.Add("retry-after", "20");   //How many seconds it should wait (20 is default if not included)
+    var client = new HttpClient();
+    var task = client.SendAsync(responseMessage).ContinueWith((t) => ResponseOutboundFinished(t.Result));
+    task.Wait();
+
     
     var MyController = new AsyncController();
-     await MyController.doWork(req, log, id);
+    MyController.Init(log, id);
+
+    log.Error("Starting work");
+    Task.Delay(120000).Wait(); //Do work will work for 120 seconds)
+    log.Error("Work completed");
+    MyController.Finished(id);
 
     log.Info($"task ended");
+    Task.Delay(120000).Wait(); //Do work will work for 120 seconds)
 
     //new Thread(() => doWork(id, req, log)).Start();   //Start the thread of work, but continue on before it completes
     // HttpResponseMessage responseMessage = req.CreateResponse(HttpStatusCode.Accepted);
@@ -231,7 +243,7 @@ private static async void doWork(Guid id, HttpRequestMessage req, TraceWriter lo
         });
         */
 
-    runningTasks[id] = true;  //Set the flag to true - work done
+    
 }
 
 
@@ -239,38 +251,16 @@ public class AsyncController : ApiController
 {
     //State dictionary for sample - stores the state of the working thread
     private static Dictionary<Guid, bool> runningTasks = new Dictionary<Guid, bool>();
-    private static TraceWriter _log;
 
-
-  
-
-
-    /// <summary>
-    /// This is where the actual long running work would occur.
-    /// </summary>
-    /// <param name="id"></param>
-    public async void doWork(HttpRequestMessage req, Guid id, TraceWriter log)
+    
+    public async void Init(Guid id)
     {
         runningTasks[id] = false;  //Job isn't done yet
-
-        log.Error("submit accepted");
-
-        HttpResponseMessage responseMessage = req.CreateResponse(HttpStatusCode.Accepted);
-        responseMessage.Headers.Add("location", String.Format("{0}://{1}/api/status/{2}", req.RequestUri.Scheme, req.RequestUri.Host, id));  //Where the engine will poll to check status
-        responseMessage.Headers.Add("retry-after", "20");   //How many seconds it should wait (20 is default if not included)
-
-        var client = new HttpClient();
-
-        var task = client.SendAsync(responseMessage).ContinueWith((t) => ResponseOutboundFinished(t.Result));
-        //task.Wait();
-
-        _log = log;
-        log.Error("Starting work");
-        Task.Delay(120000).Wait(); //Do work will work for 120 seconds)
-        log.Error("Work completed");
-        runningTasks[id] = true;  //Set the flag to true - work done
-        Task.Delay(120000).Wait(); //wait for 2 min
-
+    }
+    
+    public async void Finished(Guid id)
+    {
+        runningTasks[id] = true;  //Job is done
     }
 
     /// <summary>
@@ -282,8 +272,6 @@ public class AsyncController : ApiController
     [Route("api/status/{id}")]
     public HttpResponseMessage checkStatus([FromUri] Guid id)
     {
-        _log.Error("Logic Apps check status");
-
         //If the job is complete
         if (runningTasks.ContainsKey(id) && runningTasks[id])
         {
