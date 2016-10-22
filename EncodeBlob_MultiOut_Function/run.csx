@@ -150,7 +150,6 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
         log.Info($"TargetContainer = {targetContainer.Name}");
         CopyBlobsToTargetContainer(outContainer, targetContainer, log).Wait();
 
-
         // publish with a streaming locator
         IAccessPolicy readPolicy2 = _context.AccessPolicies.Create("readPolicy", TimeSpan.FromHours(4), AccessPermissions.Read);
         ILocator outputLocator2 = _context.Locators.CreateLocator(LocatorType.OnDemandOrigin, outputAsset, readPolicy2);
@@ -161,13 +160,11 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
             smoothUrl = outputLocator2.Path + ismFile.Name + "/manifest";
         }
 
-
         // Notify that encoding job is complete with a SMS (calling a logic app)
         log.Info($"Smooth url : {smoothUrl}");
 
         if (_callbackUrl != null)
         {
-
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(_callbackUrl);
             request.Method = "POST";
             request.ContentType = "application/json; charset=utf-8";
@@ -175,8 +172,6 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
             ParamsToLogicApp param = new ParamsToLogicApp() { filename = fileName + "." + fileExtension, playerUrl = "http://ampdemo.azureedge.net/?url=" + System.Web.HttpUtility.UrlEncode(smoothUrl) };
             string json = JsonConvert.SerializeObject(param, Newtonsoft.Json.Formatting.Indented);
             log.Info($"json : {json}");
-            //string jsonString = Encoding.Default.GetString(json);
-
 
             using (Stream requestStream = request.GetRequestStream())
             {
@@ -187,18 +182,7 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
 
             using (var response = (HttpWebResponse)request.GetResponse())
             {
-                log.Info($"Callback Logic App Status code:{response.StatusCode.ToString()}");
-
-
-                /*
-                stringBuilderLog.AppendLine("..Response Status Code: " + response.StatusCode.ToString());
-                stringBuilderLog.AppendLine("..Response Status Description: " + response.StatusDescription);
-                stringBuilderLog.AppendLine("..Response Uri: " + response.ResponseUri);
-                stringBuilderLog.AppendLine("..Response Server: " + response.Server);
-                stringBuilderLog.AppendLine("..Response ContentType: " + response.ContentType);
-                stringBuilderLog.AppendLine("..Response ContentLength: " + response.ContentLength);
-                stringBuilderLog.AppendLine("..Response ContentEncoding: " + response.ContentEncoding);
-                */
+                log.Info($"Callback Logic App Status code : {response.StatusCode.ToString()}");
             }
         }
 
