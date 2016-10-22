@@ -5,7 +5,7 @@
       "type": "blobTrigger",
       "direction": "in",
       "path": "input/{fileName}.json",
-      "connection": "xpouyatingestfunction_STORAGE"
+      "connection": "StorageConnection"
     }
   ],
   "disabled": true
