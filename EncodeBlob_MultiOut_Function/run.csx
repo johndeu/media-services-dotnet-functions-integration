@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
 using System.Net;
+using System.Web;
 using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -149,7 +150,20 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
         CopyBlobsToTargetContainer(outContainer, targetContainer, log).Wait();
 
 
+        // publish with a streaming locator
+        IAccessPolicy readPolicy2 = _context.AccessPolicies.Create("readPolicy", TimeSpan.FromHours(4), AccessPermissions.Read);
+        ILocator outputLocator2 = _context.Locators.CreateLocator(LocatorType.OnDemandOrigin, outputAsset, readPolicy2);
+        var ismFile = outputAsset.AssetFiles.AsEnumerable().FirstOrDefault(f => f.Name.EndsWith(".ism"));
+        string smoothUrl = "";
+        if (ismFile != null)
+        {
+            smoothUrl = outputLocator2.Path + "/" + ismFile.Name + "/manifest";
+        }
+
+
         // Notify that encoding job is complete with a SMS (calling a logic app)
+        log.Info($"Smooth url : {smoothUrl}");
+
         if (_callbackUrl != null)
         {
 
@@ -157,8 +171,9 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
             request.Method = "POST";
             request.ContentType = "application/json; charset=utf-8";
 
-            ParamsToLogicApp param = new ParamsToLogicApp() { filename = fileName, playerUrl = "http://test" };
+            ParamsToLogicApp param = new ParamsToLogicApp() { filename = fileName, playerUrl = "http://ampdemo.azureedge.net/url=" + HttpUtility.UrlEncode(smoothUrl) };
             string json = JsonConvert.SerializeObject(param, Newtonsoft.Json.Formatting.Indented);
+            log.Info($"json : {json}");
             //string jsonString = Encoding.Default.GetString(json);
 
 
