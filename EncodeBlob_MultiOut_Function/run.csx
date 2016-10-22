@@ -158,7 +158,7 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
         string smoothUrl = "";
         if (ismFile != null)
         {
-            smoothUrl = outputLocator2.Path + "/" + ismFile.Name + "/manifest";
+            smoothUrl = outputLocator2.Path + ismFile.Name + "/manifest";
         }
 
 
