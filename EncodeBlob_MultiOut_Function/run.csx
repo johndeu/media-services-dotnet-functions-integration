@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Net;
 using System.Web;
+using System.Web.HttpUtility;
 using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
