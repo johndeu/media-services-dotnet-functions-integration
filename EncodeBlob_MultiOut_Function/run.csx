@@ -171,10 +171,8 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
 
             using (var response = (HttpWebResponse)request.GetResponse())
             {
-                log.Info($"Callback Logic App Status code:{response.StatusCode}");
+                log.Info($"Callback Logic App Status code:{response.StatusCode.ToString()}");
 
-                if (response.StatusCode == HttpStatusCode.NoContent)
-                    stringBuilderLog.AppendLine("..Response NoContent Status code - The primary key was regenerated.");
 
                 /*
                 stringBuilderLog.AppendLine("..Response Status Code: " + response.StatusCode.ToString());
