@@ -105,11 +105,7 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
 
         IAsset newAsset = CreateAssetFromBlobMultipleFiles(inputBlob, fileName, log, items).GetAwaiter().GetResult();
 
-
         // Step 2: Create an Encoding Job
-        // ** NOTE : This is way more complicated than the simple AWS createJob function that they provide in their
-        //           Lambda encoding examples. We need a simplified API call to create an encoding job from Blob. 
-
 
         // Declare a new encoding job with the Standard encoder
         IJob job = _context.Jobs.Create("Azure Function - MES Job");
