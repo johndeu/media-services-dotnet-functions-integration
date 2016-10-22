@@ -13,7 +13,7 @@ function's Application Settings.
 * **AMSKey** - your Media Services key. 
 * **MediaServicesStorageAccountName** - the storage account name tied to your Media Services account. 
 * **MediaServicesStorageAccountKey** - the storage account key tied to your Media Services account. 
-* **connection** -  the functions.json file contains a "connection" property which must be set to an App Setting value that 
+* **StorageConnection** -  the functions.json file contains a "StorageConnection" property which must be set to an App Setting value that 
   contains a connection string for your input storage account. Otherwise, you may end up with an error message at startup.
   Make sure to add a new AppSetting to your Functions project with the storage account name and connection string, and update
   the functions.json file if you see this error:
@@ -38,7 +38,7 @@ tht is configured in the function.json file's bindings.
         "type": "blobTrigger",
         "direction": "in",
         "path": "input/{fileName}.{fileExtension}",
-        "connection": "function3d576553b10b_STORAGE"
+        "connection": "StorageConnection"
     }
 
 The name property sets the name of the CloudBlockBlob property that is passed into the Run method. 
@@ -71,7 +71,7 @@ extension of "-Output.mp4".
       "type": "blob",
       "direction": "InOut",
       "path": "output/{fileName}-Output.mp4",
-      "connection": "function3d576553b10b_STORAGE"
+      "connection": "StorageConnection"
     }
 
 In the run.csx file, we then bind this outputBlob to the Run method signature as a CloudBlockBlob. 
@@ -95,8 +95,14 @@ output storage account set in the function.json binding.
     outputBlob.Metadata["Custom1"] = "Some Custom Metadata";
     outputBlob.Properties.ContentType = "video/mp4";
     outputBlob.SetProperties();
-    
-# Multiple files / single asset Function
+
+# EncodeBlob_MultiOut_Function
+
+This function can call a Logic App at the end.
+Specify the call back Url in **LogicAppCallbackUrl** in your function's Application Settings.
+
+
+# EncodeBlob_MultiOut_MultiFilesInput_Function (Multiple files / single asset Function)
 This function will upload several files into a single asset.
 A json file must be uploaded to the blob container withh the referenced files.
 
