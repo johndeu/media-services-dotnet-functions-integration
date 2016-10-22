@@ -172,7 +172,7 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
             request.Method = "POST";
             request.ContentType = "application/json; charset=utf-8";
 
-            ParamsToLogicApp param = new ParamsToLogicApp() { filename = fileName, playerUrl = "http://ampdemo.azureedge.net/url=" + System.Web.HttpUtility.UrlEncode(smoothUrl) };
+            ParamsToLogicApp param = new ParamsToLogicApp() { filename = fileName + "." + fileExtension, playerUrl = "http://ampdemo.azureedge.net/?url=" + System.Web.HttpUtility.UrlEncode(smoothUrl) };
             string json = JsonConvert.SerializeObject(param, Newtonsoft.Json.Formatting.Indented);
             log.Info($"json : {json}");
             //string jsonString = Encoding.Default.GetString(json);
