@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
-using Microsoft.Azure; 
+using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Auth;
@@ -29,7 +29,7 @@ private static CloudMediaContext _context = null;
 private static MediaServicesCredentials _cachedCredentials = null;
 
 public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExtension, CloudBlockBlob outputBlob, TraceWriter log)
-{ 
+{
     // NOTE that the variables {fileName} and {fileExtension} here come from the path setting in function.json
     // and are passed into the  Run method signature above. We can use this to make decisions on what type of file
     // was dropped into the input container for the function. 
@@ -42,7 +42,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
 
     // Use this key to sign WebHook requests with
     byte[] keyBytes = Convert.FromBase64String("w4DDqUMRQnjDvVN1NsKPB8OFXGnCsRvej0DZrMOuQ17DsiYYwrjFhcO3LTxhYjJF77+9w5Aow7wdJ8OJW8K5Xj1/V8Kxw7HDgDIcN9KdMmLCocK+w5Q=");
-    
+
     string webhookEndpoint = @"https://johdeufunctions.azurewebsites.net/api/Notification_Webhook_Function?code=j0txf1f8msjytzvpe40nxbpxdcxtqcgxy0nt";
 
     try
@@ -53,25 +53,23 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
                         _mediaServicesAccountKey);
 
         // Used the chached credentials to create CloudMediaContext.
-        _context  = new CloudMediaContext(_cachedCredentials);
+        _context = new CloudMediaContext(_cachedCredentials);
 
-    // Step 1:  Copy the Blob into a new Input Asset for the Job
-    // ***NOTE: Ideally we would have a method to ingest a Blob directly here somehow. 
-    // using code from this sample - https://azure.microsoft.com/en-us/documentation/articles/media-services-copying-existing-blob/
-    
-        IAsset newAsset = CreateAssetFromBlob(inputBlob, fileName,log).GetAwaiter().GetResult();
+        // Step 1:  Copy the Blob into a new Input Asset for the Job
+        // ***NOTE: Ideally we would have a method to ingest a Blob directly here somehow. 
+        // using code from this sample - https://azure.microsoft.com/en-us/documentation/articles/media-services-copying-existing-blob/
 
-    // Step 2: Create an Encoding Job
-    // ** NOTE : This is way more complicated than the simple AWS createJob function that they provide in their
-    //           Lambda encoding examples. We need a simplified API call to create an encoding job from Blob. 
+        IAsset newAsset = CreateAssetFromBlob(inputBlob, fileName, log).GetAwaiter().GetResult();
+
+        // Step 2: Create an Encoding Job
 
         // Create a WebHook endpoint to call another Function at Job State changes...
-        INotificationEndPoint endpoint = _context.NotificationEndPoints.Create("FunctionWebHook", 
-                                    NotificationEndPointType.WebHook, webhookEndpoint, keyBytes); 
-                                    
+        INotificationEndPoint endpoint = _context.NotificationEndPoints.Create("FunctionWebHook",
+                                    NotificationEndPointType.WebHook, webhookEndpoint, keyBytes);
+
         log.Info($"Notification Endpoint Created with Key : {keyBytes.ToString()}");
 
-         // Declare a new encoding job with the Standard encoder
+        // Declare a new encoding job with the Standard encoder
         IJob job = _context.Jobs.Create("Azure Function - MES Job");
 
         // Get a media processor reference, and pass to it the name of the 
@@ -98,13 +96,13 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         // Add the WebHook notification to this Task and request all notification state changes
         task.TaskNotificationSubscriptions.AddNew(NotificationJobState.All, endpoint, true);
         log.Info($"Created Notification Subscription for endpoint: {webhookEndpoint}");
-        
+
         job.Submit();
         log.Info("Job Submitted");
 
-    // Step 3: Monitor the Job
-    // ** NOTE:  We could just monitor in this function, or create another function that monitors the Queue
-    //           or WebHook based notifications. We should create both samples in this project. 
+        // Step 3: Monitor the Job
+        // ** NOTE:  We could just monitor in this function, or create another function that monitors the Queue
+        //           or WebHook based notifications. We should create both samples in this project. 
         while (true)
         {
             job.Refresh();
@@ -124,17 +122,17 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
             throw new Exception("Job failed encoding .");
         }
 
-    // Step 4: Output the resulting asset to another location - the output Container - so that 
-    //         another function could pick up the results of the job. 
+        // Step 4: Output the resulting asset to another location - the output Container - so that 
+        //         another function could pick up the results of the job. 
 
         IAsset outputAsset = job.OutputMediaAssets[0];
         log.Info($"Output Asset Id:{outputAsset.Id}");
-        
+
         //Get a reference to the storage account that is associated with the Media Services account. 
         StorageCredentials mediaServicesStorageCredentials =
             new StorageCredentials(_storageAccountName, _storageAccountKey);
         _destinationStorageAccount = new CloudStorageAccount(mediaServicesStorageCredentials, false);
-        
+
         IAccessPolicy readPolicy = _context.AccessPolicies.Create("readPolicy",
         TimeSpan.FromHours(4), AccessPermissions.Read);
         ILocator outputLocator = _context.Locators.CreateLocator(LocatorType.Sas, outputAsset, readPolicy);
@@ -143,37 +141,39 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         // Get the asset container reference
         string outContainerName = (new Uri(outputLocator.Path)).Segments[1];
         CloudBlobContainer outContainer = destBlobStorage.GetContainerReference(outContainerName);
-        
+
         log.Info($"Getting Output Blob from : {outContainer.Name}");
-        
+
         CloudBlockBlob jobOutput = null;
 
         // Get only the single MP4 output file. 
         var blobs = outContainer.ListBlobs().OfType<CloudBlob>()
-                    .Where(b=>b.Name.ToLower().EndsWith(".mp4"));
+                    .Where(b => b.Name.ToLower().EndsWith(".mp4"));
 
-        foreach(var blob in blobs )
+        foreach (var blob in blobs)
         {
             log.Info($"Blob URI:  {blob.Uri}");
-            if (blob is CloudBlockBlob){
+            if (blob is CloudBlockBlob)
+            {
                 jobOutput = (CloudBlockBlob)blob;
                 break;
             }
         }
 
-        CopyBlob(jobOutput,outputBlob).Wait();
+        CopyBlob(jobOutput, outputBlob).Wait();
         log.Info("Copy Blob succeeded.");
 
         // Change some settings on the output blob.
         outputBlob.Metadata["Custom1"] = "Some Custom Metadata";
         outputBlob.Properties.ContentType = "video/mp4";
         outputBlob.SetProperties();
-    
+
         log.Info("Done!");
-    
+
     }
-    catch (Exception ex) {
-        log.Error ("ERROR: failed.");
+    catch (Exception ex)
+    {
+        log.Error("ERROR: failed.");
         log.Info($"StackTrace : {ex.StackTrace}");
         throw ex;
     }
