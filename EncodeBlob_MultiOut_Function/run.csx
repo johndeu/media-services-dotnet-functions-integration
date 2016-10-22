@@ -152,40 +152,40 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
         // Notify that encoding job is complete with a SMS (calling a logic app)
         if (_callbackUrl != null)
         {
-            WebRequest request = WebRequest.Create(_callbackUrl);
-            // Set the Method property of the request to POST.
-            request.Method = "POST";
-            // Create POST data and convert it to a byte array.
-            ParamsToLogicApp param = new ParamsToLogicApp() { filename = fileName, playerUrl = "http://test" };
-            string postData = JsonConvert.SerializeObject(param, Newtonsoft.Json.Formatting.Indented);
 
-            byte[] byteArray = Encoding.UTF8.GetBytes(postData);
-            // Set the ContentType property of the WebRequest.
-            request.ContentType = "application/json";
-            // Set the ContentLength property of the WebRequest.
-            request.ContentLength = byteArray.Length;
-            // Get the request stream.
-            Stream dataStream = request.GetRequestStream();
-            // Write the data to the request stream.
-            dataStream.Write(byteArray, 0, byteArray.Length);
-            // Close the Stream object.
-            dataStream.Close();
-            // Get the response.
-            WebResponse response = request.GetResponse();
-            // Display the status.
-            Console.WriteLine(((HttpWebResponse)response).StatusDescription);
-            // Get the stream containing content returned by the server.
-            dataStream = response.GetResponseStream();
-            // Open the stream using a StreamReader for easy access.
-            StreamReader reader = new StreamReader(dataStream);
-            // Read the content.
-            string responseFromServer = reader.ReadToEnd();
-            // Display the content.
-            Console.WriteLine(responseFromServer);
-            // Clean up the streams.
-            reader.Close();
-            dataStream.Close();
-            response.Close();
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(_callbackUrl);
+            request.Method = "POST";
+            request.ContentType = "application/json; charset=utf-8";
+
+            ParamsToLogicApp param = new ParamsToLogicApp() { filename = fileName, playerUrl = "http://test" };
+            string json = JsonConvert.SerializeObject(param, Newtonsoft.Json.Formatting.Indented);
+            string jsonString = Encoding.Default.GetString(json);
+
+
+            using (Stream requestStream = request.GetRequestStream())
+            {
+                var requestBytes = System.Text.Encoding.ASCII.GetBytes(jsonString);
+                requestStream.Write(requestBytes, 0, requestBytes.Length);
+                requestStream.Close();
+            }
+
+            using (var response = (HttpWebResponse)request.GetResponse())
+            {
+                log.Info($"Callback Logic App Status code:{response.StatusCode}");
+
+                if (response.StatusCode == HttpStatusCode.NoContent)
+                    stringBuilderLog.AppendLine("..Response NoContent Status code - The primary key was regenerated.");
+
+                /*
+                stringBuilderLog.AppendLine("..Response Status Code: " + response.StatusCode.ToString());
+                stringBuilderLog.AppendLine("..Response Status Description: " + response.StatusDescription);
+                stringBuilderLog.AppendLine("..Response Uri: " + response.ResponseUri);
+                stringBuilderLog.AppendLine("..Response Server: " + response.Server);
+                stringBuilderLog.AppendLine("..Response ContentType: " + response.ContentType);
+                stringBuilderLog.AppendLine("..Response ContentLength: " + response.ContentLength);
+                stringBuilderLog.AppendLine("..Response ContentEncoding: " + response.ContentEncoding);
+                */
+            }
         }
 
     }
