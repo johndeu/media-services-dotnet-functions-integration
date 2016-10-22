@@ -159,12 +159,12 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
 
             ParamsToLogicApp param = new ParamsToLogicApp() { filename = fileName, playerUrl = "http://test" };
             string json = JsonConvert.SerializeObject(param, Newtonsoft.Json.Formatting.Indented);
-            string jsonString = Encoding.Default.GetString(json);
+            //string jsonString = Encoding.Default.GetString(json);
 
 
             using (Stream requestStream = request.GetRequestStream())
             {
-                var requestBytes = System.Text.Encoding.ASCII.GetBytes(jsonString);
+                var requestBytes = System.Text.Encoding.ASCII.GetBytes(json);
                 requestStream.Write(requestBytes, 0, requestBytes.Length);
                 requestStream.Close();
             }
