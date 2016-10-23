@@ -66,11 +66,11 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
 
 
         // Check for existing Notification Endpoint
-        var endpoints = _context.NotificationEndPoints.Where(e=>e.Name == "FunctionWebHook");
+        var existingEndpoint = _context.NotificationEndPoints.Where(e=>e.Name == "FunctionWebHook").FirstOrDefault();
         INotificationEndPoint endpoint = null;
-        if (endpoints != null){
+        if (existingEndpoint != null){
             log.Info ("webhook endpoint already exists");
-            endpoint = (INotificationEndPoint)endpoints.FirstOrDefault();
+            endpoint = (INotificationEndPoint)existingEndpoint;
         }
         else{
             endpoint = _context.NotificationEndPoints.Create("FunctionWebHook", 
