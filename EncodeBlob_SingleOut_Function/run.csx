@@ -41,7 +41,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
     // Use this key to sign WebHook requests with
-    byte[64] keyBytes = Convert.FromBase64String("wOlDEUJ4/VN1No8HxVxpsRvej0DZrO5DXvImGLjFhfctPGFiMkUA0Cj8HSfJW7lePX9XsfHAMhw30p0yYqG+1A==");
+    byte[] keyBytes = Convert.FromBase64String("wOlDEUJ4/VN1No8HxVxpsRvej0DZrO5DXvImGLjFhfctPGFiMkUA0Cj8HSfJW7lePX9XsfHAMhw30p0yYqG+1A==");
     string webhookEndpoint = @"https://johdeufunctions.azurewebsites.net/api/Notification_Webhook_Function?code=j0txf1f8msjytzvpe40nxbpxdcxtqcgxy0nt";
 
     try
@@ -68,9 +68,10 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         // Check for existing Notification Endpoint
         var endpoints = _context.NotificationEndPoints.Where(e=>e.Name == "FunctionWebHook");
         INotificationEndPoint endpoint = null;
-        if (endpoints.Length >= 1 )
+        if (endpoints != null){
             log.Info ("webhook endpoint already exists");
             endpoint = (INotificationEndPoint)endpoints.FirstOrDefault();
+        }
         else{
             endpoint = _context.NotificationEndPoints.Create("FunctionWebHook", 
             NotificationEndPointType.WebHook, webhookEndpoint, keyBytes); 
