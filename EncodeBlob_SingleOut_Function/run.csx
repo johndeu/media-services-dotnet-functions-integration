@@ -74,7 +74,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         }
         else{
             endpoint = _context.NotificationEndPoints.Create("FunctionWebHook", 
-            NotificationEndPointType.WebHook, webhookEndpoint, keyBytes); 
+                    NotificationEndPointType.WebHook, webhookEndpoint, keyBytes); 
             log.Info($"Notification Endpoint Created with Key : {keyBytes.ToString()}");
         }
                     
@@ -104,8 +104,12 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         task.OutputAssets.AddNew(fileName, AssetCreationOptions.None);
 
         // Add the WebHook notification to this Task and request all notification state changes
-        task.TaskNotificationSubscriptions.AddNew(NotificationJobState.All, endpoint, true);
-        log.Info($"Created Notification Subscription for endpoint: {webhookEndpoint}");
+        if (endpoint != null){
+            task.TaskNotificationSubscriptions.AddNew(NotificationJobState.All, endpoint, true);
+            log.Info($"Created Notification Subscription for endpoint: {webhookEndpoint}");
+        }else{
+            log.Error("No Notification Endpoint is being used");
+        }
         
         job.Submit();
         log.Info("Job Submitted");
