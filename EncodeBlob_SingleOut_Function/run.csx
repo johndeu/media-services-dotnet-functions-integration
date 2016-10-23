@@ -41,8 +41,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
     // Use this key to sign WebHook requests with
-    byte[] keyBytes = Convert.FromBase64String("w4DDqUMRQnjDvVN1NsKPB8OFXGnCsRvej0DZrMOuQ17DsiYYwrjFhcO3LTxhYjJF77+9w5Aow7wdJ8OJW8K5Xj1/V8Kxw7HDgDIcN9KdMmLCocK+w5Q=");
-    
+    byte[64] keyBytes = Convert.FromBase64String("wOlDEUJ4/VN1No8HxVxpsRvej0DZrO5DXvImGLjFhfctPGFiMkUA0Cj8HSfJW7lePX9XsfHAMhw30p0yYqG+1A==");
     string webhookEndpoint = @"https://johdeufunctions.azurewebsites.net/api/Notification_Webhook_Function?code=j0txf1f8msjytzvpe40nxbpxdcxtqcgxy0nt";
 
     try
@@ -65,11 +64,19 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
     // ** NOTE : This is way more complicated than the simple AWS createJob function that they provide in their
     //           Lambda encoding examples. We need a simplified API call to create an encoding job from Blob. 
 
-        // Create a WebHook endpoint to call another Function at Job State changes...
-        INotificationEndPoint endpoint = _context.NotificationEndPoints.Create("FunctionWebHook", 
-                                    NotificationEndPointType.WebHook, webhookEndpoint, keyBytes); 
-                                    
-        log.Info($"Notification Endpoint Created with Key : {keyBytes.ToString()}");
+
+        // Check for existing Notification Endpoint
+        var endpoints = _context.NotificationEndPoints.Where(e=>e.Name == "FunctionWebHook");
+        INotificationEndPoint endpoint = null;
+        if (endpoints.Length >= 1 )
+            log.Info ("webhook endpoint already exists");
+            endpoint = (INotificationEndPoint)endpoints.FirstOrDefault();
+        else{
+            endpoint = _context.NotificationEndPoints.Create("FunctionWebHook", 
+            NotificationEndPointType.WebHook, webhookEndpoint, keyBytes); 
+            log.Info($"Notification Endpoint Created with Key : {keyBytes.ToString()}");
+        }
+                    
 
          // Declare a new encoding job with the Standard encoder
         IJob job = _context.Jobs.Create("Azure Function - MES Job");
@@ -148,9 +155,9 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         
         CloudBlockBlob jobOutput = null;
 
-        // Get only the single MP4 output file. 
-        var blobs = outContainer.ListBlobs().OfType<CloudBlob>()
-                    .Where(b=>b.Name.ToLower().EndsWith(".mp4"));
+            // Get only the single MP4 output file. 
+            var blobs = outContainer.ListBlobs().OfType<CloudBlob>()
+                        .Where(b=>b.Name.ToLower().EndsWith(".mp4"));
 
         foreach(var blob in blobs )
         {
