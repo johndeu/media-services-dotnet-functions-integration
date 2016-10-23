@@ -65,9 +65,10 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
     //           Lambda encoding examples. We need a simplified API call to create an encoding job from Blob. 
 
 
-        // Check for existing Notification Endpoint
+        // Check for existing Notification Endpoint with the name "FunctionWebHook"
         var existingEndpoint = _context.NotificationEndPoints.Where(e=>e.Name == "FunctionWebHook").FirstOrDefault();
         INotificationEndPoint endpoint = null;
+
         if (existingEndpoint != null){
             log.Info ("webhook endpoint already exists");
             endpoint = (INotificationEndPoint)existingEndpoint;
