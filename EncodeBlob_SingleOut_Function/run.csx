@@ -41,7 +41,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
     // Use this key to sign WebHook requests with
-    byte[] keyBytes = Convert.FromBase64String("w4DDqUMRQnjDvVN1NsKPB8OFXGnCsRvej0DZrMOuQ17DsiYYwrjFhcO3LTxhYjJF77+9w5Aow7wdJ8OJW8K5Xj1/V8Kxw7HDgDIcN9KdMmLCocK+w5Q=");
+    byte[] keyBytes = Convert.FromBase64String("wOlDEUJ4/VN1No8HxVxpsRvej0DZrO5DXvImGLjFhfctPGFiMkUA0Cj8HSfJW7lePX9XsfHAMhw30p0yYqG+1A==");
 
     string webhookEndpoint = @"https://johdeufunctions.azurewebsites.net/api/Notification_Webhook_Function?code=j0txf1f8msjytzvpe40nxbpxdcxtqcgxy0nt";
 
@@ -63,11 +63,19 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
 
         // Step 2: Create an Encoding Job
 
-        // Create a WebHook endpoint to call another Function at Job State changes...
-        INotificationEndPoint endpoint = _context.NotificationEndPoints.Create("FunctionWebHook",
-                                    NotificationEndPointType.WebHook, webhookEndpoint, keyBytes);
+        // Check for existing Notification Endpoint with the name "FunctionWebHook"
+        var existingEndpoint = _context.NotificationEndPoints.Where(e=>e.Name == "FunctionWebHook").FirstOrDefault();
+        INotificationEndPoint endpoint = null;
 
-        log.Info($"Notification Endpoint Created with Key : {keyBytes.ToString()}");
+        if (existingEndpoint != null){
+            log.Info ("webhook endpoint already exists");
+            endpoint = (INotificationEndPoint)existingEndpoint;
+        }
+        else{
+            endpoint = _context.NotificationEndPoints.Create("FunctionWebHook", 
+                    NotificationEndPointType.WebHook, webhookEndpoint, keyBytes); 
+            log.Info($"Notification Endpoint Created with Key : {keyBytes.ToString()}");
+        }
 
         // Declare a new encoding job with the Standard encoder
         IJob job = _context.Jobs.Create("Azure Function - MES Job");
@@ -94,9 +102,13 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         task.OutputAssets.AddNew(fileName, AssetCreationOptions.None);
 
         // Add the WebHook notification to this Task and request all notification state changes
-        task.TaskNotificationSubscriptions.AddNew(NotificationJobState.All, endpoint, true);
-        log.Info($"Created Notification Subscription for endpoint: {webhookEndpoint}");
-
+        if (endpoint != null){
+            task.TaskNotificationSubscriptions.AddNew(NotificationJobState.All, endpoint, true);
+            log.Info($"Created Notification Subscription for endpoint: {webhookEndpoint}");
+        }else{
+            log.Error("No Notification Endpoint is being used");
+        }
+        
         job.Submit();
         log.Info("Job Submitted");
 
@@ -146,9 +158,10 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
 
         CloudBlockBlob jobOutput = null;
 
-        // Get only the single MP4 output file. 
-        var blobs = outContainer.ListBlobs().OfType<CloudBlob>()
-                    .Where(b => b.Name.ToLower().EndsWith(".mp4"));
+            // Get only the single MP4 output file. 
+            var blobs = outContainer.ListBlobs().OfType<CloudBlob>()
+                        .Where(b=>b.Name.ToLower().EndsWith(".mp4"));
+
 
         foreach (var blob in blobs)
         {
