@@ -5,7 +5,7 @@
       "type": "blobTrigger",
       "direction": "in",
       "path": "input/{fileName}.json",
-      "connection": "function3d576553b10b_STORAGE"
+      "connection": "StorageConnection"
     }
   ],
   "disabled": true
