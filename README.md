@@ -37,6 +37,15 @@ function's Application Settings.
 * The output container name can be modifed in run.csx by changing the value of the static string _outputContainerName.
   It's set to "output" by default. 
 
+## Update Signing Keys 
+The project includes sample base64 signing keys for use with the WebHooks function.  If you plan to use this sample in your project, you should update
+the signing key in the Notification_Webhook_Function run.csx and also the EncodeBlob_SingleOut_Function run.csx.  
+
+Replace the signingKey in run.csx.
+       byte[] signingKey = Convert.FromBase64String("<<SAMPLE_SIGNING_KEY_BASE64>>");
+ 
+
+
 ## EncodeBlob_SingleOut_Function
 
 This function demonstrates how to use WebHooks to listen to a basic encoding job's progress.  
