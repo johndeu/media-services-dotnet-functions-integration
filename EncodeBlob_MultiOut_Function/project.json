@@ -3,7 +3,7 @@
     "net46":{
       "dependencies": {
         "windowsazure.mediaservices": "3.7.0.1",
-         "windowsazure.mediaservices.extensions": "3.3.0"
+        "windowsazure.mediaservices.extensions": "3.7.0.1"
       }
     }
    }

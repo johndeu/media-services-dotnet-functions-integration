@@ -1,12 +1,21 @@
-# Using Azure Media Services with Azure Functions
-This project contains examples of using Azure Functions with Azure Media Services.  
+---
+services: media-services,functions
+platforms: dotnet
+author: johndeu
+---
+
+# Media Services: Integrating Azure Media Services with Azure Functions
+This project contains examples of using Azure Functions with Azure Media Services. 
+The project includes several folders of sample Azure Functions for use with Azure Media Services that show workflows related
+to ingesting content directly from blob storage, encoding, and writing content back to blob storage. It also includes examples of
+how to monitor job notifications via WebHooks and Azure Queues. 
+
+## How to run the sample
 
 To run the samples, simply fork this project into your own repository and attach your Github account with a new
 Azure Functions application. 
 
-# EncodeBlobFunction
-
-To configure this function, you need to set the following values in your
+To configure the sample Functions, you need to set the following values in your
 function's Application Settings.
 
 * **AMSAccount** - your Media Services Account name. 
@@ -25,10 +34,10 @@ function's Application Settings.
   Azure portal(Ibiza). Go to Access Keys in Settings. In the Access Keys blade
   go to Key1, or Key2, click the "..." menu and select "view connection string". Copy the connection string.
   
-
-
 * The output container name can be modifed in run.csx by changing the value of the static string _outputContainerName.
   It's set to "output" by default. 
+
+## EncodeBlob_SingleOut_Function
 
 This Function waits for content to be copied into an input container 
 tht is configured in the function.json file's bindings.
@@ -57,7 +66,7 @@ The function will execute the following workflow:
 5.Copy all of the output files from the job into an "output" container in the same storage account as the input blob.
 
 
-# Single file Input / Single File Output Function
+## EncodeBlob_SingleOut_Function
 The EncodeBlob_SingleOut_Function demonstrates how to use an Output binding and the "InOut" direction binding to 
 allow the Azure functions framework to create the output blob for you automatically. 
 
@@ -96,13 +105,13 @@ output storage account set in the function.json binding.
     outputBlob.Properties.ContentType = "video/mp4";
     outputBlob.SetProperties();
 
-# EncodeBlob_MultiOut_Function
+## EncodeBlob_MultiOut_Function
 
 This function can call a Logic App at the end.
 Specify the call back Url in **LogicAppCallbackUrl** in your function's Application Settings.
 
 
-# EncodeBlob_MultiOut_MultiFilesInput_Function (Multiple files / single asset Function)
+## EncodeBlob_MultiOut_MultiFilesInput_Function (Multiple files / single asset Function)
 This function will upload several files into a single asset.
 A json file must be uploaded to the blob container withh the referenced files.
 
@@ -122,3 +131,6 @@ The format of the json file is:
 ### License
 This sample project is licensed under [the MIT License](LICENSE.txt)
 
+## ToDO 
+- [ ] The Azure Queue notification function is not yet complete
+- [ ] Copy Blobs currently is using Streams, and copies in an inefficient way.

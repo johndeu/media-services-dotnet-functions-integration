@@ -58,9 +58,12 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         // Step 1:  Copy the Blob into a new Input Asset for the Job
         // ***NOTE: Ideally we would have a method to ingest a Blob directly here somehow. 
         // using code from this sample - https://azure.microsoft.com/en-us/documentation/articles/media-services-copying-existing-blob/
+        
+        StorageCredentials mediaServicesStorageCredentials =
+            new StorageCredentials(_storageAccountName, _storageAccountKey);
 
         IAsset newAsset = CreateAssetFromBlob(inputBlob, fileName, log).GetAwaiter().GetResult();
-
+        
         // Step 2: Create an Encoding Job
 
         // Check for existing Notification Endpoint with the name "FunctionWebHook"
@@ -114,7 +117,8 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
 
         // Step 3: Monitor the Job
         // ** NOTE:  We could just monitor in this function, or create another function that monitors the Queue
-        //           or WebHook based notifications. We should create both samples in this project. 
+        //           or WebHook based notifications. See the Notification_Webhook_Function project.
+
         while (true)
         {
             job.Refresh();
@@ -141,8 +145,6 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         log.Info($"Output Asset Id:{outputAsset.Id}");
 
         //Get a reference to the storage account that is associated with the Media Services account. 
-        StorageCredentials mediaServicesStorageCredentials =
-            new StorageCredentials(_storageAccountName, _storageAccountKey);
         _destinationStorageAccount = new CloudStorageAccount(mediaServicesStorageCredentials, false);
 
         IAccessPolicy readPolicy = _context.AccessPolicies.Create("readPolicy",
