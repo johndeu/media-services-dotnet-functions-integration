@@ -62,8 +62,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         StorageCredentials mediaServicesStorageCredentials =
             new StorageCredentials(_storageAccountName, _storageAccountKey);
 
-        //IAsset newAsset = CreateAssetFromBlob(inputBlob, fileName, log).GetAwaiter().GetResult();
-        IAsset newAsset = _context.Assets.CreateFromBlob(inputBlob, mediaServicesStorageCredentials, AssetCreationOptions.None);
+        IAsset newAsset = CreateAssetFromBlob(inputBlob, fileName, log).GetAwaiter().GetResult();
         
         // Step 2: Create an Encoding Job
 
