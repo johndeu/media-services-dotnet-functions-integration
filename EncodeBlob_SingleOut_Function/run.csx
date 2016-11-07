@@ -118,7 +118,8 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
 
         // Step 3: Monitor the Job
         // ** NOTE:  We could just monitor in this function, or create another function that monitors the Queue
-        //           or WebHook based notifications. We should create both samples in this project. 
+        //           or WebHook based notifications. See the Notification_Webhook_Function project.
+
         while (true)
         {
             job.Refresh();
