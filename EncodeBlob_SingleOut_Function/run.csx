@@ -43,7 +43,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
     // Use this key to sign WebHook requests with
     byte[] keyBytes = Convert.FromBase64String("wOlDEUJ4/VN1No8HxVxpsRvej0DZrO5DXvImGLjFhfctPGFiMkUA0Cj8HSfJW7lePX9XsfHAMhw30p0yYqG+1A==");
 
-    string webhookEndpoint = @"https://johdeufunctions.azurewebsites.net/api/Notification_Webhook_Function?code=j0txf1f8msjytzvpe40nxbpxdcxtqcgxy0nt";
+    string webhookEndpoint = @"https://<<YOUR_FUNCTION_APP>>.azurewebsites.net/api/Notification_Webhook_Function?code=<<YOUR_FUNCTION_KEY>>";
 
     try
     {

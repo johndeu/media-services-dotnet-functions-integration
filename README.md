@@ -39,6 +39,12 @@ function's Application Settings.
 
 ## EncodeBlob_SingleOut_Function
 
+This function demonstrates how to use WebHooks to listen to a basic encoding job's progress.  
+
+You will need to update the <<YOUR_FUNCTION_APP>> and <<YOUR_FUNCTION_KEY>> to point to the right URL for the Notification_Webhook_Function.
+
+        string webhookEndpoint = @"https://<<YOUR_FUNCTION_APP>>.azurewebsites.net/api/Notification_Webhook_Function?code=<<YOUR_FUNCTION_KEY>>";
+
 This Function waits for content to be copied into an input container 
 tht is configured in the function.json file's bindings.
 
