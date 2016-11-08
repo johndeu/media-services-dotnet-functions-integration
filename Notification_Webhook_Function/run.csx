@@ -12,7 +12,7 @@ using Newtonsoft.Json;
 internal const string SignatureHeaderKey = "sha256";
 internal const string SignatureHeaderValueTemplate = SignatureHeaderKey + "={0}";
 static string _webHookEndpoint = Environment.GetEnvironmentVariable("WebHookEndpoint");
-static string _signingKey = Environment.GetEnvireonmentVariable("SigningKey");
+static string _signingKey = Environment.GetEnvironmentVariable("SigningKey");
 
 public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceWriter log)
 {

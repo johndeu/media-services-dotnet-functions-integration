@@ -23,7 +23,7 @@ private static readonly string _mediaServicesAccountKey = Environment.GetEnviron
 static string _storageAccountName = Environment.GetEnvironmentVariable("MediaServicesStorageAccountName");
 static string _storageAccountKey = Environment.GetEnvironmentVariable("MediaServicesStorageAccountKey");
 static string _webHookEndpoint = Environment.GetEnvironmentVariable("WebHookEndpoint");
-static string _signingKey = Environment.GetEnvireonmentVariable("SigningKey");
+static string _signingKey = Environment.GetEnvironmentVariable("SigningKey");
 
 private static CloudStorageAccount _destinationStorageAccount = null;
 
