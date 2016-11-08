@@ -11,6 +11,8 @@ using Newtonsoft.Json;
 
 internal const string SignatureHeaderKey = "sha256";
 internal const string SignatureHeaderValueTemplate = SignatureHeaderKey + "={0}";
+static string _webHookEndpoint = Environment.GetEnvironmentVariable("WebHookEndpoint");
+static string _signingKey = Environment.GetEnvireonmentVariable("SigningKey");
 
 public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceWriter log)
 {
@@ -25,7 +27,7 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceW
     IEnumerable<string> values = null;
     if (req.Headers.TryGetValues("ms-signature", out values))
     {
-        byte[] signingKey = Convert.FromBase64String("wOlDEUJ4/VN1No8HxVxpsRvej0DZrO5DXvImGLjFhfctPGFiMkUA0Cj8HSfJW7lePX9XsfHAMhw30p0yYqG+1A==");
+        byte[] signingKey = Convert.FromBase64String(_signingKey);
         string signatureFromHeader = values.FirstOrDefault();
         if (VerifyWebHookRequestSignature(requestBody, signatureFromHeader, signingKey))
         {

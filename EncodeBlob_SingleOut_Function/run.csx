@@ -22,6 +22,9 @@ private static readonly string _mediaServicesAccountKey = Environment.GetEnviron
 
 static string _storageAccountName = Environment.GetEnvironmentVariable("MediaServicesStorageAccountName");
 static string _storageAccountKey = Environment.GetEnvironmentVariable("MediaServicesStorageAccountKey");
+static string _webHookEndpoint = Environment.GetEnvironmentVariable("WebHookEndpoint");
+static string _signingKey = Environment.GetEnvireonmentVariable("SigningKey");
+
 private static CloudStorageAccount _destinationStorageAccount = null;
 
 // Field for service context.
@@ -41,9 +44,9 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
     // Use this key to sign WebHook requests with
-    byte[] keyBytes = Convert.FromBase64String("wOlDEUJ4/VN1No8HxVxpsRvej0DZrO5DXvImGLjFhfctPGFiMkUA0Cj8HSfJW7lePX9XsfHAMhw30p0yYqG+1A==");
+    // Example Key value: wOlDEUJ4/VN1No8HxVxpsRvej0DZrO5DXvImGLjFhfctPGFiMkUA0Cj8HSfJW7lePX9XsfHAMhw30p0yYqG+1A== 
 
-    string webhookEndpoint = @"https://johdeufunctions.azurewebsites.net/api/Notification_Webhook_Function?code=j0txf1f8msjytzvpe40nxbpxdcxtqcgxy0nt";
+    byte[] keyBytes = Convert.FromBase64String(_signingKey);
 
     try
     {
@@ -76,7 +79,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         }
         else{
             endpoint = _context.NotificationEndPoints.Create("FunctionWebHook", 
-                    NotificationEndPointType.WebHook, webhookEndpoint, keyBytes); 
+                    NotificationEndPointType.WebHook, _webHookEndpoint, keyBytes); 
             log.Info($"Notification Endpoint Created with Key : {keyBytes.ToString()}");
         }
 
@@ -107,7 +110,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         // Add the WebHook notification to this Task and request all notification state changes
         if (endpoint != null){
             task.TaskNotificationSubscriptions.AddNew(NotificationJobState.All, endpoint, true);
-            log.Info($"Created Notification Subscription for endpoint: {webhookEndpoint}");
+            log.Info($"Created Notification Subscription for endpoint: {_webHookEndpoint}");
         }else{
             log.Error("No Notification Endpoint is being used");
         }

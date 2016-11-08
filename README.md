@@ -26,6 +26,12 @@ function's Application Settings.
   contains a connection string for your input storage account. Otherwise, you may end up with an error message at startup.
   Make sure to add a new AppSetting to your Functions project with the storage account name and connection string, and update
   the functions.json file if you see this error:
+* **SigningKey** - the 64-byte Base64 encoded signing key to use to protect and secure your WebHooks callbacks from Azure Media Services
+
+    Example value: `wOlDEUJ4/VN1No8HxVxpsRvej0DZrO5DXvImGLjFhfctPGFiMkUA0Cj8HSfJW7lePX9XsfHAMhw30p0yYqG+1A==`
+
+* **WebHookEndpoint** - the Webhook URL endpoint for the deployed Notification_Webhook_Function in this project to be used by Azure Media Services
+  to callback to your Function from the Encoding job Functions. 
 
  `Microsoft.Azure.WebJobs.Host: Error indexing method 'Functions.EncodeBlob_MultiOut_Function'. Microsoft.Azure.WebJobs.Host: Value cannot be null.
   Parameter name: dataAccount.`
@@ -37,14 +43,7 @@ function's Application Settings.
 * The output container name can be modifed in run.csx by changing the value of the static string _outputContainerName.
   It's set to "output" by default. 
 
-## Update Signing Keys 
-The project includes sample base64 signing keys for use with the WebHooks function.  If you plan to use this sample in your project, you should update
-the signing key in the Notification_Webhook_Function run.csx and also the EncodeBlob_SingleOut_Function run.csx.  
-
-Replace the signingKey in run.csx.
-       byte[] signingKey = Convert.FromBase64String("<<< SAMPLE_SIGNING_KEY_BASE64 >>>");
  
-
 
 ## EncodeBlob_SingleOut_Function
 
