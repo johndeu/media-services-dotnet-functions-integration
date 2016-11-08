@@ -43,38 +43,6 @@ function's Application Settings.
   The output container name can be modifed in run.csx by changing the value of the static string _outputContainerName.
   It's set to "output" by default. 
 
-
-## EncodeBlob_SingleOut_Function
-
-This function demonstrates how to use WebHooks to listen to a basic encoding job's progress.  
-
-This Function waits for content to be copied into an input container 
-tht is configured in the function.json file's bindings.
-
-    {
-        "name": "inputBlob",
-        "type": "blobTrigger",
-        "direction": "in",
-        "path": "input/{fileName}.{fileExtension}",
-        "connection": "StorageConnection"
-    }
-
-The name property sets the name of the CloudBlockBlob property that is passed into the Run method. 
-The path property sets the container name and file matching pattern to use. In this example,
-we set the {fileName} and {fileExtension} matching patterns to pass the two values into the Run function.
-
-    public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileName, string fileExtension)
-
-### EncodeBlobFunction Workflow
-The function will execute the following workflow:
-
-1. Watch the "input" container for new files and copy the blob  into a new Media Services Asset (IAsset).
-2. Create the required AssetFiles for the new Asset and set the copied blob to be the primary file in the Asset.
-3. Create a new encoding job using a preset .json for 720p Adaptive bitrate encoding. 
-4. Wait for the encoding job to finish. 
-5.Copy all of the output files from the job into an "output" container in the same storage account as the input blob.
-
-
 ## EncodeBlob_SingleOut_Function
 The EncodeBlob_SingleOut_Function demonstrates how to use an Output binding and the "InOut" direction binding to 
 allow the Azure functions framework to create the output blob for you automatically. 
@@ -113,6 +81,36 @@ output storage account set in the function.json binding.
     outputBlob.Metadata["Custom1"] = "Some Custom Metadata";
     outputBlob.Properties.ContentType = "video/mp4";
     outputBlob.SetProperties();
+
+## EncodeBlob_Webhook_Function
+
+This function demonstrates how to use WebHooks to listen to a basic encoding job's progress.  
+The function works in combination with the Notification_Webhook_Function, which acts as that "callback" for the Job status
+Notifications.
+
+When setting up the Job in this function, you will note that the webhook is passed in as a Notification endpoint along with its
+signing key for securing the payload.  You must set the signingKey and the WebHook endpoint in the App settings as specified above.
+
+This workflow for this function waits for content to be copied into the input container in blob storage. 
+This is configured in the function.json file's bindings.
+
+    {
+        "name": "inputBlob",
+        "type": "blobTrigger",
+        "direction": "in",
+        "path": "input/{fileName}.{fileExtension}",
+        "connection": "StorageConnection"
+    }
+
+The name property sets the name of the CloudBlockBlob property that is passed into the Run method. 
+The path property sets the container name and file matching pattern to use. In this example,
+we set the {fileName} and {fileExtension} matching patterns to pass the two values into the Run function.
+
+    public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileName, string fileExtension)
+
+You can monitor the callbacks in the Notification_Webhook_Function logs while the job is running. To test the method, drop 
+a new media file into the container specified in the binding's input path. 
+
 
 ## EncodeBlob_MultiOut_Function
 
