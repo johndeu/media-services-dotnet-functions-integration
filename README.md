@@ -32,18 +32,17 @@ function's Application Settings.
 
 * **WebHookEndpoint** - the Webhook URL endpoint for the deployed Notification_Webhook_Function in this project to be used by Azure Media Services
   to callback to your Function from the Encoding job Functions. 
+  
 
- `Microsoft.Azure.WebJobs.Host: Error indexing method 'Functions.EncodeBlob_MultiOut_Function'. Microsoft.Azure.WebJobs.Host: Value cannot be null.
-  Parameter name: dataAccount.`
-
+  ### Connection Strings:
   To find the connection string for your storage account, open the storage account in the 
   Azure portal(Ibiza). Go to Access Keys in Settings. In the Access Keys blade
   go to Key1, or Key2, click the "..." menu and select "view connection string". Copy the connection string.
   
-* The output container name can be modifed in run.csx by changing the value of the static string _outputContainerName.
+  ### Code Modifications Required:
+  The output container name can be modifed in run.csx by changing the value of the static string _outputContainerName.
   It's set to "output" by default. 
 
- 
 
 ## EncodeBlob_SingleOut_Function
 
