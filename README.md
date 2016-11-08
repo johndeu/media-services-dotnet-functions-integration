@@ -82,7 +82,7 @@ output storage account set in the function.json binding.
     outputBlob.Properties.ContentType = "video/mp4";
     outputBlob.SetProperties();
 
-## EncodeBlob_Webhook_Function
+## EncodeBlob_Notify_Webhook_Function
 
 This function demonstrates how to use WebHooks to listen to a basic encoding job's progress.  
 The function works in combination with the Notification_Webhook_Function, which acts as that "callback" for the Job status
