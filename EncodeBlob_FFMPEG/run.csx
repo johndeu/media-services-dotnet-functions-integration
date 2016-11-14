@@ -70,7 +70,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         // This raises OutputDataReceived events for each line of output.
         process.BeginOutputReadLine();
         process.WaitForExit();
-        log.Info(output);
+        log.Info(output.ToString());
        
         
         log.Info("Done!");
