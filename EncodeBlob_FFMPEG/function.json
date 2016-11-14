@@ -1,0 +1,19 @@
+{
+  "bindings": [
+    {
+      "name": "inputBlob",
+      "type": "blobTrigger",
+      "direction": "in",
+      "path": "input/{fileName}.{fileExtension}",
+      "connection": "StorageConnection"
+    },
+    {
+      "name": "outputBlob",
+      "type": "blob",
+      "direction": "InOut",
+      "path": "output/{fileName}-Output.mp4",
+      "connection": "StorageConnection"
+    }
+  ],
+  "disabled": false
+}
