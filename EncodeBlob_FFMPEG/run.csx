@@ -50,7 +50,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         Process process = new Process();
 
         process.StartInfo.UseShellExecute = false;
-        process.StartInfo.FileName = "\bin\ffmpeg\ffmpeg.exe";
+        process.StartInfo.FileName = "D:\home\site\wwwroot\EncodeBlob_FFMPEG\bin\ffmpeg\ffmpeg.exe";
         process.StartInfo.CreateNoWindow = true;
         process.StartInfo.Arguments = "-v";
         process.StartInfo.RedirectStandardOutput = true;
