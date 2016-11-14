@@ -32,7 +32,7 @@ private static int lineCount = 0;
 private static StringBuilder output = new StringBuilder();
 
 
-public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExtension, CloudBlockBlob outputBlob, TraceWriter log)
+public static void Run(CloudBlockBlob inputBlob, string fileName, CloudBlockBlob outputBlob, TraceWriter log)
 {
     // NOTE that the variables {fileName} and {fileExtension} here come from the path setting in function.json
     // and are passed into the  Run method signature above. We can use this to make decisions on what type of file
@@ -41,7 +41,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
     // No need to do any Retry strategy in this function, By default, the SDK calls a function up to 5 times for a 
     // given blob. If the fifth try fails, the SDK adds a message to a queue named webjobs-blobtrigger-poison.
 
-    log.Info($"C# Blob  trigger function processed: {fileName}.{fileExtension}");
+    log.Info($"C# Blob  trigger function processed: {fileName}");
     try
     {
         StorageCredentials mediaServicesStorageCredentials =

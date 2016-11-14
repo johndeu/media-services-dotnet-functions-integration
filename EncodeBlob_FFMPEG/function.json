@@ -4,7 +4,7 @@
       "name": "inputBlob",
       "type": "blobTrigger",
       "direction": "in",
-      "path": "input/{fileName}.{fileExtension}",
+      "path": "asset-48be606a-bf08-451a-824b-4a1c76a6af36/audio_125000/{fileName}",
       "connection": "StorageConnection"
     },
     {
