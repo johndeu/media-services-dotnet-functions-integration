@@ -5,14 +5,14 @@
       "type": "blobTrigger",
       "direction": "in",
       "path": "asset-48be606a-bf08-451a-824b-4a1c76a6af36/audio_125000/{fileName}",
-      "connection": "StorageConnection"
+      "connection": "adarshtest"
     },
     {
       "name": "outputBlob",
       "type": "blob",
       "direction": "InOut",
       "path": "output/{fileName}-Output.mp4",
-      "connection": "StorageConnection"
+      "connection": "adarshtest"
     }
   ],
   "disabled": false
