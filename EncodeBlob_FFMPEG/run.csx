@@ -52,7 +52,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         process.StartInfo.UseShellExecute = false;
         process.StartInfo.FileName = "D:\\home\\site\\wwwroot\\EncodeBlob_FFMPEG\\bin\\ffmpeg\\ffmpeg.exe";
         process.StartInfo.CreateNoWindow = true;
-        process.StartInfo.Arguments = "-v";
+        process.StartInfo.Arguments = "-version";
         process.StartInfo.RedirectStandardOutput = true;
         process.OutputDataReceived += new DataReceivedEventHandler((sender, e) =>
         {
@@ -70,9 +70,9 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         // This raises OutputDataReceived events for each line of output.
         process.BeginOutputReadLine();
         process.WaitForExit();
-        log.Info(output.ToString());
+        log.Info("FFMPEG OUTPUT : \n" + output.ToString());
        
-        
+    
         log.Info("Done!");
 
     }
