@@ -1,5 +1,6 @@
 #r "Microsoft.WindowsAzure.Storage"
 #r "Newtonsoft.Json"
+
 #load "../Shared/copyBlobHelpers.csx"
 #load "../Shared/mediaServicesHelpers.csx"
 
@@ -11,6 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
+using System.Diagnostics;
 using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -40,22 +42,8 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
     // given blob. If the fifth try fails, the SDK adds a message to a queue named webjobs-blobtrigger-poison.
 
     log.Info($"C# Blob  trigger function processed: {fileName}.{fileExtension}");
-    log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
-
     try
     {
-        // Create and cache the Media Services credentials in a static class variable.
-        _cachedCredentials = new MediaServicesCredentials(
-                        _mediaServicesAccountName,
-                        _mediaServicesAccountKey);
-
-        // Used the chached credentials to create CloudMediaContext.
-        _context = new CloudMediaContext(_cachedCredentials);
-
-        // Step 1:  Copy the Blob into a new Input Asset for the Job
-        // ***NOTE: Ideally we would have a method to ingest a Blob directly here somehow. 
-        // using code from this sample - https://azure.microsoft.com/en-us/documentation/articles/media-services-copying-existing-blob/
-        
         StorageCredentials mediaServicesStorageCredentials =
             new StorageCredentials(_storageAccountName, _storageAccountKey);
 
@@ -77,7 +65,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         });
 
         process.Start();
-        
+
         // Asynchronously read the standard output of the spawned process. 
         // This raises OutputDataReceived events for each line of output.
         process.BeginOutputReadLine();
