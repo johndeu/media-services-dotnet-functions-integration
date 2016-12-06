@@ -47,18 +47,17 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     log.Info(jsonContent);
 
-    if (data.Path == null)
+    if (data.AssetId == null)
     {
         // for test
         // data.Path = "/input/WP_20121015_081924Z.mp4";
 
         return req.CreateResponse(HttpStatusCode.BadRequest, new
         {
-            error = "Please pass Path in the input object"
+            error = "Please pass AssetId in the input object"
         });
     }
 
-    string FileName = Path.GetFileName((string)data.Path);
 
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
@@ -78,22 +77,51 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         // ***NOTE: Ideally we would have a method to ingest a Blob directly here somehow. 
         // using code from this sample - https://azure.microsoft.com/en-us/documentation/articles/media-services-copying-existing-blob/
 
-        log.Info($"Create storage credentials : {_sourceStorageAccountName}");
-        StorageCredentials SourceStorageCredentials = new StorageCredentials(_sourceStorageAccountName, _sourceStorageAccountKey);
+        // Get the asset
+        string assetid = data.AssetId;
+        var asset = _context.Assets.Where(a => a.Id == assetid).FirstOrDefault();
 
-        log.Info("Create storage account");
-        var sourceStorageAccount = new CloudStorageAccount(SourceStorageCredentials, false);
+        if (asset == null)
+        {
+            log.Info($"Asset not found {assetid}");
 
-        log.Info("Create storage blob client");
-        var sourceCloudBlobClient = sourceStorageAccount.CreateCloudBlobClient();
+            return req.CreateResponse(HttpStatusCode.BadRequest, new
+            {
+                error = "Asset not found"
+            });
+        }
 
-        var sourceUri = new Uri(sourceStorageAccount.BlobStorageUri.PrimaryUri, (string)data.Path);
-        log.Info($"sourceuri {sourceUri}");
 
-        var sourceCloudBlob = (CloudBlockBlob)sourceCloudBlobClient.GetBlobReferenceFromServer(sourceUri);
-        log.Info($"sourceCloudBlob name {sourceCloudBlob.Name}");
+        //Get a reference to the storage account that is associated with the Media Services account. 
+        StorageCredentials mediaServicesStorageCredentials =
+            new StorageCredentials(_storageAccountName, _storageAccountKey);
+        var _destinationStorageAccount = new CloudStorageAccount(mediaServicesStorageCredentials, false);
 
-        newAsset = CreateAssetFromBlob(sourceCloudBlob, FileName, log).GetAwaiter().GetResult();
+        CloudBlobClient destBlobStorage = _destinationStorageAccount.CreateCloudBlobClient();
+
+        // Get the destination asset container reference
+        string destinationContainerName = (new Uri(destinationLocator.Path)).Segments[1];
+        CloudBlobContainer assetContainer = destBlobStorage.GetContainerReference(destinationContainerName);
+
+        // Get hold of the destination blobs
+        var blobs = assetContainer.ListBlobs();
+
+        foreach (var blob in blobs)
+        {
+            var assetFile = asset.AssetFiles.Create(blob.Name);
+            assetFile.ContentFileSize = blob.Properties.Length;
+            //assetFile.IsPrimary = true;
+            assetFile.Update();
+            log.Info($"Asset file updated : {assetFile.Name}");
+
+        }
+
+        asset.Update();
+
+        log.Info("Asset updated");
+
+
+
     }
     catch (Exception ex)
     {
@@ -103,10 +131,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     log.Info("Asset ID: " + newAsset.Id);
 
-    return req.CreateResponse(HttpStatusCode.OK, new
-    {
-        AssetId = newAsset.Id
-    });
+    return req.CreateResponse(HttpStatusCode.OK);
 }
 
 
