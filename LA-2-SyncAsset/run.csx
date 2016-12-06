@@ -106,7 +106,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         // Get hold of the destination blobs
         var blobs = assetContainer.ListBlobs();
 
-        foreach (var blob in blobs)
+        foreach (CloudBlockBlob blob in blobs)
         {
             var assetFile = asset.AssetFiles.Create(blob.Name);
             assetFile.ContentFileSize = blob.Properties.Length;
