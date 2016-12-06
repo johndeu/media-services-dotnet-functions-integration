@@ -100,7 +100,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         CloudBlobClient destBlobStorage = _destinationStorageAccount.CreateCloudBlobClient();
 
         // Get the destination asset container reference
-        string destinationContainerName = (new Uri(destinationLocator.Path)).Segments[1];
+        string destinationContainerName = asset.Uri.Segments[1];
         CloudBlobContainer assetContainer = destBlobStorage.GetContainerReference(destinationContainerName);
 
         // Get hold of the destination blobs
