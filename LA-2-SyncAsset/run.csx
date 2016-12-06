@@ -101,10 +101,16 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
         // Get the destination asset container reference
         string destinationContainerName = asset.Uri.Segments[1];
+        log.Info($"destinationContainerName : {destinationContainerName}");
+
         CloudBlobContainer assetContainer = destBlobStorage.GetContainerReference(destinationContainerName);
+        log.Info($"assetContainer retrieved");
+
 
         // Get hold of the destination blobs
         var blobs = assetContainer.ListBlobs();
+        log.Info($"blobs retrieved");
+
 
         foreach (CloudBlockBlob blob in blobs)
         {
