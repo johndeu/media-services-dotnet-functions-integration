@@ -91,6 +91,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             });
         }
 
+        log.Info("Asset found, ID: " + asset.Id);
 
         //Get a reference to the storage account that is associated with the Media Services account. 
         StorageCredentials mediaServicesStorageCredentials =
@@ -105,7 +106,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
         CloudBlobContainer assetContainer = destBlobStorage.GetContainerReference(destinationContainerName);
         log.Info($"assetContainer retrieved");
-
 
         // Get hold of the destination blobs
         var blobs = assetContainer.ListBlobs();
@@ -125,9 +125,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         asset.Update();
 
         log.Info("Asset updated");
-
-
-
     }
     catch (Exception ex)
     {
@@ -135,7 +132,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         return req.CreateResponse(HttpStatusCode.BadRequest);
     }
 
-    log.Info("Asset ID: " + newAsset.Id);
 
     return req.CreateResponse(HttpStatusCode.OK);
 }
