@@ -134,6 +134,9 @@ The format of the json file is:
       }
     ]
 
+## LA-1-Ingest, LA-2-SubmitJob, LA-3-CheckJobStatus, LA-4-Publish functions
+These functions are designed to be called by a Logic App. More details and Logic App samples to come. 
+
 
 ### License
 This sample project is licensed under [the MIT License](LICENSE.txt)
