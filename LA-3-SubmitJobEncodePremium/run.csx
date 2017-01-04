@@ -138,7 +138,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
                 });
             }
 
-            string configurationFile=File.ReadAllText(@"D:\home\site\wwwroot\MergeMultilanguageAudio\SetRuntime.xml").Replace("VideFileName", VideoFile.Name).Replace("AudioFileName", AudioFile.Name);
+            string configurationFile=File.ReadAllText(@"D:\home\site\wwwroot\MergeMultilanguageAudio\SetRuntime.xml").Replace("VideoFileName", VideoFile.Name).Replace("AudioFileName", AudioFile.Name);
 
             // Create a task
             ITask task = job.Tasks.AddNew("Premium Workflow encoding task",
