@@ -1,8 +1,8 @@
 #r "Newtonsoft.Json"
 //#r "Microsoft.WindowsAzure.Storage"
 #r "System.Web"
-#load "../../Shared/mediaServicesHelpers.csx"
-#load "../../Shared/copyBlobHelpers.csx"
+#load "../Shared/mediaServicesHelpers.csx"
+#load "../Shared/copyBlobHelpers.csx"
 
 using System;
 using System.Net;
