@@ -70,8 +70,12 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
     IJob job = null;
-    IAsset outputasset = null;
-    ITask task = null;
+    IAsset outputassetencoded = null;
+    ITask taskEncoding = null;
+    ITask taskIndex1 = null;
+    IAsset outputassetindex1 = null;
+    ITask taskIndex2 = null;
+    IAsset outputassetindex2 = null;
 
     try
     {
@@ -109,13 +113,13 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
             // Create a task with the encoding details, using a string preset.
             // In this case "H264 Multiple Bitrate 720p" system defined preset is used.
-            task = job.Tasks.AddNew("My encoding task",
+            taskEncoding = job.Tasks.AddNew("My encoding task",
                processor,
                "H264 Multiple Bitrate 720p",
                TaskOptions.None);
 
             // Specify the input asset to be encoded.
-            task.InputAssets.Add(asset);
+            taskEncoding.InputAssets.Add(asset);
         }
         else // Premium Encoder Task
         {
@@ -145,7 +149,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             // premiumConfiguration=File.ReadAllText(@"D:\home\site\wwwroot\Presets\SetRuntime.xml").Replace("VideoFileName", VideoFile.Name).Replace("AudioFileName", AudioFile.Name);
 
             // Create a task
-            task = job.Tasks.AddNew("Premium Workflow encoding task",
+            taskEncoding = job.Tasks.AddNew("Premium Workflow encoding task",
                processor,
                premiumConfiguration,
                TaskOptions.None);
@@ -153,14 +157,14 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             log.Info("task created");
 
             // Specify the input asset to be encoded.
-            task.InputAssets.Add(workflowAsset); // first add the Workflow
-            task.InputAssets.Add(asset); // Then add the video asset
+            taskEncoding.InputAssets.Add(workflowAsset); // first add the Workflow
+            taskEncoding.InputAssets.Add(asset); // Then add the video asset
         }
 
         // Add an output asset to contain the results of the job. 
         // This output is specified as AssetCreationOptions.None, which 
         // means the output asset is not encrypted. 
-        task.OutputAssets.AddNew(asset.Name + " encoded", AssetCreationOptions.None);
+        taskEncoding.OutputAssets.AddNew(asset.Name + " encoded", AssetCreationOptions.None);
 
         if (data.IndexV1Language != null)  // Indexing v1 task
         {
@@ -171,16 +175,16 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             string indexer1Configuration = File.ReadAllText(@"D:\home\site\wwwroot\Presets\IndexerV1.xml").Replace("English", (string)data.IndexV1Language);
 
             // Create a task with the encoding details, using a string preset.
-            ITask taskIndex1 = job.Tasks.AddNew("My Indexing v1 Task",
-                processorIndex1,
-                indexer1Configuration,
-                TaskOptions.None);
+            taskIndex1 = job.Tasks.AddNew("My Indexing v1 Task",
+               processorIndex1,
+               indexer1Configuration,
+               TaskOptions.None);
 
             // Specify the input asset to be indexed.
             taskIndex1.InputAssets.Add(asset);
 
             // Add an output asset to contain the results of the job.
-            taskIndex1.OutputAssets.AddNew("My Indexing v1 Output Asset", AssetCreationOptions.None);
+            outputassetindex1 = taskIndex1.OutputAssets.AddNew("My Indexing v1 Output Asset", AssetCreationOptions.None);
         }
         if (data.IndexV2Language != null)  // Indexing v1 task
         {
@@ -191,22 +195,22 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             string indexer2Configuration = File.ReadAllText(@"D:\home\site\wwwroot\Presets\IndexerV2.json").Replace("EnUs", (string)data.IndexV2Language);
 
             // Create a task with the encoding details, using a string preset.
-            ITask taskIndex2 = job.Tasks.AddNew("My Indexing v2 Task",
-                processorIndex2,
-                indexer2Configuration,
-                TaskOptions.None);
+            taskIndex2 = job.Tasks.AddNew("My Indexing v2 Task",
+               processorIndex2,
+               indexer2Configuration,
+               TaskOptions.None);
 
             // Specify the input asset to be indexed.
             taskIndex2.InputAssets.Add(asset);
 
             // Add an output asset to contain the results of the job.
-            taskIndex2.OutputAssets.AddNew("My Indexing v2 Output Asset", AssetCreationOptions.None);
+            outputassetindex2 = taskIndex2.OutputAssets.AddNew("My Indexing v2 Output Asset", AssetCreationOptions.None);
         }
 
         job.Submit();
         log.Info("Job Submitted");
 
-        outputasset = job.OutputMediaAssets.FirstOrDefault();
+        outputassetencoded = job.OutputMediaAssets.FirstOrDefault();
     }
     catch (Exception ex)
     {
@@ -215,12 +219,15 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     }
 
     log.Info("Job Id: " + job.Id);
-    log.Info("Output asset Id: " + outputasset.Id);
+    log.Info("Output asset Id: " + outputassetencoded.Id);
 
     return req.CreateResponse(HttpStatusCode.OK, new
     {
         JobId = job.Id,
-        OutputAssetId = outputasset.Id
+        OutputAssetId = outputassetencoded.Id,
+        OutputAssetIndexV1 = taskIndex1 != null ? outputassetindex1.Id : "",
+        OutputAssetIndexV2 = taskIndex2 != null ? outputassetindex2.Id : "",
+
     });
 }
 
