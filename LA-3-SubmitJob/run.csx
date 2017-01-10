@@ -57,6 +57,10 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         });
     }
 
+    // for test
+    // data.WorkflowAssetId = "nb:cid:UUID:44fe8196-616c-4490-bf80-24d1e08754c5";
+    // if data.WorkflowAssetId is passed, then it means a Premium Encoding task is asked
+
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
     IJob job = null;
@@ -86,7 +90,9 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             });
         }
 
-        // Declare a new encoding job with the Standard encoder
+if ( data.WorkflowAssetId==null)  // MES Task
+{
+ // Declare a new encoding job with the Standard encoder
         job = _context.Jobs.Create("Azure Function - MES Job");
         // Get a media processor reference, and pass to it the name of the 
         // processor to use for the specific task.
@@ -104,6 +110,46 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
         // Specify the input asset to be encoded.
         task.InputAssets.Add(asset);
+}
+else // Premium Encoder Task
+{
+
+      //find the workflow asset
+         string workflowassetid = (string)data.WorkflowAssetId;
+        IAsset workflowAsset = _context.Assets.Where(a => a.Id == workflowassetid).FirstOrDefault();
+
+         if (workflowAsset == null)
+        {
+            log.Info($"Workflow not found {workflowassetid}");
+            return req.CreateResponse(HttpStatusCode.BadRequest, new
+            {
+                error = "Workflow not found"
+            });
+        }
+
+     // Declare a new job.
+            job = _context.Jobs.Create("Premium Encoder Job");
+
+           // Get a media processor reference, and pass to it the name of the 
+            // processor to use for the specific task.
+            IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Premium Workflow");
+ 
+        
+           // string configurationFile=File.ReadAllText(@"D:\home\site\wwwroot\Presets\SetRuntime.xml").Replace("VideoFileName", VideoFile.Name).Replace("AudioFileName", AudioFile.Name);
+
+            // Create a task
+            ITask task = job.Tasks.AddNew("Premium Workflow encoding task",
+                processor,
+                configurationFile,
+                TaskOptions.None);
+
+            log.Info("task created");
+
+            // Specify the input asset to be encoded.
+            task.InputAssets.Add(workflowAsset); // first add the Workflow
+            task.InputAssets.Add(asset); // Then add the video asset
+}
+       
 
         // Add an output asset to contain the results of the job. 
         // This output is specified as AssetCreationOptions.None, which 

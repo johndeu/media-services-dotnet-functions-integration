@@ -1,8 +1,8 @@
 #r "Newtonsoft.Json"
 //#r "Microsoft.WindowsAzure.Storage"
 #r "System.Web"
-#load "../Shared/mediaServicesHelpers.csx"
-#load "../Shared/copyBlobHelpers.csx"
+#load "../../Shared/mediaServicesHelpers.csx"
+#load "../../Shared/copyBlobHelpers.csx"
 
 using System;
 using System.Net;
@@ -47,7 +47,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info(jsonContent);
 
     // for test
-    data.VideoAssetId = "nb:cid:UUID:04354615-9833-489c-8750-916e8e5fe234";
+    // data.VideoAssetId = "nb:cid:UUID:04354615-9833-489c-8750-916e8e5fe234";
     if (data.VideoAssetId == null)
     {
         return req.CreateResponse(HttpStatusCode.BadRequest, new
@@ -57,7 +57,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     }
 
     // for test
-    data.WorkflowAssetId = "nb:cid:UUID:44fe8196-616c-4490-bf80-24d1e08754c5";
+    // data.WorkflowAssetId = "nb:cid:UUID:44fe8196-616c-4490-bf80-24d1e08754c5";
     if (data.WorkflowAssetId == null)
     {
         return req.CreateResponse(HttpStatusCode.BadRequest, new
