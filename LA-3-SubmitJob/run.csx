@@ -37,6 +37,12 @@ private static CloudMediaContext _context = null;
 private static MediaServicesCredentials _cachedCredentials = null;
 private static CloudStorageAccount _destinationStorageAccount = null;
 
+
+// Submit an encoding job
+// with MES (default)
+// with Premium Encoder if data.WorkflowAssetId is specified
+
+
 public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 {
     log.Info($"Webhook was triggered!");
@@ -65,11 +71,10 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     IJob job = null;
     IAsset outputasset = null;
-     ITask task = null;
+    ITask task = null;
 
     try
     {
-
         // Create and cache the Media Services credentials in a static class variable.
         _cachedCredentials = new MediaServicesCredentials(
                         _mediaServicesAccountName,
@@ -91,71 +96,112 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             });
         }
 
-if ( data.WorkflowAssetId==null)  // MES Task
-{
- // Declare a new encoding job with the Standard encoder
-        job = _context.Jobs.Create("Azure Function - MES Job");
-        // Get a media processor reference, and pass to it the name of the 
-        // processor to use for the specific task.
-        IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
-
-        // Change or modify the custom preset JSON used here.
-        // string preset = File.ReadAllText("D:\home\site\wwwroot\Presets\H264 Multiple Bitrate 720p.json");
-
-        // Create a task with the encoding details, using a string preset.
-        // In this case "H264 Multiple Bitrate 720p" system defined preset is used.
-         task = job.Tasks.AddNew("My encoding task",
-            processor,
-            "H264 Multiple Bitrate 720p",
-            TaskOptions.None);
-
-        // Specify the input asset to be encoded.
-        task.InputAssets.Add(asset);
-}
-else // Premium Encoder Task
-{
-
-      //find the workflow asset
-         string workflowassetid = (string)data.WorkflowAssetId;
-        IAsset workflowAsset = _context.Assets.Where(a => a.Id == workflowassetid).FirstOrDefault();
-
-         if (workflowAsset == null)
+        if (data.WorkflowAssetId == null)  // MES Task
         {
-            log.Info($"Workflow not found {workflowassetid}");
-            return req.CreateResponse(HttpStatusCode.BadRequest, new
-            {
-                error = "Workflow not found"
-            });
-        }
+            // Declare a new encoding job with the Standard encoder
+            job = _context.Jobs.Create("Azure Function - MES Job");
+            // Get a media processor reference, and pass to it the name of the 
+            // processor to use for the specific task.
+            IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
 
-     // Declare a new job.
+            // Change or modify the custom preset JSON used here.
+            // string preset = File.ReadAllText("D:\home\site\wwwroot\Presets\H264 Multiple Bitrate 720p.json");
+
+            // Create a task with the encoding details, using a string preset.
+            // In this case "H264 Multiple Bitrate 720p" system defined preset is used.
+            task = job.Tasks.AddNew("My encoding task",
+               processor,
+               "H264 Multiple Bitrate 720p",
+               TaskOptions.None);
+
+            // Specify the input asset to be encoded.
+            task.InputAssets.Add(asset);
+        }
+        else // Premium Encoder Task
+        {
+
+            //find the workflow asset
+            string workflowassetid = (string)data.WorkflowAssetId;
+            IAsset workflowAsset = _context.Assets.Where(a => a.Id == workflowassetid).FirstOrDefault();
+
+            if (workflowAsset == null)
+            {
+                log.Info($"Workflow not found {workflowassetid}");
+                return req.CreateResponse(HttpStatusCode.BadRequest, new
+                {
+                    error = "Workflow not found"
+                });
+            }
+
+            // Declare a new job.
             job = _context.Jobs.Create("Premium Encoder Job");
 
-           // Get a media processor reference, and pass to it the name of the 
+            // Get a media processor reference, and pass to it the name of the 
             // processor to use for the specific task.
             IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Premium Workflow");
- 
-        string premiumConfiguration ="";
-           // premiumConfiguration=File.ReadAllText(@"D:\home\site\wwwroot\Presets\SetRuntime.xml").Replace("VideoFileName", VideoFile.Name).Replace("AudioFileName", AudioFile.Name);
+
+            string premiumConfiguration = "";
+            // In some cases, a configuration can be loaded and passed it to the task to tuned the workflow
+            // premiumConfiguration=File.ReadAllText(@"D:\home\site\wwwroot\Presets\SetRuntime.xml").Replace("VideoFileName", VideoFile.Name).Replace("AudioFileName", AudioFile.Name);
 
             // Create a task
-             task = job.Tasks.AddNew("Premium Workflow encoding task",
-                processor,
-                premiumConfiguration,
-                TaskOptions.None);
+            task = job.Tasks.AddNew("Premium Workflow encoding task",
+               processor,
+               premiumConfiguration,
+               TaskOptions.None);
 
             log.Info("task created");
 
             // Specify the input asset to be encoded.
             task.InputAssets.Add(workflowAsset); // first add the Workflow
             task.InputAssets.Add(asset); // Then add the video asset
-}
-       
+        }
 
         // Add an output asset to contain the results of the job. 
         // This output is specified as AssetCreationOptions.None, which 
         // means the output asset is not encrypted. 
         task.OutputAssets.AddNew(asset.Name + " encoded", AssetCreationOptions.None);
+
+        if (data.IndexV1Language != null)  // Indexing v1 task
+        {
+            // Get a media processor reference, and pass to it the name of the 
+            // processor to use for the specific task.
+            IMediaProcessor processorIndex1 = GetLatestMediaProcessorByName("Azure Media Indexer");
+
+            string indexer1Configuration = File.ReadAllText(@"D:\home\site\wwwroot\Presets\IndexerV1.xml").Replace("English", (string)data.IndexV1Language);
+
+            // Create a task with the encoding details, using a string preset.
+            ITask taskIndex1 = job.Tasks.AddNew("My Indexing v1 Task",
+                processorIndex1,
+                indexer1Configuration,
+                TaskOptions.None);
+
+            // Specify the input asset to be indexed.
+            taskIndex1.InputAssets.Add(asset);
+
+            // Add an output asset to contain the results of the job.
+            taskIndex1.OutputAssets.AddNew("My Indexing v1 Output Asset", AssetCreationOptions.None);
+        }
+        if (data.IndexV2Language != null)  // Indexing v1 task
+        {
+            // Get a media processor reference, and pass to it the name of the 
+            // processor to use for the specific task.
+            IMediaProcessor processorIndex2 = GetLatestMediaProcessorByName("Azure Media Indexer 2 Preview");
+
+            string indexer2Configuration = File.ReadAllText(@"D:\home\site\wwwroot\Presets\IndexerV2.json").Replace("EnUs", (string)data.IndexV2Language);
+
+            // Create a task with the encoding details, using a string preset.
+            ITask taskIndex2 = job.Tasks.AddNew("My Indexing v2 Task",
+                processorIndex2,
+                indexer2Configuration,
+                TaskOptions.None);
+
+            // Specify the input asset to be indexed.
+            taskIndex2.InputAssets.Add(asset);
+
+            // Add an output asset to contain the results of the job.
+            taskIndex2.OutputAssets.AddNew("My Indexing v2 Output Asset", AssetCreationOptions.None);
+        }
 
         job.Submit();
         log.Info("Job Submitted");
