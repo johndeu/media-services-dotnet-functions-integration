@@ -65,6 +65,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     IJob job = null;
     IAsset outputasset = null;
+     ITask task = null;
 
     try
     {
@@ -103,7 +104,7 @@ if ( data.WorkflowAssetId==null)  // MES Task
 
         // Create a task with the encoding details, using a string preset.
         // In this case "H264 Multiple Bitrate 720p" system defined preset is used.
-        ITask task = job.Tasks.AddNew("My encoding task",
+         task = job.Tasks.AddNew("My encoding task",
             processor,
             "H264 Multiple Bitrate 720p",
             TaskOptions.None);
@@ -138,7 +139,7 @@ else // Premium Encoder Task
            // premiumConfiguration=File.ReadAllText(@"D:\home\site\wwwroot\Presets\SetRuntime.xml").Replace("VideoFileName", VideoFile.Name).Replace("AudioFileName", AudioFile.Name);
 
             // Create a task
-            ITask task = job.Tasks.AddNew("Premium Workflow encoding task",
+             task = job.Tasks.AddNew("Premium Workflow encoding task",
                 processor,
                 premiumConfiguration,
                 TaskOptions.None);
