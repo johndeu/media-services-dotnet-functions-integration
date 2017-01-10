@@ -184,7 +184,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             taskIndex1.InputAssets.Add(asset);
 
             // Add an output asset to contain the results of the job.
-            outputassetindex1 = taskIndex1.OutputAssets.AddNew("My Indexing v1 Output Asset", AssetCreationOptions.None);
+            taskIndex1.OutputAssets.AddNew("My Indexing v1 Output Asset", AssetCreationOptions.None);
         }
         if (data.IndexV2Language != null)  // Indexing v1 task
         {
@@ -204,13 +204,15 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             taskIndex2.InputAssets.Add(asset);
 
             // Add an output asset to contain the results of the job.
-            outputassetindex2 = taskIndex2.OutputAssets.AddNew("My Indexing v2 Output Asset", AssetCreationOptions.None);
+            taskIndex2.OutputAssets.AddNew("My Indexing v2 Output Asset", AssetCreationOptions.None);
         }
 
         job.Submit();
         log.Info("Job Submitted");
 
         outputassetencoded = job.OutputMediaAssets.FirstOrDefault();
+        outputassetindex1 = taskIndex1 != null ? job.OutputMediaAssets[1] : null;
+        outputassetindex2 = taskIndex2 != null ? job.OutputMediaAssets.LastOrDefault() : null;
     }
     catch (Exception ex)
     {
@@ -225,8 +227,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     {
         JobId = job.Id,
         OutputAssetId = outputassetencoded.Id,
-        OutputAssetIndexV1 = taskIndex1 != null ? outputassetindex1.Id : "",
-        OutputAssetIndexV2 = taskIndex2 != null ? outputassetindex2.Id : "",
+        OutputAssetIndexV1Id = outputassetindex1 != null ? outputassetindex1.Id : "",
+        OutputAssetIndexV2Id = outputassetindex2 != null ? outputassetindex2.Id : ""
 
     });
 }
