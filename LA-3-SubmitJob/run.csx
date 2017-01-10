@@ -134,13 +134,13 @@ else // Premium Encoder Task
             // processor to use for the specific task.
             IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Premium Workflow");
  
-        
-           // string configurationFile=File.ReadAllText(@"D:\home\site\wwwroot\Presets\SetRuntime.xml").Replace("VideoFileName", VideoFile.Name).Replace("AudioFileName", AudioFile.Name);
+        string premiumConfiguration ="";
+           // premiumConfiguration=File.ReadAllText(@"D:\home\site\wwwroot\Presets\SetRuntime.xml").Replace("VideoFileName", VideoFile.Name).Replace("AudioFileName", AudioFile.Name);
 
             // Create a task
             ITask task = job.Tasks.AddNew("Premium Workflow encoding task",
                 processor,
-                configurationFile,
+                premiumConfiguration,
                 TaskOptions.None);
 
             log.Info("task created");
