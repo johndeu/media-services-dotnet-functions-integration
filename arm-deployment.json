@@ -132,7 +132,7 @@
                   "MediaServicesStorageAccountKey": "[listKeys(variables('storageAccountid'),'2015-05-01-preview').key1]",
                   "StorageConnection": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]",
                   "SigningKey": "wOlDEUJ4/VN1No8HxVxpsRvej0DZrO5DXvImGLjFhfctPGFiMkUA0Cj8HSfJW7lePX9XsfHAMhw30p0yYqG+1A==",
-                  "WebHookEndpoint": "[concat('https://', variables('functionAppName'),'.azurewebsites.net/api/Notification_Webhook_Function?code=', parameters('functionKey'))]"
+                  "WebHookEndpoint": "[concat(resourceId('Microsoft.Web/sites', variables('functionAppName')),'/api/Notification_Webhook_Function?code=', parameters('functionKey'))]"
                 }
             },
             {
