@@ -78,6 +78,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
     IJob job = null;
+    ITask taskEncoding = null;
+
     int OutputMES = -1;
     int OutputPremium = -1;
     int OutputIndex1 = -1;
@@ -191,10 +193,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
         job.Submit();
         log.Info("Job Submitted");
-
-        outputassetencoded = job.OutputMediaAssets.FirstOrDefault();
-        outputassetindex1 = taskIndex1 != null ? job.OutputMediaAssets[1] : null;
-        outputassetindex2 = taskIndex2 != null ? job.OutputMediaAssets.LastOrDefault() : null;
     }
     catch (Exception ex)
     {
@@ -203,7 +201,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     }
 
     log.Info("Job Id: " + job.Id);
-    log.Info("Output asset Id: " + outputassetencoded.Id);
+    log.Info("Output asset Id: " + OutputMES > -1 ? ReturnId(job, OutputMES) : ReturnId(job, OutputPremium));
 
     return req.CreateResponse(HttpStatusCode.OK, new
     {
