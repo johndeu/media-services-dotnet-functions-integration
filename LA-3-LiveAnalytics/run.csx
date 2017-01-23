@@ -70,17 +70,21 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     if (data.ProgramId == null)
     {
         // for test
-        // data.ProgramId = "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc";
+        data.ProgramId = "nb:pgid:UUID:c214911c-4a77-4d92-92a1-bc8c34ded777";
 
+        /*
         return req.CreateResponse(HttpStatusCode.BadRequest, new
         {
             error = "Please pass program ID in the input object (ProgramId)"
         });
+        */
     }
 
-    // for test
-    // data.WorkflowAssetId = "nb:cid:UUID:44fe8196-616c-4490-bf80-24d1e08754c5";
-    // if data.WorkflowAssetId is passed, then it means a Premium Encoding task is asked
+    int intervalsec = 30; // Interval for each subclip job (sec)
+    if (data.Interval != null)
+    {
+        intervalsec = (int)data.Interval;
+    }
 
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
@@ -124,6 +128,9 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         // Get the manifest data (timestamps)
         var assetmanifestdata = GetManifestTimingData(asset);
 
+        TimeSpan starttime = TimeSpan.FromSeconds((double)assetmanifestdata.TimestampOffset / (double)assetmanifestdata.TimeScale) + assetmanifestdata.AssetDuration.Subtract(TimeSpan.FromSeconds(intervalsec));
+        string ConfigurationSubclip = File.ReadAllText(@"D:\home\site\wwwroot\Presets\LiveSubclip.json").Replace("0:00:00.000000", starttime.ToString()).Replace("0:00:30.000000", TimeSpan.FromSeconds(intervalsec).ToString());
+
 
         //MES Subclipping TASK
         // Declare a new encoding job with the Standard encoder
@@ -139,7 +146,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         // In this case "H264 Multiple Bitrate 720p" system defined preset is used.
         taskEncoding = job.Tasks.AddNew("Subclipping task",
            processor,
-           "H264 Multiple Bitrate 720p",
+           ConfigurationSubclip,
            TaskOptions.None);
 
         // Specify the input asset to be encoded.
@@ -149,16 +156,16 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         // Add an output asset to contain the results of the job. 
         // This output is specified as AssetCreationOptions.None, which 
         // means the output asset is not encrypted. 
-        taskEncoding.OutputAssets.AddNew(asset.Name + " subclipped", AssetCreationOptions.None);
+        var subclipasset = taskEncoding.OutputAssets.AddNew(asset.Name + " subclipped", AssetCreationOptions.None);
 
         // Media Analytics
-        OutputIndex1 = AddTask(job, asset, (string)data.IndexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English");
-        OutputIndex2 = AddTask(job, asset, (string)data.IndexV2Language, "Azure Media Indexer 2 Preview", "IndexerV2.json", "EnUs");
-        OutputOCR = AddTask(job, asset, (string)data.OCRLanguage, "Azure Media OCR", "OCR.json", "AutoDetect");
-        OutputFace = AddTask(job, asset, (string)data.FaceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion");
-        OutputMotion = AddTask(job, asset, (string)data.MotionDetectionLevel, "Azure Media Motion Detector", "MotionDetection.json", "medium");
-        OutputSummarization = AddTask(job, asset, (string)data.SummarizationDuration, "Azure Media Video Thumbnails", "Summarization.json", "0.0");
-        OutputHyperlapse = AddTask(job, asset, (string)data.HyperlapseSpeed, "Azure Media Hyperlapse", "Hyperlapse.json", "8");
+        OutputIndex1 = AddTask(job, subclipasset, (string)data.IndexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English");
+        OutputIndex2 = AddTask(job, subclipasset, (string)data.IndexV2Language, "Azure Media Indexer 2 Preview", "IndexerV2.json", "EnUs");
+        OutputOCR = AddTask(job, subclipasset, (string)data.OCRLanguage, "Azure Media OCR", "OCR.json", "AutoDetect");
+        OutputFace = AddTask(job, subclipasset, (string)data.FaceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion");
+        OutputMotion = AddTask(job, subclipasset, (string)data.MotionDetectionLevel, "Azure Media Motion Detector", "MotionDetection.json", "medium");
+        OutputSummarization = AddTask(job, subclipasset, (string)data.SummarizationDuration, "Azure Media Video Thumbnails", "Summarization.json", "0.0");
+        OutputHyperlapse = AddTask(job, subclipasset, (string)data.HyperlapseSpeed, "Azure Media Hyperlapse", "Hyperlapse.json", "8");
 
         job.Submit();
         log.Info("Job Submitted");
