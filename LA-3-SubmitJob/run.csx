@@ -201,7 +201,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     }
 
     log.Info("Job Id: " + job.Id);
-    log.Info("Output asset Id: " + (OutputMES > -1) ? ReturnId(job, OutputMES) : ReturnId(job, OutputPremium));
+    log.Info("Output asset Id: " + ((OutputMES > -1) ? ReturnId(job, OutputMES) : ReturnId(job, OutputPremium)));
 
     return req.CreateResponse(HttpStatusCode.OK, new
     {
