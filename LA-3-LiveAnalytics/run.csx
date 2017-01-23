@@ -1,6 +1,7 @@
 #r "Newtonsoft.Json"
 #r "Microsoft.WindowsAzure.Storage"
 #r "System.Web"
+#r "System.ServiceModel"
 #load "../Shared/mediaServicesHelpers.csx"
 #load "../Shared/copyBlobHelpers.csx"
 
@@ -22,6 +23,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.Azure.WebJobs;
 using System.Xml;
+using System.Xml.Linq;
 
 // Read values from the App.config file.
 static string _sourceStorageAccountName = Environment.GetEnvironmentVariable("SourceStorageAccountName");
@@ -324,11 +326,9 @@ public static Uri GetValidOnDemandURI(IAsset asset)
     }
 }
 
-public IEnumerable<Uri> GetValidURIs(IAsset asset)
+public static IEnumerable<Uri> GetValidURIs(IAsset asset)
 {
-    var _context = SelectedAssets.FirstOrDefault().GetMediaContext();
     IEnumerable<Uri> ValidURIs;
-    IAsset asset = SelectedAssets.FirstOrDefault();
     var ismFile = asset.AssetFiles.AsEnumerable().Where(f => f.Name.EndsWith(".ism")).OrderByDescending(f => f.IsPrimary).FirstOrDefault();
     if (ismFile != null)
     {
