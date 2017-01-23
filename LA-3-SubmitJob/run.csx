@@ -39,8 +39,16 @@ private static CloudStorageAccount _destinationStorageAccount = null;
 
 
 // Submit an encoding job
+// Required : data.AssetId (Example : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc")
 // with MES (default)
-// with Premium Encoder if data.WorkflowAssetId is specified
+// with Premium Encoder if data.WorkflowAssetId is specified (Example : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc")
+// with Indexer v1 if IndexV1Language is specified (Example : "English")
+// with Indexer v2 if IndexV2Language is specified (Example : "EnUs")
+// with Video OCR if data.OCRLanguage is specified (Example: "AutoDetect" or "English")
+// with Face Detection if data.FaceDetectionMode is specified (Example : "PerFaceEmotion")
+// with Motion Detection if data.MotionDetectionSensivityLevel is specified (Example : "medium")
+// with Video Summarization if data.SummarizationDuration is specified (Example : "0.0" for automatic)
+// with Hyperlapse if data.HyperlapseSpeed is specified (Example : "8" for speed x8)
 
 
 public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
@@ -70,12 +78,16 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
     IJob job = null;
-    IAsset outputassetencoded = null;
-    ITask taskEncoding = null;
-    ITask taskIndex1 = null;
-    IAsset outputassetindex1 = null;
-    ITask taskIndex2 = null;
-    IAsset outputassetindex2 = null;
+    int OutputMES = -1;
+    int OutputPremium = -1;
+    int OutputIndex1 = -1;
+    int OutputIndex2 = -1;
+    int OutputOCR = -1;
+    int OutputFace = -1;
+    int OutputMotion = -1;
+    int OutputSummarization = -1;
+    int OutputHyperlapse = -1;
+
 
     try
     {
@@ -120,6 +132,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
             // Specify the input asset to be encoded.
             taskEncoding.InputAssets.Add(asset);
+            OutputMES = 0;
         }
         else // Premium Encoder Task
         {
@@ -159,6 +172,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             // Specify the input asset to be encoded.
             taskEncoding.InputAssets.Add(workflowAsset); // first add the Workflow
             taskEncoding.InputAssets.Add(asset); // Then add the video asset
+            OutputPremium = 0;
         }
 
         // Add an output asset to contain the results of the job. 
@@ -166,46 +180,14 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         // means the output asset is not encrypted. 
         taskEncoding.OutputAssets.AddNew(asset.Name + " encoded", AssetCreationOptions.None);
 
-        if (data.IndexV1Language != null)  // Indexing v1 task
-        {
-            // Get a media processor reference, and pass to it the name of the 
-            // processor to use for the specific task.
-            IMediaProcessor processorIndex1 = GetLatestMediaProcessorByName("Azure Media Indexer");
-
-            string indexer1Configuration = File.ReadAllText(@"D:\home\site\wwwroot\Presets\IndexerV1.xml").Replace("English", (string)data.IndexV1Language);
-
-            // Create a task with the encoding details, using a string preset.
-            taskIndex1 = job.Tasks.AddNew("My Indexing v1 Task",
-               processorIndex1,
-               indexer1Configuration,
-               TaskOptions.None);
-
-            // Specify the input asset to be indexed.
-            taskIndex1.InputAssets.Add(asset);
-
-            // Add an output asset to contain the results of the job.
-            taskIndex1.OutputAssets.AddNew("My Indexing v1 Output Asset", AssetCreationOptions.None);
-        }
-        if (data.IndexV2Language != null)  // Indexing v1 task
-        {
-            // Get a media processor reference, and pass to it the name of the 
-            // processor to use for the specific task.
-            IMediaProcessor processorIndex2 = GetLatestMediaProcessorByName("Azure Media Indexer 2 Preview");
-
-            string indexer2Configuration = File.ReadAllText(@"D:\home\site\wwwroot\Presets\IndexerV2.json").Replace("EnUs", (string)data.IndexV2Language);
-
-            // Create a task with the encoding details, using a string preset.
-            taskIndex2 = job.Tasks.AddNew("My Indexing v2 Task",
-               processorIndex2,
-               indexer2Configuration,
-               TaskOptions.None);
-
-            // Specify the input asset to be indexed.
-            taskIndex2.InputAssets.Add(asset);
-
-            // Add an output asset to contain the results of the job.
-            taskIndex2.OutputAssets.AddNew("My Indexing v2 Output Asset", AssetCreationOptions.None);
-        }
+        // Media Analytics
+        OutputIndex1 = AddTask(job, data.IndexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English");
+        OutputIndex2 = AddTask(job, data.IndexV2Language, "Azure Media Indexer 2 Preview", "IndexerV2.json", "EnUs");
+        OutputOCR = AddTask(job, data.OCRLanguage, "Azure Media OCR", "OCR.json", "AutoDetect");
+        OutputFace = AddTask(job, data.FaceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion");
+        OutputMotion = AddTask(job, data.MotionDetectionSensivityLevel, "Azure Media Motion Detector", "MotionDetection.json", "medium");
+        OutputSummarization = AddTask(job, data.SummarizationDuration, "Azure Media Video Thumbnails", "Summarization.json", "0.0");
+        OutputHyperlapse = AddTask(job, data.HyperlapseSpeed, "Azure Media Hyperlapse", "Hyperlapse.json", "8");
 
         job.Submit();
         log.Info("Job Submitted");
@@ -226,11 +208,48 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     return req.CreateResponse(HttpStatusCode.OK, new
     {
         JobId = job.Id,
-        OutputAssetId = outputassetencoded.Id,
-        OutputAssetIndexV1Id = outputassetindex1 != null ? outputassetindex1.Id : "",
-        OutputAssetIndexV2Id = outputassetindex2 != null ? outputassetindex2.Id : ""
-
+        OutputAssetId = OutputMES > -1 ? ReturnId(job, OutputMES) : ReturnId(job, OutputPremium),
+        OutputAssetIndexV1Id = ReturnId(job, OutputIndex1),
+        OutputAssetIndexV2Id = ReturnId(job, OutputIndex2),
+        OutputAssetOCRId = ReturnId(job, OutputOCR),
+        OutputAssetFaceDetectionId = ReturnId(job, OutputFace),
+        OutputAssetMotionDetectionId = ReturnId(job, OutputMotion),
+        OutputAssetSummarizationId = ReturnId(job, OutputSummarization),
+        OutputAssetHyperlapseId = ReturnId(job, OutputHyperlapse),
     });
+}
+
+public static string ReturnId(IJob job, int index)
+{
+    return index > -1 ? job.OutputMediaAssets[index].Id : "";
+}
+
+public static int AddTask(IJob job, string value, string processor, string presetfilename, string stringtoreplace)
+{
+    int index = -1;
+    if (value != null)
+    {
+        // Get a media processor reference, and pass to it the name of the 
+        // processor to use for the specific task.
+        IMediaProcessor mediaProcessor = GetLatestMediaProcessorByName(processor);
+
+        string Configuration = File.ReadAllText(@"D:\home\site\wwwroot\Presets\" + presetfilename).Replace(stringtoreplace, value);
+
+        // Create a task with the encoding details, using a string preset.
+        var task = job.Tasks.AddNew(processor + " task",
+           mediaProcessor,
+           Configuration,
+           TaskOptions.None);
+
+        // Specify the input asset to be indexed.
+        task.InputAssets.Add(asset);
+
+        // Add an output asset to contain the results of the job.
+        task.OutputAssets.AddNew(processor + " Output Asset", AssetCreationOptions.None);
+
+        index = job.OutputAssets.Count - 1;
+    }
+    return index;
 }
 
 
