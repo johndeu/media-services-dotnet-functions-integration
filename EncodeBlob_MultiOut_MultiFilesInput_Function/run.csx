@@ -58,7 +58,7 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
     */
 
 
-    log.Info($"C# Blob trigger function processed: {fileName}.json");
+    log.Info($"C# Blob trigger  function processed: {fileName}.json");
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
     try

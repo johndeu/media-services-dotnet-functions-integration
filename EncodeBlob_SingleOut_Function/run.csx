@@ -1,5 +1,6 @@
 #r "Microsoft.WindowsAzure.Storage"
 #r "Newtonsoft.Json"
+#r "System.Web"
 #load "../Shared/copyBlobHelpers.csx"
 #load "../Shared/mediaServicesHelpers.csx"
 
@@ -30,7 +31,7 @@ private static CloudStorageAccount _destinationStorageAccount = null;
 private static CloudMediaContext _context = null;
 private static MediaServicesCredentials _cachedCredentials = null;
 
-public static void Run(CloudBlockBlob inputBlob, string fileName, string outName string fileExtension, CloudBlockBlob outputBlob, TraceWriter log)
+public static void Run(CloudBlockBlob inputBlob, string fileName, string outName, string fileExtension, CloudBlockBlob outputBlob, TraceWriter log)
 {
     // NOTE that the variables {fileName} and {fileExtension} here come from the path setting in function.json
     // and are passed into the  Run method signature above. We can use this to make decisions on what type of file
@@ -39,7 +40,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string outName
     // No need to do any Retry strategy in this function, By default, the SDK calls a function up to 5 times for a 
     // given blob. If the fifth try fails, the SDK adds a message to a queue named webjobs-blobtrigger-poison.
 
-    log.Info($"C# Blob  trigger function processed: {fileName}.{fileExtension}");
+    log.Info($"C# Blob trigger function processed: {fileName}.{fileExtension}");
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
 

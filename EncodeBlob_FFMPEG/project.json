@@ -1,9 +1,0 @@
-{
-  "frameworks": {
-    "net46":{
-      "dependencies": {
-        "windowsazure.mediaservices": "3.7.0.1"
-      }
-    }
-   }
-}
