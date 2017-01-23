@@ -183,13 +183,13 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         taskEncoding.OutputAssets.AddNew(asset.Name + " encoded", AssetCreationOptions.None);
 
         // Media Analytics
-        OutputIndex1 = AddTask(job, data.IndexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English");
-        OutputIndex2 = AddTask(job, data.IndexV2Language, "Azure Media Indexer 2 Preview", "IndexerV2.json", "EnUs");
-        OutputOCR = AddTask(job, data.OCRLanguage, "Azure Media OCR", "OCR.json", "AutoDetect");
-        OutputFace = AddTask(job, data.FaceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion");
-        OutputMotion = AddTask(job, data.MotionDetectionSensivityLevel, "Azure Media Motion Detector", "MotionDetection.json", "medium");
-        OutputSummarization = AddTask(job, data.SummarizationDuration, "Azure Media Video Thumbnails", "Summarization.json", "0.0");
-        OutputHyperlapse = AddTask(job, data.HyperlapseSpeed, "Azure Media Hyperlapse", "Hyperlapse.json", "8");
+        OutputIndex1 = AddTask(job, asset, data.IndexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English");
+        OutputIndex2 = AddTask(job, asset, data.IndexV2Language, "Azure Media Indexer 2 Preview", "IndexerV2.json", "EnUs");
+        OutputOCR = AddTask(job, asset, data.OCRLanguage, "Azure Media OCR", "OCR.json", "AutoDetect");
+        OutputFace = AddTask(job, asset, data.FaceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion");
+        OutputMotion = AddTask(job, asset, data.MotionDetectionSensivityLevel, "Azure Media Motion Detector", "MotionDetection.json", "medium");
+        OutputSummarization = AddTask(job, asset, data.SummarizationDuration, "Azure Media Video Thumbnails", "Summarization.json", "0.0");
+        OutputHyperlapse = AddTask(job, asset, data.HyperlapseSpeed, "Azure Media Hyperlapse", "Hyperlapse.json", "8");
 
         job.Submit();
         log.Info("Job Submitted");
@@ -201,7 +201,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     }
 
     log.Info("Job Id: " + job.Id);
-    log.Info("Output asset Id: " + OutputMES > -1 ? ReturnId(job, OutputMES) : ReturnId(job, OutputPremium));
+    log.Info("Output asset Id: " + (OutputMES > -1) ? ReturnId(job, OutputMES) : ReturnId(job, OutputPremium));
 
     return req.CreateResponse(HttpStatusCode.OK, new
     {
@@ -222,7 +222,7 @@ public static string ReturnId(IJob job, int index)
     return index > -1 ? job.OutputMediaAssets[index].Id : "";
 }
 
-public static int AddTask(IJob job, string value, string processor, string presetfilename, string stringtoreplace)
+public static int AddTask(IJob job, IAsset sourceAsset, string value, string processor, string presetfilename, string stringtoreplace)
 {
     int index = -1;
     if (value != null)
@@ -240,12 +240,13 @@ public static int AddTask(IJob job, string value, string processor, string prese
            TaskOptions.None);
 
         // Specify the input asset to be indexed.
-        task.InputAssets.Add(asset);
+        task.InputAssets.Add(sourceAsset);
 
         // Add an output asset to contain the results of the job.
         task.OutputAssets.AddNew(processor + " Output Asset", AssetCreationOptions.None);
 
-        index = job.OutputAssets.Count - 1;
+        index = job.OutputMediaAssets.Count - 1;
+        log.Info(processor + " Task Id: " + task.Id);
     }
     return index;
 }
