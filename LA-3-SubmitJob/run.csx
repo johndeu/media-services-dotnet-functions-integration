@@ -37,7 +37,7 @@ private static CloudMediaContext _context = null;
 private static MediaServicesCredentials _cachedCredentials = null;
 private static CloudStorageAccount _destinationStorageAccount = null;
 
-private int _taskindex = 0;
+private static int _taskindex = 0;
 
 
 // Submit an encoding job
@@ -226,7 +226,6 @@ public static string ReturnId(IJob job, int index)
 
 public static int AddTask(IJob job, IAsset sourceAsset, string value, string processor, string presetfilename, string stringtoreplace, TraceWriter log)
 {
-    int index = -1;
     if (value != null)
     {
         // Get a media processor reference, and pass to it the name of the 
