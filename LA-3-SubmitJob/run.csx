@@ -187,7 +187,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         // Media Analytics
         OutputIndex1 = AddTask(job, asset, (string)data.IndexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English");
         OutputIndex2 = AddTask(job, asset, (string)data.IndexV2Language, "Azure Media Indexer 2 Preview", "IndexerV2.json", "EnUs");
-        OutputOCR = AddTask(job, asset, (string)data.OCRLanguage, "Azure Media OCR", "OCR.json", "AutoDetect", log);
+        OutputOCR = AddTask(job, asset, (string)data.OCRLanguage, "Azure Media OCR", "OCR.json", "AutoDetect");
         OutputFace = AddTask(job, asset, (string)data.FaceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion");
         OutputMotion = AddTask(job, asset, (string)data.MotionDetectionLevel, "Azure Media Motion Detector", "MotionDetection.json", "medium");
         OutputSummarization = AddTask(job, asset, (string)data.SummarizationDuration, "Azure Media Video Thumbnails", "Summarization.json", "0.0");
