@@ -31,7 +31,7 @@ private static CloudStorageAccount _destinationStorageAccount = null;
 private static CloudMediaContext _context = null;
 private static MediaServicesCredentials _cachedCredentials = null;
 
-public static void Run(CloudBlockBlob inputBlob, string fileName, string outName, string fileExtension, CloudBlockBlob outputBlob, TraceWriter log)
+public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExtension, CloudBlockBlob outputBlob, TraceWriter log)
 {
     // NOTE that the variables {fileName} and {fileExtension} here come from the path setting in function.json
     // and are passed into the  Run method signature above. We can use this to make decisions on what type of file
