@@ -247,9 +247,14 @@ public static int AddTask(IJob job, IAsset sourceAsset, string value, string pro
         task.OutputAssets.AddNew(processor + " Output Asset", AssetCreationOptions.None);
 
         //index = job.OutputMediaAssets.Count - 1;
+        
         log.Info("Index: " + _taskindex);
+        return _taskindex++;
     }
-    return _taskindex++; 
+    else
+    {
+        return -1;
+    }
 }
 
 
