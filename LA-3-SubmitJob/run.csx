@@ -176,7 +176,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             // Specify the input asset to be encoded.
             taskEncoding.InputAssets.Add(workflowAsset); // first add the Workflow
             taskEncoding.InputAssets.Add(asset); // Then add the video asset
-            OutputPremium = _taskindex++; 
+            OutputPremium = _taskindex++;
         }
 
         // Add an output asset to contain the results of the job. 
@@ -185,13 +185,13 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         taskEncoding.OutputAssets.AddNew(asset.Name + " encoded", AssetCreationOptions.None);
 
         // Media Analytics
-        OutputIndex1 = AddTask(job, asset, (string)data.IndexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English", log);
-        OutputIndex2 = AddTask(job, asset, (string)data.IndexV2Language, "Azure Media Indexer 2 Preview", "IndexerV2.json", "EnUs", log);
+        OutputIndex1 = AddTask(job, asset, (string)data.IndexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English");
+        OutputIndex2 = AddTask(job, asset, (string)data.IndexV2Language, "Azure Media Indexer 2 Preview", "IndexerV2.json", "EnUs");
         OutputOCR = AddTask(job, asset, (string)data.OCRLanguage, "Azure Media OCR", "OCR.json", "AutoDetect", log);
-        OutputFace = AddTask(job, asset, (string)data.FaceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion", log);
-        OutputMotion = AddTask(job, asset, (string)data.MotionDetectionLevel, "Azure Media Motion Detector", "MotionDetection.json", "medium", log);
-        OutputSummarization = AddTask(job, asset, (string)data.SummarizationDuration, "Azure Media Video Thumbnails", "Summarization.json", "0.0", log);
-        OutputHyperlapse = AddTask(job, asset, (string)data.HyperlapseSpeed, "Azure Media Hyperlapse", "Hyperlapse.json", "8", log);
+        OutputFace = AddTask(job, asset, (string)data.FaceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion");
+        OutputMotion = AddTask(job, asset, (string)data.MotionDetectionLevel, "Azure Media Motion Detector", "MotionDetection.json", "medium");
+        OutputSummarization = AddTask(job, asset, (string)data.SummarizationDuration, "Azure Media Video Thumbnails", "Summarization.json", "0.0");
+        OutputHyperlapse = AddTask(job, asset, (string)data.HyperlapseSpeed, "Azure Media Hyperlapse", "Hyperlapse.json", "8");
 
         job.Submit();
         log.Info("Job Submitted");
@@ -224,7 +224,7 @@ public static string ReturnId(IJob job, int index)
     return index > -1 ? job.OutputMediaAssets[index].Id : "";
 }
 
-public static int AddTask(IJob job, IAsset sourceAsset, string value, string processor, string presetfilename, string stringtoreplace, TraceWriter log)
+public static int AddTask(IJob job, IAsset sourceAsset, string value, string processor, string presetfilename, string stringtoreplace)
 {
     if (value != null)
     {
@@ -246,9 +246,6 @@ public static int AddTask(IJob job, IAsset sourceAsset, string value, string pro
         // Add an output asset to contain the results of the job.
         task.OutputAssets.AddNew(processor + " Output Asset", AssetCreationOptions.None);
 
-        //index = job.OutputMediaAssets.Count - 1;
-        
-        log.Info("Index: " + _taskindex);
         return _taskindex++;
     }
     else
