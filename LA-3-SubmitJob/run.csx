@@ -183,13 +183,13 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         taskEncoding.OutputAssets.AddNew(asset.Name + " encoded", AssetCreationOptions.None);
 
         // Media Analytics
-        OutputIndex1 = AddTask(job, asset, data.IndexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English", log);
-        OutputIndex2 = AddTask(job, asset, data.IndexV2Language, "Azure Media Indexer 2 Preview", "IndexerV2.json", "EnUs", log);
-        OutputOCR = AddTask(job, asset, data.OCRLanguage, "Azure Media OCR", "OCR.json", "AutoDetect", log);
-        OutputFace = AddTask(job, asset, data.FaceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion", log);
-        OutputMotion = AddTask(job, asset, data.MotionDetectionSensivityLevel, "Azure Media Motion Detector", "MotionDetection.json", "medium", log);
-        OutputSummarization = AddTask(job, asset, data.SummarizationDuration, "Azure Media Video Thumbnails", "Summarization.json", "0.0", log);
-        OutputHyperlapse = AddTask(job, asset, data.HyperlapseSpeed, "Azure Media Hyperlapse", "Hyperlapse.json", "8", log);
+        OutputIndex1 = AddTask(job, asset, (string)data.IndexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English", log);
+        OutputIndex2 = AddTask(job, asset, (string)data.IndexV2Language, "Azure Media Indexer 2 Preview", "IndexerV2.json", "EnUs", log);
+        OutputOCR = AddTask(job, asset, (string)data.OCRLanguage, "Azure Media OCR", "OCR.json", "AutoDetect", log);
+        OutputFace = AddTask(job, asset, (string)data.FaceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion", log);
+        OutputMotion = AddTask(job, asset, (string)data.MotionDetectionSensivityLevel, "Azure Media Motion Detector", "MotionDetection.json", "medium", log);
+        OutputSummarization = AddTask(job, asset, (string)data.SummarizationDuration, "Azure Media Video Thumbnails", "Summarization.json", "0.0", log);
+        OutputHyperlapse = AddTask(job, asset, (string)data.HyperlapseSpeed, "Azure Media Hyperlapse", "Hyperlapse.json", "8", log);
 
         job.Submit();
         log.Info("Job Submitted");
