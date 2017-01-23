@@ -37,6 +37,8 @@ private static CloudMediaContext _context = null;
 private static MediaServicesCredentials _cachedCredentials = null;
 private static CloudStorageAccount _destinationStorageAccount = null;
 
+private int _taskindex = 0;
+
 
 // Submit an encoding job
 // Required : data.AssetId (Example : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc")
@@ -134,7 +136,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
             // Specify the input asset to be encoded.
             taskEncoding.InputAssets.Add(asset);
-            OutputMES = 0;
+            OutputMES = _taskindex++;
         }
         else // Premium Encoder Task
         {
@@ -174,7 +176,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             // Specify the input asset to be encoded.
             taskEncoding.InputAssets.Add(workflowAsset); // first add the Workflow
             taskEncoding.InputAssets.Add(asset); // Then add the video asset
-            OutputPremium = 0;
+            OutputPremium = _taskindex++; 
         }
 
         // Add an output asset to contain the results of the job. 
@@ -245,10 +247,10 @@ public static int AddTask(IJob job, IAsset sourceAsset, string value, string pro
         // Add an output asset to contain the results of the job.
         task.OutputAssets.AddNew(processor + " Output Asset", AssetCreationOptions.None);
 
-        index = job.OutputMediaAssets.Count - 1;
-        log.Info(processor + " Task Id: " + task.Id);
+        //index = job.OutputMediaAssets.Count - 1;
+        log.Info("Index: " + _taskindex);
     }
-    return index;
+    return _taskindex++; 
 }
 
 
