@@ -48,7 +48,7 @@ private static int _taskindex = 0;
 // with Indexer v2 if IndexV2Language is specified (Example : "EnUs")
 // with Video OCR if data.OCRLanguage is specified (Example: "AutoDetect" or "English")
 // with Face Detection if data.FaceDetectionMode is specified (Example : "PerFaceEmotion")
-// with Motion Detection if data.MotionDetectionSensivityLevel is specified (Example : "medium")
+// with Motion Detection if data.MotionDetectionLevel is specified (Example : "medium")
 // with Video Summarization if data.SummarizationDuration is specified (Example : "0.0" for automatic)
 // with Hyperlapse if data.HyperlapseSpeed is specified (Example : "8" for speed x8)
 
@@ -189,7 +189,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         OutputIndex2 = AddTask(job, asset, (string)data.IndexV2Language, "Azure Media Indexer 2 Preview", "IndexerV2.json", "EnUs", log);
         OutputOCR = AddTask(job, asset, (string)data.OCRLanguage, "Azure Media OCR", "OCR.json", "AutoDetect", log);
         OutputFace = AddTask(job, asset, (string)data.FaceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion", log);
-        OutputMotion = AddTask(job, asset, (string)data.MotionDetectionSensivityLevel, "Azure Media Motion Detector", "MotionDetection.json", "medium", log);
+        OutputMotion = AddTask(job, asset, (string)data.MotionDetectionLevel, "Azure Media Motion Detector", "MotionDetection.json", "medium", log);
         OutputSummarization = AddTask(job, asset, (string)data.SummarizationDuration, "Azure Media Video Thumbnails", "Summarization.json", "0.0", log);
         OutputHyperlapse = AddTask(job, asset, (string)data.HyperlapseSpeed, "Azure Media Hyperlapse", "Hyperlapse.json", "8", log);
 
