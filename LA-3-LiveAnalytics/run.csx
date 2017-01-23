@@ -243,11 +243,11 @@ static public ManifestTimingData GetManifestTimingData(IAsset asset)
     try
     {
         ILocator mytemplocator = null;
-        Uri myuri = AssetInfo.GetValidOnDemandURI(asset);
+        Uri myuri = GetValidOnDemandURI(asset);
         if (myuri == null)
         {
-            mytemplocator = AssetInfo.CreatedTemporaryOnDemandLocator(asset);
-            myuri = AssetInfo.GetValidOnDemandURI(asset);
+            mytemplocator = CreatedTemporaryOnDemandLocator(asset);
+            myuri = GetValidOnDemandURI(asset);
         }
         if (myuri != null)
         {
@@ -377,6 +377,34 @@ static public StreamEndpointType ReturnTypeSE(IStreamingEndpoint mySE)
             return StreamEndpointType.Standard;
         }
     }
+}
+
+public static ILocator CreatedTemporaryOnDemandLocator(IAsset asset)
+{
+    ILocator tempLocator = null;
+
+    try
+    {
+        var locatorTask = Task.Factory.StartNew(() =>
+        {
+            try
+            {
+                tempLocator = asset.GetMediaContext().Locators.Create(LocatorType.OnDemandOrigin, asset, AccessPermissions.Read, TimeSpan.FromHours(1));
+
+            }
+            catch
+            {
+                throw;
+            }
+        });
+        locatorTask.Wait();
+    }
+    catch (Exception ex)
+    {
+        throw ex;
+    }
+
+    return tempLocator;
 }
 
 public enum StreamEndpointType
