@@ -181,7 +181,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         job.Submit();
         log.Info("Job Submitted");
 
-        // Let store some data in altif of subclipped asset
+        // Let store some data in altid of subclipped asset
+        subclipasset = _context.Assets.Where(a => a.Id == subclipasset.Id).FirstOrDefault();
         subclipasset.AlternateId = JsonConvert.SerializeObject(new SubclipInfo() { ProgramId = programid, StartTime = starttime, Duration = duration });
         subclipasset.Update();
 
