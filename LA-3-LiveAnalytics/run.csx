@@ -2,10 +2,6 @@
 #r "Microsoft.WindowsAzure.Storage"
 #r "System.Web"
 #r "System.ServiceModel"
-#r "System.XML"
-#r "System.XML.Linq"
-#r "windowsazure.mediaservices"
-#r "windowsazure.mediaservices.extensions"
 #load "../Shared/mediaServicesHelpers.csx"
 #load "../Shared/copyBlobHelpers.csx"
 
