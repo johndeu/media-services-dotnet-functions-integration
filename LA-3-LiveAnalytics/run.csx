@@ -106,6 +106,9 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     int OutputSummarization = -1;
     int OutputHyperlapse = -1;
 
+    TimeSpan starttime = TimeSpan.FromSeconds(0);
+    TimeSpan duration = TimeSpan.FromSeconds(intervalsec);
+
     try
     {
         // Create and cache the Media Services credentials in a static class variable.
@@ -134,8 +137,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         // Get the manifest data (timestamps)
         var assetmanifestdata = GetManifestTimingData(asset);
 
-        TimeSpan starttime = TimeSpan.FromSeconds((double)assetmanifestdata.TimestampOffset / (double)assetmanifestdata.TimeScale) + assetmanifestdata.AssetDuration.Subtract(TimeSpan.FromSeconds(intervalsec));
-        string ConfigurationSubclip = File.ReadAllText(@"D:\home\site\wwwroot\Presets\LiveSubclip.json").Replace("0:00:00.000000", starttime.ToString()).Replace("0:00:30.000000", TimeSpan.FromSeconds(intervalsec).ToString());
+        starttime = TimeSpan.FromSeconds((double)assetmanifestdata.TimestampOffset / (double)assetmanifestdata.TimeScale) + assetmanifestdata.AssetDuration.Subtract(TimeSpan.FromSeconds(intervalsec));
+        string ConfigurationSubclip = File.ReadAllText(@"D:\home\site\wwwroot\Presets\LiveSubclip.json").Replace("0:00:00.000000", starttime.ToString()).Replace("0:00:30.000000", duration.ToString());
 
 
         //MES Subclipping TASK
@@ -177,6 +180,16 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
         job.Submit();
         log.Info("Job Submitted");
+
+        // Let store some data in altif of subclipped asset
+        dynamic info = new JObject();
+        info.ProgramId = programid;
+        info.StartTime = starttime.ToString();
+        info.Duration = duration.ToString();
+
+        subclipasset.AltId = JsonConvert.SerializeObject(obj);
+        subclipasset.Update();
+
     }
     catch (Exception ex)
     {
