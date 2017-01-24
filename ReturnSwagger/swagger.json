@@ -1,0 +1,34 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "MyAzureFunction"
+  },
+  "host": "mediaservicesxp3.azurewebsites.net",
+  "paths": {
+    "/api/LA-1-CreateEmptyAsset": {
+      "get": {
+        "description": "Create an empty AMS asset",
+        "operationId": "RunThis",
+        "parameters": [
+          {
+            "name": "AssetId",
+            "in": "query",
+            "description": "the asset id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "schema": {
+              "title": "The response of the api.",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}
