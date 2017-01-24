@@ -128,6 +128,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             });
         }
 
+        log.Info($"Using asset Id : {asset.Id}");
+
         // Get the manifest data (timestamps)
         var assetmanifestdata = GetManifestTimingData(asset);
 
@@ -160,6 +162,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         // This output is specified as AssetCreationOptions.None, which 
         // means the output asset is not encrypted. 
         var subclipasset = taskEncoding.OutputAssets.AddNew(asset.Name + " subclipped", AssetCreationOptions.None);
+
+        log.Info($"Adding media analytics tasks");
 
         // Media Analytics
         OutputIndex1 = AddTask(job, subclipasset, (string)data.IndexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English");
