@@ -71,7 +71,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     {
         // for test
         data.ProgramId = "nb:pgid:UUID:e1a61286-2467-4be3-84b6-5a4e8006d43d";
-        data.IndexV1Language = "English";
+        data.IndexV2Language = "EnUs";
         data.OCRLanguage = "AutoDetect";
         data.FaceDetectionMode = "PerFaceEmotion";
         data.MotionDetectionLevel = "medium";
