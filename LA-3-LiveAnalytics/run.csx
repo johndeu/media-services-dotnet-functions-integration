@@ -56,7 +56,8 @@ private static int _taskindex = 0;
 // with Motion Detection if data.MotionDetectionLevel is specified (Example : "medium")
 // with Video Summarization if data.SummarizationDuration is specified (Example : "0.0" for automatic)
 // with Hyperlapse if data.HyperlapseSpeed is specified (Example : "8" for speed x8)
-
+//
+// Option: data.IntervalSec (Example: "30")
 
 public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 {
@@ -70,24 +71,24 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     if (data.ProgramId == null)
     {
         // for test
+        /*
         data.ProgramId = "nb:pgid:UUID:e1a61286-2467-4be3-84b6-5a4e8006d43d";
         data.IndexV2Language = "EnUs";
         data.OCRLanguage = "AutoDetect";
         data.FaceDetectionMode = "PerFaceEmotion";
         data.MotionDetectionLevel = "medium";
+        */
 
-        /*
         return req.CreateResponse(HttpStatusCode.BadRequest, new
         {
             error = "Please pass program ID in the input object (ProgramId)"
         });
-        */
     }
 
     int intervalsec = 30; // Interval for each subclip job (sec)
-    if (data.Interval != null)
+    if (data.IntervalSec != null)
     {
-        intervalsec = (int)data.Interval;
+        intervalsec = (int)data.IntervalSec;
     }
 
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
