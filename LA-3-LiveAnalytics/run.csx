@@ -181,9 +181,13 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         job.Submit();
         log.Info("Job Submitted");
 
+        log.Info("Output MES index {OutputMES}");
         // Let store some data in altid of subclipped asset
         var sid = ReturnId(job, OutputMES);
+        log.Info("SID {sid}");
+
         var subclipassetrefreshed = _context.Assets.Where(a => a.Id == sid).FirstOrDefault();
+        log.Info("subclipassetrefreshed ID {subclipassetrefreshed.Id}");
         subclipassetrefreshed.AlternateId = JsonConvert.SerializeObject(new SubclipInfo() { ProgramId = programid, StartTime = starttime, Duration = duration });
         subclipassetrefreshed.Update();
 
