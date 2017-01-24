@@ -70,7 +70,11 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     if (data.ProgramId == null)
     {
         // for test
-        data.ProgramId = "nb:pgid:UUID:e80aa919-801a-424c-8ff6-d277d5eb80c0";
+        data.ProgramId = "nb:pgid:UUID:e1a61286-2467-4be3-84b6-5a4e8006d43d";
+        data.IndexV1Language = "English";
+        data.OCRLanguage = "AutoDetect";
+        data.FaceDetectionMode = "PerFaceEmotion";
+        data.MotionDetectionLevel = "medium";
 
         /*
         return req.CreateResponse(HttpStatusCode.BadRequest, new
