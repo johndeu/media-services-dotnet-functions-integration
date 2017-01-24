@@ -182,12 +182,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         log.Info("Job Submitted");
 
         // Let store some data in altif of subclipped asset
-        dynamic info = new JObject();
-        info.ProgramId = programid;
-        info.StartTime = starttime.ToString();
-        info.Duration = duration.ToString();
-
-        subclipasset.AltId = JsonConvert.SerializeObject(obj);
+        subclipasset.AlternateId = JsonConvert.SerializeObject(new SubclipInfo() { ProgramId = programid, StartTime = starttime, Duration = duration });
         subclipasset.Update();
 
     }
@@ -451,6 +446,13 @@ public class ManifestTimingData
     public ulong? TimeScale { get; set; }
     public bool IsLive { get; set; }
     public bool Error { get; set; }
+}
+
+public class SubclipInfo
+{
+    public TimeSpan StartTime { get; set; }
+    public TimeSpan Duration { get; set; }
+    public string ProgramId { get; set; }
 }
 
 
