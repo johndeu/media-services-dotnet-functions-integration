@@ -70,7 +70,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     if (data.ProgramId == null)
     {
         // for test
-        data.ProgramId = "nb:pgid:UUID:c214911c-4a77-4d92-92a1-bc8c34ded777";
+        data.ProgramId = "nb:pgid:UUID:e80aa919-801a-424c-8ff6-d277d5eb80c0";
 
         /*
         return req.CreateResponse(HttpStatusCode.BadRequest, new
@@ -100,7 +100,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     int OutputMotion = -1;
     int OutputSummarization = -1;
     int OutputHyperlapse = -1;
-
 
     try
     {
