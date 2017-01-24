@@ -9,7 +9,7 @@
     "/api/LA-1-CreateEmptyAsset": {
       "get": {
         "description": "Create an empty AMS asset",
-        "operationId": "RunThis",
+        "operationId": "Create an empty asset",
         "parameters": [
           {
             "name": "AssetId",
