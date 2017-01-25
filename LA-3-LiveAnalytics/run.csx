@@ -1,7 +1,6 @@
 #r "Newtonsoft.Json"
 #r "Microsoft.WindowsAzure.Storage"
 #r "System.Web"
-#r "System.ServiceModel"
 #r "System.XML"
 #r "System.XML.Linq"
 #load "../Shared/mediaServicesHelpers.csx"

@@ -1,5 +1,6 @@
 #r "Microsoft.WindowsAzure.Storage"
 #r "System.Web"
+#r "System.ServiceModel"
 
 using System;
 using Microsoft.WindowsAzure.MediaServices.Client;
