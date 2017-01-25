@@ -3,6 +3,7 @@
 #r "System.ServiceModel"
 
 using System;
+using System.ServiceModel;
 using Microsoft.WindowsAzure.MediaServices.Client;
 using System.Collections.Generic;
 using System.Linq;
