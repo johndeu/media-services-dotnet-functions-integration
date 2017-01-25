@@ -357,7 +357,6 @@ public static ILocator CreatedTemporaryOnDemandLocator(IAsset asset)
             try
             {
                 tempLocator = asset.GetMediaContext().Locators.Create(LocatorType.OnDemandOrigin, asset, AccessPermissions.Read, TimeSpan.FromHours(1));
-
             }
             catch
             {

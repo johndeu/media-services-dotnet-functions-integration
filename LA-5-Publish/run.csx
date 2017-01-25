@@ -89,10 +89,10 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         // publish with a streaming locator
         IAccessPolicy readPolicy2 = _context.AccessPolicies.Create("readPolicy", TimeSpan.FromHours(4), AccessPermissions.Read);
         ILocator outputLocator2 = _context.Locators.CreateLocator(LocatorType.OnDemandOrigin, outputAsset, readPolicy2);
-        var ismFile = outputAsset.AssetFiles.AsEnumerable().FirstOrDefault(f => f.Name.EndsWith(".ism"));
+        Uri publishurl = GetValidOnDemandURI(outputAsset);
         if (ismFile != null && outputLocator2 != null)
         {
-            smoothUrl = outputLocator2.Path + ismFile.Name + "/manifest";
+            smoothUrl = publishurl.ToString();
         }
 
         log.Info($"Smooth url : {smoothUrl}");
