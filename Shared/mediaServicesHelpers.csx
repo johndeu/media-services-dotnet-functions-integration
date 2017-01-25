@@ -1,4 +1,5 @@
 #r "Microsoft.WindowsAzure.Storage"
+#r "System.Web"
 
 using System;
 using Microsoft.WindowsAzure.MediaServices.Client;
