@@ -89,7 +89,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         IAccessPolicy readPolicy2 = _context.AccessPolicies.Create("readPolicy", TimeSpan.FromHours(4), AccessPermissions.Read);
         ILocator outputLocator2 = _context.Locators.CreateLocator(LocatorType.OnDemandOrigin, outputAsset, readPolicy2);
         Uri publishurl = GetValidOnDemandURI(outputAsset);
-        if (ismFile != null && outputLocator2 != null)
+        if (outputLocator2 != null && publishurl != null)
         {
             smoothUrl = publishurl.ToString();
         }
