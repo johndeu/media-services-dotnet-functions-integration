@@ -151,7 +151,7 @@ The format of the json file is:
       }
     ]
 
-## LA-1-Ingest, LA-2-SubmitJob, LA-3-CheckJobStatus, LA-4-Publish functions
+## LA-1-CreateEmptyAsset, LA-2-SyncAssset, LA-3-LiveAnalytics, LA-3-SubmitJob, LA-4-CheckJobStatus, LA-5-Publish functions
 These functions are designed to be called by a Logic App. More details and Logic App samples to come. 
 
 

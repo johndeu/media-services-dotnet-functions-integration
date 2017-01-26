@@ -2,7 +2,11 @@
   "frameworks": {
     "net46":{
       "dependencies": {
+<<<<<<< HEAD
         "windowsazure.mediaservices": "3.8.0.3",
+=======
+        "windowsazure.mediaservices": "3.8.0.5",
+>>>>>>> 88445aebc024ae5289c4b94ae5ba139328a6d704
         "windowsazure.mediaservices.extensions": "3.8.0.3"
       }
     }
