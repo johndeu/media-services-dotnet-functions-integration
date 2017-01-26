@@ -1,6 +1,5 @@
 #r "Newtonsoft.Json"
 #r "Microsoft.WindowsAzure.Storage"
-#r "System.Web"
 #load "../Shared/mediaServicesHelpers.csx"
 #load "../Shared/copyBlobHelpers.csx"
 
@@ -89,10 +88,10 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         // publish with a streaming locator
         IAccessPolicy readPolicy2 = _context.AccessPolicies.Create("readPolicy", TimeSpan.FromHours(4), AccessPermissions.Read);
         ILocator outputLocator2 = _context.Locators.CreateLocator(LocatorType.OnDemandOrigin, outputAsset, readPolicy2);
-        var ismFile = outputAsset.AssetFiles.AsEnumerable().FirstOrDefault(f => f.Name.EndsWith(".ism"));
-        if (ismFile != null && outputLocator2 != null)
+        Uri publishurl = GetValidOnDemandURI(outputAsset);
+        if (outputLocator2 != null && publishurl != null)
         {
-            smoothUrl = outputLocator2.Path + ismFile.Name + "/manifest";
+            smoothUrl = publishurl.ToString();
         }
 
         log.Info($"Smooth url : {smoothUrl}");
