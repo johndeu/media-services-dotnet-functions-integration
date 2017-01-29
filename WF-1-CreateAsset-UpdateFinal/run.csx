@@ -42,7 +42,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     if (data.IngestAssetConfigJson == null)
         return req.CreateResponse(HttpStatusCode.BadRequest, new { error = "Please pass IngestAssetConfigJson in the input object" });
     log.Info("Input - Asset Id : " + data.AssetId);
-    log.Info("Input - IngestAssetConfig : " + data.IngestAssetConfigJson);
+    log.Info("Input - IngestAssetConfigJson : " + data.IngestAssetConfigJson);
 
     string assetid = data.AssetId;
     string ingestAssetConfigJson = data.IngestAssetConfigJson;
@@ -51,6 +51,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         return req.CreateResponse(HttpStatusCode.BadRequest, new { error = "Please pass a valid IngestAssetConfig as FileContent" });
     log.Info("Input - Valid IngestAssetConfig was loaded.");
 
+    // Media Process is required: Encoding, Indexing, etc.
+    bool mediaProcessRequired = false;
     try
     {
         // Load AMS account context
@@ -76,7 +78,12 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             assetFile.ContentFileSize = blob.Properties.Length;
             assetFile.IsPrimary = srcAssetFile.IsPrimary;
             assetFile.Update();
-            log.Info($"Asset file updated: {assetFile.Name}");
+            log.Info("Asset file updated : " + assetFile.Name);
+        }
+
+        if (config.IngestAssetEncoding.Encoding)
+        {
+            mediaProcessRequired = true;
         }
     }
     catch (Exception ex)
@@ -85,5 +92,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         return req.CreateResponse(HttpStatusCode.BadRequest);
     }
 
-    return req.CreateResponse(HttpStatusCode.OK);
+    return req.CreateResponse(HttpStatusCode.OK, new
+    {
+        MediaProcessRequired = mediaProcessRequired
+    });
 }
