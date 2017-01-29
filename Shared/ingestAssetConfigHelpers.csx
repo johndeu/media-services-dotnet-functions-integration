@@ -44,6 +44,8 @@ public class IngestAssetEncoding
     public bool Encoding { get; set; }
     public string Encoder { get; set; }
     public string EncodingPreset { get; set; }
+    public string EncodingConfiguration { get; set; }
+    public string PremiumWorkflowAssetId { get; set; }
 }
 
 public class IngestAssetPublish
@@ -80,7 +82,7 @@ public class IngestAssetConfig
 public static IngestAssetConfig ParseIngestAssetConfig(string jsonIngestConfig)
 {
     IngestAssetConfig c = JsonConvert.DeserializeObject<IngestAssetConfig>(jsonIngestConfig);
-    c.IngestAsset.setAssetCreationOption();
+    //c.IngestAsset.setAssetCreationOption();
     return c;
 }
 
