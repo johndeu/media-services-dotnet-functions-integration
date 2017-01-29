@@ -46,11 +46,34 @@ public class IngestAssetEncoding
     public string EncodingPreset { get; set; }
 }
 
+public class IngestAssetPublish
+{
+    public string StartDate { get; set; }
+    public string EndDate { get; set; }
+    public DateTime PublishStartDateTime = DateTime.Now;
+    public TimeSpan PublishSpan = TimeSpan.FromDays(365);
+    public void set()
+    {
+        if (this.StartDate != null && this.StartDate != "")
+        {
+            this.PublishStartDateTime = Convert.ToDateTime(this.StartDate);
+        }
+
+        if (this.EndDate != null && this.EndDate != "")
+        {
+            DateTime end = Convert.ToDateTime(this.EndDate);
+            this.PublishSpan = end.Subtract(PublishStartDateTime);
+        }
+    }
+}
+
 public class IngestAssetConfig
 {
     public IngestSource IngestSource { get; set; }
     public IngestAsset IngestAsset { get; set; }
     public IngestAssetEncoding IngestAssetEncoding { get; set; }
+    public IngestAssetPublish IngestAssetPublish { get; set; }
+
 }
 
 
@@ -69,9 +92,42 @@ public static bool ValidateIngestAssetConfig(IngestAssetConfig config)
     if (config.IngestAsset == null) return result;
     if (config.IngestAsset.AssetName == null) return result;
     if (config.IngestAsset.AssetFiles == null) return result;
+    config.IngestAsset.setAssetCreationOption();
+
     // IngestSource
     if (config.IngestSource == null) return result;
     if (config.IngestSource.SourceContainerName == null) return result;
+
+    // IngestPublish
+    if (config.IngestAssetPublish != null)
+    {
+        if (config.IngestAssetPublish.StartDate != null)
+        {
+            if (config.IngestAssetPublish.EndDate == null) return result;
+            try
+            {
+                DateTime start = Convert.ToDateTime(config.IngestAssetPublish.StartDate);
+                if (DateTime.Compare(DateTime.Now, start) >= 0) return result;
+            }
+            catch (Exception)
+            {
+                return result;
+            }
+        }
+        if (config.IngestAssetPublish.EndDate != null)
+        {
+            try
+            {
+                DateTime end = Convert.ToDateTime(config.IngestAssetPublish.EndDate);
+                if (DateTime.Compare(DateTime.Now, end) >= 0) return result;
+            }
+            catch (Exception)
+            {
+                return result;
+            }
+        }
+        config.IngestAssetPublish.set();
+    }
 
     return true;
 }
