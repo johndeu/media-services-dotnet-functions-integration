@@ -52,7 +52,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info("Input - Valid IngestAssetConfig was loaded.");
 
     // Media Process is required: Encoding, Indexing, etc.
-    bool mediaProcessRequired = false;
+    int mediaProcessRequired = 0;
     try
     {
         // Load AMS account context
@@ -83,7 +83,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
         if (config.IngestAssetEncoding.Encoding)
         {
-            mediaProcessRequired = true;
+            mediaProcessRequired = 1;
         }
     }
     catch (Exception ex)
