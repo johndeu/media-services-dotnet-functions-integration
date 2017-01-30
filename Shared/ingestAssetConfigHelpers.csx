@@ -130,6 +130,12 @@ public static bool ValidateIngestAssetConfig(IngestAssetConfig config)
         }
         config.IngestAssetPublish.set();
     }
+    else
+    {
+        config.IngestAssetPublish = new IngestAssetPublish();
+        config.IngestAssetPublish.StartDate = null;
+        config.IngestAssetPublish.EndDate = null;
+    }
 
     return true;
 }
