@@ -28,9 +28,13 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info("Request : " + jsonContent);
 
     // Validate input objects
+    int delay = 15000;
     if (data.JobId == null)
         return req.CreateResponse(HttpStatusCode.BadRequest, new { error = "Please pass JobId in the input object" });
+    if (data.Delay != null)
+        delay = data.Delay;
     log.Info("Input - Job Id : " + data.JobId);
+    log.Info("delay : " + delay);
 
     IJob job = null;
     try
@@ -63,6 +67,9 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     // - Canceled = 5
     // - Canceling = 6
     log.Info($"Job {job.Id} status is {job.State}");
+    log.Info($"Wait " + delay + "(ms)");
+    System.Threading.Thread.Sleep(delay);
+
     return req.CreateResponse(HttpStatusCode.OK, new
     {
         JobId = job.Id,

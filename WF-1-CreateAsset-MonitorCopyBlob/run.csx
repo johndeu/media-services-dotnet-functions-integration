@@ -29,8 +29,13 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info("Request : " + jsonContent);
 
     // Validate input objects
+    int delay = 15000;
     if (data.DestinationContainer == null)
         return req.CreateResponse(HttpStatusCode.BadRequest, new { error = "Please pass DestinationContainer in the input object" });
+    if (data.Delay != null)
+        delay = data.Delay;
+    log.Info("Input - DestinationContainer : " + data.DestinationContainer);
+    log.Info("delay : " + delay);
 
     CopyStatus copyStatus = CopyStatus.Success;
     try
@@ -64,6 +69,9 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         log.Info("Exception " + ex);
         return req.CreateResponse(HttpStatusCode.BadRequest);
     }
+
+    log.Info($"Wait " + delay + "(ms)");
+    System.Threading.Thread.Sleep(delay);
 
     return req.CreateResponse(HttpStatusCode.OK, new
     {
