@@ -42,15 +42,15 @@ private static int _taskindex = 0;
 
 // Submit an encoding job
 // Required : data.AssetId (Example : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc")
-// with MES (default)
-// with Premium Encoder if data.WorkflowAssetId is specified (Example : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc")
+// with MES if MESPreset is specified (Example : "H264 Multiple Bitrate 720p"). If MESPreset contains an extension "H264 Multiple Bitrate 720p with thumbnail.json" then it loads this file from D:\home\site\wwwroot\Presets 
+// with Premium Encoder if WorkflowAssetId is specified (Example : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc")
 // with Indexer v1 if IndexV1Language is specified (Example : "English")
 // with Indexer v2 if IndexV2Language is specified (Example : "EnUs")
-// with Video OCR if data.OCRLanguage is specified (Example: "AutoDetect" or "English")
-// with Face Detection if data.FaceDetectionMode is specified (Example : "PerFaceEmotion")
-// with Motion Detection if data.MotionDetectionLevel is specified (Example : "medium")
-// with Video Summarization if data.SummarizationDuration is specified (Example : "0.0" for automatic)
-// with Hyperlapse if data.HyperlapseSpeed is specified (Example : "8" for speed x8)
+// with Video OCR if OCRLanguage is specified (Example: "AutoDetect" or "English")
+// with Face Detection if FaceDetectionMode is specified (Example : "PerFaceEmotion")
+// with Motion Detection if MotionDetectionLevel is specified (Example : "medium")
+// with Video Summarization if SummarizationDuration is specified (Example : "0.0" for automatic)
+// with Hyperlapse if HyperlapseSpeed is specified (Example : "8" for speed x8)
 
 
 public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
@@ -92,7 +92,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     int OutputSummarization = -1;
     int OutputHyperlapse = -1;
 
-
     try
     {
         // Create and cache the Media Services credentials in a static class variable.
@@ -116,7 +115,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             });
         }
 
-        if (data.WorkflowAssetId == null)  // MES Task
+        if (data.MESPreset != null)  // MES Task
         {
             // Declare a new encoding job with the Standard encoder
             job = _context.Jobs.Create("Azure Function - MES Job");
@@ -124,8 +123,13 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             // processor to use for the specific task.
             IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
 
-            // Change or modify the custom preset JSON used here.
-            // string preset = File.ReadAllText("D:\home\site\wwwroot\Presets\H264 Multiple Bitrate 720p.json");
+            string preset = data.MESPreset;
+
+            if (preset.ToUpper().EndsWith(".JSON"))
+            {
+                // Change or modify the custom preset JSON used here.
+                preset = File.ReadAllText(@"D:\home\site\wwwroot\Presets\" + preset);
+            }
 
             // Create a task with the encoding details, using a string preset.
             // In this case "H264 Multiple Bitrate 720p" system defined preset is used.
@@ -138,7 +142,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             taskEncoding.InputAssets.Add(asset);
             OutputMES = _taskindex++;
         }
-        else // Premium Encoder Task
+
+        if (data.WorkflowAssetId != null)// Premium Encoder Task
         {
 
             //find the workflow asset
@@ -203,12 +208,21 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     }
 
     log.Info("Job Id: " + job.Id);
-    log.Info("Output asset Id: " + ((OutputMES > -1) ? ReturnId(job, OutputMES) : ReturnId(job, OutputPremium)));
+    log.Info("OutputAssetMESId: ", ReturnId(job, OutputMES));
+    log.Info("OutputAssetMEPWId: ", ReturnId(job, OutputPremium));
+    log.Info("OutputAssetIndexV1Id: ", ReturnId(job, OutputIndex1));
+    log.Info("OutputAssetIndexV2Id: ", ReturnId(job, OutputIndex2));
+    log.Info("OutputAssetOCRId: ", ReturnId(job, OutputOCR));
+    log.Info("OutputAssetFaceDetectionId: ", ReturnId(job, OutputFace));
+    log.Info("OutputAssetMotionDetectionId: ", ReturnId(job, OutputMotion));
+    log.Info("OutputAssetSummarizationId: ", ReturnId(job, OutputSummarization));
+    log.Info("OutputAssetHyperlapseId: ", ReturnId(job, OutputHyperlapse));
 
     return req.CreateResponse(HttpStatusCode.OK, new
     {
         JobId = job.Id,
-        OutputAssetId = OutputMES > -1 ? ReturnId(job, OutputMES) : ReturnId(job, OutputPremium),
+        OutputAssetMESId = ReturnId(job, OutputMES),
+        OutputAssetMEPWId = ReturnId(job, OutputPremium),
         OutputAssetIndexV1Id = ReturnId(job, OutputIndex1),
         OutputAssetIndexV2Id = ReturnId(job, OutputIndex2),
         OutputAssetOCRId = ReturnId(job, OutputOCR),
