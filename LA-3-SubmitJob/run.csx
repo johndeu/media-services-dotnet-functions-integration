@@ -121,7 +121,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             job = _context.Jobs.Create("Azure Function - MES Job");
             // Get a media processor reference, and pass to it the name of the 
             // processor to use for the specific task.
-            IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
+            IMediaProcessor processorMES = GetLatestMediaProcessorByName("Media Encoder Standard");
 
             string preset = data.MESPreset;
 
@@ -133,14 +133,19 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
             // Create a task with the encoding details, using a string preset.
             // In this case "H264 Multiple Bitrate 720p" system defined preset is used.
-            taskEncoding = job.Tasks.AddNew("My encoding task",
-               processor,
-               "H264 Multiple Bitrate 720p",
+            taskEncoding = job.Tasks.AddNew("MES encoding task",
+               processorMES,
+               preset,
                TaskOptions.None);
 
             // Specify the input asset to be encoded.
             taskEncoding.InputAssets.Add(asset);
             OutputMES = _taskindex++;
+
+            // Add an output asset to contain the results of the job. 
+            // This output is specified as AssetCreationOptions.None, which 
+            // means the output asset is not encrypted. 
+            taskEncoding.OutputAssets.AddNew(asset.Name + " MES encoded", AssetCreationOptions.None);
         }
 
         if (data.WorkflowAssetId != null)// Premium Encoder Task
@@ -159,12 +164,9 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
                 });
             }
 
-            // Declare a new job.
-            job = _context.Jobs.Create("Premium Encoder Job");
-
             // Get a media processor reference, and pass to it the name of the 
             // processor to use for the specific task.
-            IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Premium Workflow");
+            IMediaProcessor processorMEPW = GetLatestMediaProcessorByName("Media Encoder Premium Workflow");
 
             string premiumConfiguration = "";
             // In some cases, a configuration can be loaded and passed it to the task to tuned the workflow
@@ -172,7 +174,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
             // Create a task
             taskEncoding = job.Tasks.AddNew("Premium Workflow encoding task",
-               processor,
+               processorMEPW,
                premiumConfiguration,
                TaskOptions.None);
 
@@ -182,12 +184,13 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             taskEncoding.InputAssets.Add(workflowAsset); // first add the Workflow
             taskEncoding.InputAssets.Add(asset); // Then add the video asset
             OutputPremium = _taskindex++;
+
+            // Add an output asset to contain the results of the job. 
+            // This output is specified as AssetCreationOptions.None, which 
+            // means the output asset is not encrypted. 
+            taskEncoding.OutputAssets.AddNew(asset.Name + " Premium encoded", AssetCreationOptions.None);
         }
 
-        // Add an output asset to contain the results of the job. 
-        // This output is specified as AssetCreationOptions.None, which 
-        // means the output asset is not encrypted. 
-        taskEncoding.OutputAssets.AddNew(asset.Name + " encoded", AssetCreationOptions.None);
 
         // Media Analytics
         OutputIndex1 = AddTask(job, asset, (string)data.IndexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English");
