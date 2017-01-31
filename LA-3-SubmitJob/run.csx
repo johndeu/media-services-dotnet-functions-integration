@@ -213,15 +213,15 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     job = _context.Jobs.Where(j => j.Id == job.Id).FirstOrDefault(); // Let's refresh the job
 
     log.Info("Job Id: " + job.Id);
-    log.Info("OutputAssetMESId: ", ReturnId(job, OutputMES));
-    log.Info("OutputAssetMEPWId: ", ReturnId(job, OutputMEPW));
-    log.Info("OutputAssetIndexV1Id: ", ReturnId(job, OutputIndex1));
-    log.Info("OutputAssetIndexV2Id: ", ReturnId(job, OutputIndex2));
-    log.Info("OutputAssetOCRId: ", ReturnId(job, OutputOCR));
-    log.Info("OutputAssetFaceDetectionId: ", ReturnId(job, OutputFace));
-    log.Info("OutputAssetMotionDetectionId: ", ReturnId(job, OutputMotion));
-    log.Info("OutputAssetSummarizationId: ", ReturnId(job, OutputSummarization));
-    log.Info("OutputAssetHyperlapseId: ", ReturnId(job, OutputHyperlapse));
+    log.Info("OutputAssetMESId: " + ReturnId(job, OutputMES));
+    log.Info("OutputAssetMEPWId: " + ReturnId(job, OutputMEPW));
+    log.Info("OutputAssetIndexV1Id: " + ReturnId(job, OutputIndex1));
+    log.Info("OutputAssetIndexV2Id: " + ReturnId(job, OutputIndex2));
+    log.Info("OutputAssetOCRId: " + ReturnId(job, OutputOCR));
+    log.Info("OutputAssetFaceDetectionId: " + ReturnId(job, OutputFace));
+    log.Info("OutputAssetMotionDetectionId: " + ReturnId(job, OutputMotion));
+    log.Info("OutputAssetSummarizationId: " + ReturnId(job, OutputSummarization));
+    log.Info("OutputAssetHyperlapseId: " + ReturnId(job, OutputHyperlapse));
 
     return req.CreateResponse(HttpStatusCode.OK, new
     {
