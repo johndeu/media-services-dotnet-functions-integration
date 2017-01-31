@@ -212,6 +212,9 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     job = _context.Jobs.Where(j => j.Id == job.Id).FirstOrDefault(); // Let's refresh the job
 
+    log.Info($"OutputMES {OutputMES}");
+    log.Info($"OutputSummarization {OutputSummarization}");
+
     log.Info("Job Id: " + job.Id);
     log.Info("OutputAssetMESId: " + ReturnId(job, OutputMES));
     log.Info("OutputAssetMEPWId: " + ReturnId(job, OutputMEPW));
