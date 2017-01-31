@@ -83,7 +83,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     ITask taskEncoding = null;
 
     int OutputMES = -1;
-    int OutputPremium = -1;
+    int OutputMEPW = -1;
     int OutputIndex1 = -1;
     int OutputIndex2 = -1;
     int OutputOCR = -1;
@@ -183,7 +183,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             // Specify the input asset to be encoded.
             taskEncoding.InputAssets.Add(workflowAsset); // first add the Workflow
             taskEncoding.InputAssets.Add(asset); // Then add the video asset
-            OutputPremium = _taskindex++;
+            OutputMEPW = _taskindex++;
 
             // Add an output asset to contain the results of the job. 
             // This output is specified as AssetCreationOptions.None, which 
@@ -210,9 +210,11 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         return req.CreateResponse(HttpStatusCode.BadRequest);
     }
 
+    job = _context.Jobs.Where(j => j.Id == job.Id).FirstOrDefault(); // Let's refresh the job
+
     log.Info("Job Id: " + job.Id);
     log.Info("OutputAssetMESId: ", ReturnId(job, OutputMES));
-    log.Info("OutputAssetMEPWId: ", ReturnId(job, OutputPremium));
+    log.Info("OutputAssetMEPWId: ", ReturnId(job, OutputMEPW));
     log.Info("OutputAssetIndexV1Id: ", ReturnId(job, OutputIndex1));
     log.Info("OutputAssetIndexV2Id: ", ReturnId(job, OutputIndex2));
     log.Info("OutputAssetOCRId: ", ReturnId(job, OutputOCR));
@@ -225,7 +227,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     {
         JobId = job.Id,
         OutputAssetMESId = ReturnId(job, OutputMES),
-        OutputAssetMEPWId = ReturnId(job, OutputPremium),
+        OutputAssetMEPWId = ReturnId(job, OutputMEPW),
         OutputAssetIndexV1Id = ReturnId(job, OutputIndex1),
         OutputAssetIndexV2Id = ReturnId(job, OutputIndex2),
         OutputAssetOCRId = ReturnId(job, OutputOCR),
