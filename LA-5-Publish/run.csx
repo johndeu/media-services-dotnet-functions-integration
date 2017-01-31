@@ -108,7 +108,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     return req.CreateResponse(HttpStatusCode.OK, new
     {
         PlayerUrl = playerUrl,
-        SmoothUrl = smoothUrl
+        SmoothUrl = smoothUrl,
+        PathUrl = smoothUrl.Substring(0, smoothUrl.Length - "/manifest".Length)
     });
 }
 
