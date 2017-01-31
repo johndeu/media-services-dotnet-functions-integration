@@ -93,7 +93,11 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         if (outputLocator2 != null && publishurl != null)
         {
             smoothUrl = publishurl.ToString();
-            pathUrl = publishurl.GetLeftPart(UriPartial.Path);
+            UriBuilder u2 = new UriBuilder();
+            u2.Host = publishurl.Host;
+            u2.Path = publishurl.Segments[0] + publishurl.Segments[1];
+            u2.Scheme = publishurl.Scheme;
+            pathUrl = u2.ToString();
         }
 
         log.Info($"Smooth url : {smoothUrl}");
