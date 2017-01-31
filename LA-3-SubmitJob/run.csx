@@ -39,7 +39,6 @@ private static CloudStorageAccount _destinationStorageAccount = null;
 
 private static int _taskindex = 0;
 
-
 // Submit an encoding job
 // Required : data.AssetId (Example : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc")
 // with MES if MESPreset is specified (Example : "H264 Multiple Bitrate 720p"). If MESPreset contains an extension "H264 Multiple Bitrate 720p with thumbnail.json" then it loads this file from D:\home\site\wwwroot\Presets 
@@ -55,6 +54,8 @@ private static int _taskindex = 0;
 
 public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 {
+    _taskindex = 0;
+
     log.Info($"Webhook was triggered!");
 
     string jsonContent = await req.Content.ReadAsStringAsync();
@@ -211,9 +212,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     }
 
     job = _context.Jobs.Where(j => j.Id == job.Id).FirstOrDefault(); // Let's refresh the job
-
-    log.Info($"OutputMES {OutputMES}");
-    log.Info($"OutputSummarization {OutputSummarization}");
 
     log.Info("Job Id: " + job.Id);
     log.Info("OutputAssetMESId: " + ReturnId(job, OutputMES));
