@@ -91,8 +91,16 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         return req.CreateResponse(HttpStatusCode.BadRequest);
     }
 
-
     log.Info($"Job {job.Id} status is {job.State}");
+
+
+    if (job.State == JobState.Queued || job.State == JobState.Scheduled || job.State == JobState.Processing)
+    {
+        log.Info("Waiting 15 s...");
+        System.Threading.Thread.Sleep(15 * 1000);
+    }
+
+
     return req.CreateResponse(HttpStatusCode.OK, new
     {
         JobId = job.Id,
