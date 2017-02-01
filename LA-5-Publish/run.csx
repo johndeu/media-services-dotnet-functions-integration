@@ -58,6 +58,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     string playerUrl = "";
     string smoothUrl = "";
+    string pathUrl = "";
 
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
@@ -92,6 +93,11 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         if (outputLocator2 != null && publishurl != null)
         {
             smoothUrl = publishurl.ToString();
+            UriBuilder u2 = new UriBuilder();
+            u2.Host = publishurl.Host;
+            u2.Path = publishurl.Segments[0] + publishurl.Segments[1];
+            u2.Scheme = publishurl.Scheme;
+            pathUrl = u2.ToString();
         }
 
         log.Info($"Smooth url : {smoothUrl}");
@@ -108,7 +114,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     return req.CreateResponse(HttpStatusCode.OK, new
     {
         PlayerUrl = playerUrl,
-        SmoothUrl = smoothUrl
+        SmoothUrl = smoothUrl,
+        PathUrl = pathUrl
     });
 }
 

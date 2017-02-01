@@ -39,22 +39,23 @@ private static CloudStorageAccount _destinationStorageAccount = null;
 
 private static int _taskindex = 0;
 
-
 // Submit an encoding job
 // Required : data.AssetId (Example : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc")
-// with MES (default)
-// with Premium Encoder if data.WorkflowAssetId is specified (Example : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc")
+// with MES if MESPreset is specified (Example : "H264 Multiple Bitrate 720p"). If MESPreset contains an extension "H264 Multiple Bitrate 720p with thumbnail.json" then it loads this file from D:\home\site\wwwroot\Presets 
+// with Premium Encoder if WorkflowAssetId is specified (Example : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc")
 // with Indexer v1 if IndexV1Language is specified (Example : "English")
 // with Indexer v2 if IndexV2Language is specified (Example : "EnUs")
-// with Video OCR if data.OCRLanguage is specified (Example: "AutoDetect" or "English")
-// with Face Detection if data.FaceDetectionMode is specified (Example : "PerFaceEmotion")
-// with Motion Detection if data.MotionDetectionLevel is specified (Example : "medium")
-// with Video Summarization if data.SummarizationDuration is specified (Example : "0.0" for automatic)
-// with Hyperlapse if data.HyperlapseSpeed is specified (Example : "8" for speed x8)
+// with Video OCR if OCRLanguage is specified (Example: "AutoDetect" or "English")
+// with Face Detection if FaceDetectionMode is specified (Example : "PerFaceEmotion")
+// with Motion Detection if MotionDetectionLevel is specified (Example : "medium")
+// with Video Summarization if SummarizationDuration is specified (Example : "0.0" for automatic)
+// with Hyperlapse if HyperlapseSpeed is specified (Example : "8" for speed x8)
 
 
 public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 {
+    _taskindex = 0;
+
     log.Info($"Webhook was triggered!");
 
     string jsonContent = await req.Content.ReadAsStringAsync();
@@ -83,7 +84,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     ITask taskEncoding = null;
 
     int OutputMES = -1;
-    int OutputPremium = -1;
+    int OutputMEPW = -1;
     int OutputIndex1 = -1;
     int OutputIndex2 = -1;
     int OutputOCR = -1;
@@ -91,7 +92,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     int OutputMotion = -1;
     int OutputSummarization = -1;
     int OutputHyperlapse = -1;
-
 
     try
     {
@@ -116,29 +116,40 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             });
         }
 
-        if (data.WorkflowAssetId == null)  // MES Task
+        if (data.MESPreset != null)  // MES Task
         {
             // Declare a new encoding job with the Standard encoder
             job = _context.Jobs.Create("Azure Function - MES Job");
             // Get a media processor reference, and pass to it the name of the 
             // processor to use for the specific task.
-            IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
+            IMediaProcessor processorMES = GetLatestMediaProcessorByName("Media Encoder Standard");
 
-            // Change or modify the custom preset JSON used here.
-            // string preset = File.ReadAllText("D:\home\site\wwwroot\Presets\H264 Multiple Bitrate 720p.json");
+            string preset = data.MESPreset;
+
+            if (preset.ToUpper().EndsWith(".JSON"))
+            {
+                // Change or modify the custom preset JSON used here.
+                preset = File.ReadAllText(@"D:\home\site\wwwroot\Presets\" + preset);
+            }
 
             // Create a task with the encoding details, using a string preset.
             // In this case "H264 Multiple Bitrate 720p" system defined preset is used.
-            taskEncoding = job.Tasks.AddNew("My encoding task",
-               processor,
-               "H264 Multiple Bitrate 720p",
+            taskEncoding = job.Tasks.AddNew("MES encoding task",
+               processorMES,
+               preset,
                TaskOptions.None);
 
             // Specify the input asset to be encoded.
             taskEncoding.InputAssets.Add(asset);
             OutputMES = _taskindex++;
+
+            // Add an output asset to contain the results of the job. 
+            // This output is specified as AssetCreationOptions.None, which 
+            // means the output asset is not encrypted. 
+            taskEncoding.OutputAssets.AddNew(asset.Name + " MES encoded", AssetCreationOptions.None);
         }
-        else // Premium Encoder Task
+
+        if (data.WorkflowAssetId != null)// Premium Encoder Task
         {
 
             //find the workflow asset
@@ -154,12 +165,9 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
                 });
             }
 
-            // Declare a new job.
-            job = _context.Jobs.Create("Premium Encoder Job");
-
             // Get a media processor reference, and pass to it the name of the 
             // processor to use for the specific task.
-            IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Premium Workflow");
+            IMediaProcessor processorMEPW = GetLatestMediaProcessorByName("Media Encoder Premium Workflow");
 
             string premiumConfiguration = "";
             // In some cases, a configuration can be loaded and passed it to the task to tuned the workflow
@@ -167,7 +175,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
             // Create a task
             taskEncoding = job.Tasks.AddNew("Premium Workflow encoding task",
-               processor,
+               processorMEPW,
                premiumConfiguration,
                TaskOptions.None);
 
@@ -176,13 +184,14 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             // Specify the input asset to be encoded.
             taskEncoding.InputAssets.Add(workflowAsset); // first add the Workflow
             taskEncoding.InputAssets.Add(asset); // Then add the video asset
-            OutputPremium = _taskindex++;
+            OutputMEPW = _taskindex++;
+
+            // Add an output asset to contain the results of the job. 
+            // This output is specified as AssetCreationOptions.None, which 
+            // means the output asset is not encrypted. 
+            taskEncoding.OutputAssets.AddNew(asset.Name + " Premium encoded", AssetCreationOptions.None);
         }
 
-        // Add an output asset to contain the results of the job. 
-        // This output is specified as AssetCreationOptions.None, which 
-        // means the output asset is not encrypted. 
-        taskEncoding.OutputAssets.AddNew(asset.Name + " encoded", AssetCreationOptions.None);
 
         // Media Analytics
         OutputIndex1 = AddTask(job, asset, (string)data.IndexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English");
@@ -202,13 +211,24 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         return req.CreateResponse(HttpStatusCode.BadRequest);
     }
 
+    job = _context.Jobs.Where(j => j.Id == job.Id).FirstOrDefault(); // Let's refresh the job
+
     log.Info("Job Id: " + job.Id);
-    log.Info("Output asset Id: " + ((OutputMES > -1) ? ReturnId(job, OutputMES) : ReturnId(job, OutputPremium)));
+    log.Info("OutputAssetMESId: " + ReturnId(job, OutputMES));
+    log.Info("OutputAssetMEPWId: " + ReturnId(job, OutputMEPW));
+    log.Info("OutputAssetIndexV1Id: " + ReturnId(job, OutputIndex1));
+    log.Info("OutputAssetIndexV2Id: " + ReturnId(job, OutputIndex2));
+    log.Info("OutputAssetOCRId: " + ReturnId(job, OutputOCR));
+    log.Info("OutputAssetFaceDetectionId: " + ReturnId(job, OutputFace));
+    log.Info("OutputAssetMotionDetectionId: " + ReturnId(job, OutputMotion));
+    log.Info("OutputAssetSummarizationId: " + ReturnId(job, OutputSummarization));
+    log.Info("OutputAssetHyperlapseId: " + ReturnId(job, OutputHyperlapse));
 
     return req.CreateResponse(HttpStatusCode.OK, new
     {
         JobId = job.Id,
-        OutputAssetId = OutputMES > -1 ? ReturnId(job, OutputMES) : ReturnId(job, OutputPremium),
+        OutputAssetMESId = ReturnId(job, OutputMES),
+        OutputAssetMEPWId = ReturnId(job, OutputMEPW),
         OutputAssetIndexV1Id = ReturnId(job, OutputIndex1),
         OutputAssetIndexV2Id = ReturnId(job, OutputIndex2),
         OutputAssetOCRId = ReturnId(job, OutputOCR),
