@@ -34,7 +34,10 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     if (data.Delay != null)
         delay = data.Delay;
     log.Info("Input - Job Id : " + data.JobId);
-    log.Info("delay : " + delay);
+    //log.Info("delay : " + delay);
+
+    log.Info($"Wait " + delay + "(ms)");
+    System.Threading.Thread.Sleep(delay);
 
     IJob job = null;
     try
@@ -67,8 +70,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     // - Canceled = 5
     // - Canceling = 6
     log.Info($"Job {job.Id} status is {job.State}");
-    log.Info($"Wait " + delay + "(ms)");
-    System.Threading.Thread.Sleep(delay);
 
     return req.CreateResponse(HttpStatusCode.OK, new
     {
