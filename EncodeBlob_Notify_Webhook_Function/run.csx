@@ -40,7 +40,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
     // No need to do any Retry strategy in this function, By default, the SDK calls a function up to 5 times for a 
     // given blob. If the fifth try fails, the SDK adds a message to a queue named webjobs-blobtrigger-poison.
 
-    log.Info($"C# Blob  trigger function processed: {fileName}.{fileExtension}");
+    log.Info($"C# Blob  trigger  function processed: {fileName}.{fileExtension}");
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
     // Use this key to sign WebHook requests with

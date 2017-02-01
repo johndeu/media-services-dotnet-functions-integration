@@ -4,6 +4,23 @@ platforms: dotnet
 author: johndeu
 ---
 
+# Deployment: Azure Resource Management Template
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https://github.com/Azure-Samples/media-services-dotnet-functions-integration/blob/master/arm-deployment.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
+<a href="http://armviz.io/#/?load=https://github.com/Azure-Samples/media-services-dotnet-functions-integration/blob/master/arm-deployment.json" target="_blank">
+    <img src="http://armviz.io/visualizebutton.png"/>
+</a>
+
+# TEST
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fgithub.com%2Fjohndeu%2Fmedia-services-dotnet-functions-integration%2Fblob%2Fmaster%2Farm-deployment.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
+<a href="http://armviz.io/?load=https%3A%2F%2Fgithub.com%2Fjohndeu%2Fmedia-services-dotnet-functions-integration%2Fblob%2Fmaster%2Farm-deployment.json" target="_blank">
+    <img src="http://armviz.io/visualizebutton.png"/>
+</a>
+
+
 # Media Services: Integrating Azure Media Services with Azure Functions
 This project contains examples of using Azure Functions with Azure Media Services. 
 The project includes several folders of sample Azure Functions for use with Azure Media Services that show workflows related
