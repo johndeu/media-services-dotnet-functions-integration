@@ -13,11 +13,10 @@
   ],
   "paths": {
     "/api/LA-1-CreateEmptyAsset": {
-      "get": {
+      "post": {
         "description": "Create an empty AMS asset",
         "operationId": "RunThis",
-        "parameters": [
-                    {
+        "parameters": [                    {
             "name": "AssetId",
             "in": "query",
             "description": "the asset id",
