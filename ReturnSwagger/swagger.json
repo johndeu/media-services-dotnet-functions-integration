@@ -15,11 +15,18 @@
     "/api/LA-1-CreateEmptyAsset": {
       "post": {
         "description": "Create an empty AMS asset",
-        "operationId": "RunThis",
+        "operationId": "Create an empty AMS asset",
         "parameters": [                    {
             "name": "AssetId",
             "in": "query",
             "description": "the asset id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "FileName",
+            "in": "body",
+            "description": "the file name",
             "required": true,
             "type": "string"
           }
