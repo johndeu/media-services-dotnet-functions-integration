@@ -4,6 +4,12 @@ platforms: dotnet
 author: johndeu
 ---
 
+# Deployment: Azure Resource Management Template
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2Fmedia-services-dotnet-functions-integration%2Fmaster%2Fazuredeploy.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
+
+
 # Media Services: Integrating Azure Media Services with Azure Functions
 This project contains examples of using Azure Functions with Azure Media Services. 
 The project includes several folders of sample Azure Functions for use with Azure Media Services that show workflows related

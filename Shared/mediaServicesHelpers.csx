@@ -1,20 +1,9 @@
-#r "Microsoft.WindowsAzure.Storage"
 #r "System.Web"
 #r "System.ServiceModel"
 
 using System;
 using System.ServiceModel;
 using Microsoft.WindowsAzure.MediaServices.Client;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.IO;
-using Microsoft.Azure; 
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
-using Microsoft.WindowsAzure.Storage.Auth;
 
 private static IMediaProcessor GetLatestMediaProcessorByName(string mediaProcessorName)
 {
