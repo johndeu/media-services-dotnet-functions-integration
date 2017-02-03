@@ -15,18 +15,11 @@
     "/api/LA-1-CreateEmptyAsset": {
       "get": {
         "description": "Create an empty AMS asset",
-        "operationId": "Create an empty asset",
+        "operationId": "RunThis",
         "parameters": [
-          {
-            "name": "code",
-            "in": "query",
-            "description": "code",
-            "default": "h6ztu…[your code here]…i",
-            "type": "string"
-          },
-          {
+                    {
             "name": "AssetId",
-            "in": "body",
+            "in": "query",
             "description": "the asset id",
             "required": true,
             "type": "string"
