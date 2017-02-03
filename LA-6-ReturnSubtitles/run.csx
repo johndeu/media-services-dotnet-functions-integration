@@ -86,14 +86,10 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             });
         }
 
-        Uri publishurl = GetValidOnDemandURI(outputAsset);
+        Uri publishurl = GetValidOnDemandPath(outputAsset);
         if (publishurl != null)
         {
-            UriBuilder u2 = new UriBuilder();
-            u2.Host = publishurl.Host;
-            u2.Path = publishurl.Segments[0] + publishurl.Segments[1];
-            u2.Scheme = publishurl.Scheme;
-            pathUrl = u2.ToString();
+            pathUrl = publishurl.ToString();
 
             var subtitle = outputAsset.AssetFiles.Where(a => a.Name.ToUpper().EndsWith(".VTT")).FirstOrDefault();
             if (subtitle == null)
