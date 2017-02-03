@@ -18,6 +18,13 @@
         "operationId": "Create an empty asset",
         "parameters": [
           {
+            "name": "code",
+            "in": "query",
+            "description": "code",
+            "default": "h6ztu…[your code here]…i",
+            "type": "string"
+          },
+          {
             "name": "AssetId",
             "in": "body",
             "description": "the asset id",
