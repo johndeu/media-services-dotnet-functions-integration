@@ -49,13 +49,13 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     if (data.AssetId == null)
     {
         // for test
-        data.AssetId = "nb:cid:UUID:88432c30-cb4a-4496-88c2-b2a05ce9033b";
-        /*
+        //data.AssetId = "nb:cid:UUID:88432c30-cb4a-4496-88c2-b2a05ce9033b";
+        
         return req.CreateResponse(HttpStatusCode.BadRequest, new
         {
             error = "Please pass asset ID in the input object (AssetId)"
         });
-        */
+        
     }
 
     string vttUrl = "";
