@@ -95,7 +95,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             u2.Scheme = publishurl.Scheme;
             pathUrl = u2.ToString();
 
-            var subtitle = outputAsset.AssetFiles.Where(a => a.Name.ToUpper().EndsWith(".VTT").FirstOrDefault());
+            var subtitle = outputAsset.AssetFiles.Where(a => a.Name.ToUpper().EndsWith(".VTT")).FirstOrDefault();
             if (subtitle == null)
             {
                 log.Info($"VTT Subtitle file not found {assetid}");
