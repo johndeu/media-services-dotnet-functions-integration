@@ -35,7 +35,10 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     if (data.Delay != null)
         delay = data.Delay;
     log.Info("Input - DestinationContainer : " + data.DestinationContainer);
-    log.Info("delay : " + delay);
+    //log.Info("delay : " + delay);
+
+    log.Info($"Wait " + delay + "(ms)");
+    System.Threading.Thread.Sleep(delay);
 
     CopyStatus copyStatus = CopyStatus.Success;
     try
@@ -69,9 +72,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         log.Info("Exception " + ex);
         return req.CreateResponse(HttpStatusCode.BadRequest);
     }
-
-    log.Info($"Wait " + delay + "(ms)");
-    System.Threading.Thread.Sleep(delay);
 
     return req.CreateResponse(HttpStatusCode.OK, new
     {
