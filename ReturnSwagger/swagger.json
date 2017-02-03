@@ -5,6 +5,12 @@
     "title": "MyAzureFunction"
   },
   "host": "mediaservicesxp3.azurewebsites.net",
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
   "paths": {
     "/api/LA-1-CreateEmptyAsset": {
       "get": {
@@ -13,7 +19,7 @@
         "parameters": [
           {
             "name": "AssetId",
-            "in": "query",
+            "in": "body",
             "description": "the asset id",
             "required": true,
             "type": "string"
