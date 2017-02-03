@@ -47,14 +47,14 @@ private static int _taskindex = 0;
 // Submit an encoding job
 // Required : data.AssetId (Example : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc")
 // with MES (default)
-// with Premium Encoder if data.WorkflowAssetId is specified (Example : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc")
+// with Premium Encoder if WorkflowAssetId is specified (Example : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc")
 // with Indexer v1 if IndexV1Language is specified (Example : "English")
 // with Indexer v2 if IndexV2Language is specified (Example : "EnUs")
-// with Video OCR if data.OCRLanguage is specified (Example: "AutoDetect" or "English")
-// with Face Detection if data.FaceDetectionMode is specified (Example : "PerFaceEmotion")
-// with Motion Detection if data.MotionDetectionLevel is specified (Example : "medium")
-// with Video Summarization if data.SummarizationDuration is specified (Example : "0.0" for automatic)
-// with Hyperlapse if data.HyperlapseSpeed is specified (Example : "8" for speed x8)
+// with Video OCR if OCRLanguage is specified (Example: "AutoDetect" or "English")
+// with Face Detection if FaceDetectionMode is specified (Example : "PerFaceEmotion")
+// with Motion Detection if MotionDetectionLevel is specified (Example : "medium")
+// with Video Summarization if SummarizationDuration is specified (Example : "0.0" for automatic)
+// with Hyperlapse if HyperlapseSpeed is specified (Example : "8" for speed x8)
 //
 // Option: data.IntervalSec (Example: "30")
 

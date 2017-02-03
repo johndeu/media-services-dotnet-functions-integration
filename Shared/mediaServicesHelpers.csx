@@ -58,6 +58,41 @@ public static IEnumerable<Uri> GetValidURIs(IAsset asset)
     }
 }
 
+public static Uri GetValidOnDemandPath(IAsset asset)
+{
+    var aivalidurls = GetValidPaths(asset);
+    if (aivalidurls != null)
+    {
+        return aivalidurls.FirstOrDefault();
+    }
+    else
+    {
+        return null;
+    }
+}
+
+public static IEnumerable<Uri> GetValidPaths(IAsset asset)
+{
+    IEnumerable<Uri> ValidURIs;
+    
+        var locators = asset.Locators.Where(l => l.Type == LocatorType.OnDemandOrigin && l.ExpirationDateTime > DateTime.UtcNow).OrderByDescending(l => l.ExpirationDateTime);
+
+        var template = new UriTemplate("{contentAccessComponent}/");
+        ValidURIs = locators.SelectMany(l =>
+            _context
+                .StreamingEndpoints
+                .AsEnumerable()
+                  .Where(o => (o.State == StreamingEndpointState.Running) && (CanDoDynPackaging(o)))
+                  .OrderByDescending(o => o.CdnEnabled)
+                .Select(
+                    o =>
+                        template.BindByPosition(new Uri("http://" + o.HostName), l.ContentAccessComponent)))
+            .ToArray();
+
+        return ValidURIs;
+    
+}
+
 static public bool CanDoDynPackaging(IStreamingEndpoint mySE)
 {
     return ReturnTypeSE(mySE) != StreamEndpointType.Classic;
