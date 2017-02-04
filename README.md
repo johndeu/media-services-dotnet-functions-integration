@@ -3,12 +3,9 @@ services: media-services,functions
 platforms: dotnet
 author: johndeu
 ---
-
-# Deployment: Azure Resource Management Template
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2Fmedia-services-dotnet-functions-integration%2Fmaster%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
-
 
 # Media Services: Integrating Azure Media Services with Azure Functions
 This project contains examples of using Azure Functions with Azure Media Services. 
@@ -16,13 +13,33 @@ The project includes several folders of sample Azure Functions for use with Azur
 to ingesting content directly from blob storage, encoding, and writing content back to blob storage. It also includes examples of
 how to monitor job notifications via WebHooks and Azure Queues. 
 
+## Deploying to Azure
+It is recommended that you first fork the project and update the "sourceCodeRepositoryURL" in the [azuredeploy.json](azuredeploy.json) template parameters
+when deploying to your own Azure account.  That way you can more easily update, experiment and edit the code and see changes
+reflected quickly in your own Functions deployment.  
+
+
+
+### Contributions
+Ideas and contributions are always welcome. We are trying to build a community around creating unique Media workflows that combine
+the power of Azure Media Services with Azure Functions and Logic Apps. 
+
+If you have questions or ideas, please reach out to us on our [MSDN forum](https://social.msdn.microsoft.com/forums/azure/en-US/home?forum=MediaServices), Twitter at [@MSFTAzureMedia](https://twitter.com/MSFTAzureMedia), or on StackOverflow using the tag [azure-media-services](http://stackoverflow.com/questions/tagged/azure-media-services)
+
 ## How to run the sample
 
-To run the samples, simply fork this project into your own repository and attach your Github account with a new
-Azure Functions application. 
+To run the samples, first fork this project into your own repository, and then deploy the Functions with the [azuredeploy.json](azuredeploy.json) template
+Make sure to update the path to point to your github fork.  
 
-To configure the sample Functions, you need to set the following values in your
-function's Application Settings.
+The deploymnet template will automatically create the following resources:
+* Azure Media Services Account.
+* Storage account attached to your media account.
+* This Azure Functions application with your source code configured for continuous integration.
+* The required function's application settings will be updated to point to the new resources automatically. You can modify any of these settings after deployment.
+
+### Function Application Settings 
+The following applications settings are created upon deployment and are automatically linked to the resources
+deployed with the azuredeploy.json template.
 
 * **AMSAccount** - your Media Services Account name. 
 * **AMSKey** - your Media Services key. 
@@ -32,17 +49,17 @@ function's Application Settings.
   contains a connection string for your input storage account. Otherwise, you may end up with an error message at startup.
   Make sure to add a new AppSetting to your Functions project with the storage account name and connection string, and update
   the functions.json file if you see this error:
-* **SigningKey** - the 64-byte Base64 encoded signing key to use to protect and secure your WebHooks callbacks from Azure Media Services
-
+* **SigningKey** - the 64-byte Base64 encoded signing key to use to protect and secure your WebHooks callbacks from Azure Media Services.
+    This key is for sample purposes only and you should replace this key with your own. 
+    
     Example value: `wOlDEUJ4/VN1No8HxVxpsRvej0DZrO5DXvImGLjFhfctPGFiMkUA0Cj8HSfJW7lePX9XsfHAMhw30p0yYqG+1A==`
-
 * **WebHookEndpoint** - the Webhook URL endpoint for the deployed Notification_Webhook_Function in this project to be used by Azure Media Services
   to callback to your Function from the Encoding job Functions. 
   
 
   ### Connection Strings:
-  To find the connection string for your storage account, open the storage account in the 
-  Azure portal(Ibiza). Go to Access Keys in Settings. In the Access Keys blade
+  If you are adjusting the deployment settings to use an existing Media Services account or storage account, 
+  you can find the connection string for your storage account in the Azure portal(Ibiza). Go to Access Keys in Settings. In the Access Keys blade
   go to Key1, or Key2, click the "..." menu and select "view connection string". Copy the connection string.
   
   ### Code Modifications Required:
@@ -143,10 +160,20 @@ The format of the json file is:
 ## LA-1-CreateEmptyAsset, LA-2-SyncAssset, LA-3-LiveAnalytics, LA-3-SubmitJob, LA-4-CheckJobStatus, LA-5-Publish functions
 These functions are designed to be called by a Logic App. More details and Logic App samples to come. 
 
+One specific patterns to pay attention to here include the LA-4-CheckJobStatus function which is used to poll for 
+job status from a Logic App workflow. 
+
+## WF-1 through WF-5 Functions
+This set of functions is designed to be used with a Logic App template that is being developed. You are welcome to use these as Samples
+for your own logic apps at this time.
 
 ### License
 This sample project is licensed under [the MIT License](LICENSE.txt)
 
-## ToDO 
+## To-DO and Roadmap
 - [ ] The Azure Queue notification function is not yet complete
 - [ ] Copy Blobs currently is using Streams, and copies in an inefficient way.
+- [ ] Document the Logic Apps functions
+- [ ] We are still working on improving the ARM template and we also plan to modify the 
+directoy structure of this project to make it easier to understand and deploy smaller "scenarios"
+
