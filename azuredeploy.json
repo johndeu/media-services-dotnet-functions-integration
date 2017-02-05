@@ -43,7 +43,7 @@
     "mediaServiceName": "[concat('media',uniqueString(resourceGroup().id))]",
     "functionAppName": "[concat(variables('lowerAppName'),'-functions')]",
     "storageAccountName": "[concat('storage',uniqueString(resourceGroup().id))]",
-    "hostingPlanName": "[concat(variables('lowerAppName'),concat('hostingplan', uniqueString(resourceGroup().id)))]"
+    "hostingPlanName": "[concat(variables('lowerAppName'),concat('plan', uniqueString(resourceGroup().id)))]"
   },
   "resources": [
     {
