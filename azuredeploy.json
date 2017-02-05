@@ -108,7 +108,6 @@
       "properties": {
         "serverFarmId": "[variables('hostingPlanName')]",
         "siteConfig": {
-          "alwaysOn": true,
           "appSettings": [
             {
               "name": "FUNCTIONS_EXTENSION_VERSION",
