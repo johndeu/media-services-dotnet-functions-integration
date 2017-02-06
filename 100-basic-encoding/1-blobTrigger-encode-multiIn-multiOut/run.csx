@@ -1,6 +1,6 @@
 #r "Microsoft.WindowsAzure.Storage"
-#load "../Shared/copyBlobHelpers.csx"
-#load "../Shared/mediaServicesHelpers.csx"
+#load "../helpers/copyBlobHelpers.csx"
+#load "../helpers/mediaServicesHelpers.csx"
 
 using System;
 using Microsoft.WindowsAzure.MediaServices.Client;
@@ -76,7 +76,6 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
         // using code from this sample - https://azure.microsoft.com/en-us/documentation/articles/media-services-copying-existing-blob/
 
         // get files from the json file
-
 
         List<assetfileinJson> items = new List<assetfileinJson>();
         try
