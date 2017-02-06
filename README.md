@@ -18,6 +18,17 @@ It is recommended that you first fork the project and update the "sourceCodeRepo
 when deploying to your own Azure account.  That way you can more easily update, experiment and edit the code and see changes
 reflected quickly in your own Functions deployment.  
 
+## Questions & Help
+
+If you have questions about Azure Media Services and Functions, we encourage you to reach out and participate in our community. 
+The Media Services engineering and product management team monitors the following community sites and is available to help.
+
+ - For all questions and technical help, [our MSDN forums](https://social.msdn.microsoft.com/forums/azure/en-US/home?forum=MediaServices) are an easy place to have a conversation with our product team.
+ - For questions which fit the Stack Overflow format ("*how* does this work?"), we monitor the [azure-media-services](http://stackoverflow.com/questions/tagged/azure%20media%20service) tag.
+ - You can also tweet/follow [@MSFTAzureMedia](https://twitter.com/MSFTAzureMedia).
+ 
+While we do our best to help out in a timely basis, we don't have any promise around the above resources. If you need an SLA on support from us, it's recommended you invest in an [Azure Support plan](https://azure.microsoft.com/en-us/support/options/).
+
 
 
 ### Contributions
