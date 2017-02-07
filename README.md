@@ -30,12 +30,30 @@ The Media Services engineering and product management team monitors the followin
 While we do our best to help out in a timely basis, we don't have any promise around the above resources. If you need an SLA on support from us, it's recommended you invest in an [Azure Support plan](https://azure.microsoft.com/en-us/support/options/).
 
 
-
 ### Contributions
 Ideas and contributions are always welcome. We are trying to build a community around creating unique Media workflows that combine
 the power of Azure Media Services with Azure Functions and Logic Apps. 
 
 If you have questions or ideas, please reach out to us on our [MSDN forum](https://social.msdn.microsoft.com/forums/azure/en-US/home?forum=MediaServices), Twitter at [@MSFTAzureMedia](https://twitter.com/MSFTAzureMedia), or on StackOverflow using the tag [azure-media-services](http://stackoverflow.com/questions/tagged/azure-media-services)
+
+## How to edit the code
+
+To edit the code, you have a few options:
+
+* [Visual Studio Code](https://code.visualstudio.com/) (VS Code)
+
+    VS Code may have some issues with validating run.csx files, as it attempts to resolve some dependencies. You might want to use VS Code in combination with the [Azure Functions CLI](https://www.npmjs.com/package/azure-functions-cli). For more information, see [this blog](https://blogs.msdn.microsoft.com/appserviceteam/2016/12/01/running-azure-functions-locally-with-the-cli/)
+    
+* Visual Studio 2015. 
+
+    To use VS 2015, you need to install the following:
+    
+    * [Visual Studio 2015 Update 3](https://www.visualstudio.com/news/releasenotes/vs2015-update3-vs) with Microsoft Web Developer Tools. 
+    * [Azure 2.9.6 .NET SDK](https://go.microsoft.com/fwlink/?LinkId=518003&clcid=0x409) 
+    * [Visual Studio Tools for Azure Functions](https://aka.ms/azfunctiontools)
+
+    For more detailed information, see [this blog](https://blogs.msdn.microsoft.com/webdev/2016/12/01/visual-studio-tools-for-azure-functions/).
+
 
 ## How to run the sample
 
