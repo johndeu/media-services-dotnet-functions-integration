@@ -1,0 +1,11 @@
+{
+  "Version": "1.0",
+  "Sources": [
+    {
+      "StartFrame": 0
+    }
+  ],
+  "Options": {
+    "Speed": 8
+  }
+}
