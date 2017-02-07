@@ -22,6 +22,9 @@ private static readonly string _mediaServicesAccountKey = Environment.GetEnviron
 
 static string _storageAccountName = Environment.GetEnvironmentVariable("MediaServicesStorageAccountName");
 static string _storageAccountKey = Environment.GetEnvironmentVariable("MediaServicesStorageAccountKey");
+
+// NOTE: You have to update the WebHookEndpoint and Signing Key that you wish to use in the AppSettings to match
+//       your deployed Notification_Webhook_Function. After deployment, you will have a unique endpoint. 
 static string _webHookEndpoint = Environment.GetEnvironmentVariable("WebHookEndpoint");
 static string _signingKey = Environment.GetEnvironmentVariable("SigningKey");
 
