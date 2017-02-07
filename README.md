@@ -42,7 +42,7 @@ To edit the code, you have a few options:
 
 * [Visual Studio Code](https://code.visualstudio.com/) (VS Code)
 
-    VS Code may have some issues with validating run.csx files, as it attempts to resolve some dependencies. You might want to use VS Code in combination with the [Azure Functions CLI](https://www.npmjs.com/package/azure-functions-cli). For more information, see [this blog](https://blogs.msdn.microsoft.com/appserviceteam/2016/12/01/running-azure-functions-locally-with-the-cli/)
+    VS Code may have some issues with validating run.csx files, as it attempts to resolve some dependencies. You might want to use VS Code in combination with the [Azure Functions CLI](https://www.npmjs.com/package/azure-functions-cli). For more information, see [this blog](https://blogs.msdn.microsoft.com/appserviceteam/2016/12/01/running-azure-functions-locally-with-the-cli/).
     
 * Visual Studio 2015. 
 
