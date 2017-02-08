@@ -1,4 +1,18 @@
-#r "Newtonsoft.Json"
+/*
+This function chevck a job status.
+
+Input:
+{
+    "jobId" : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc", // Mandatory, Id of the source asset
+ }
+
+Output:
+{
+    "jobState" : 2, // The state of the job (int)
+ }
+
+
+*/#r "Newtonsoft.Json"
 #r "Microsoft.WindowsAzure.Storage"
 #r "System.Web"
 #load "../Shared/mediaServicesHelpers.csx"
@@ -47,10 +61,10 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     log.Info(jsonContent);
 
-    if (data.JobId == null)
+    if (data.jobId == null)
     {
         // used to test the function
-        //data.JobId = "nb:jid:UUID:acf38b8a-aef9-4789-9f0f-f69bf6ccb8e5";
+        //data.jobId = "nb:jid:UUID:acf38b8a-aef9-4789-9f0f-f69bf6ccb8e5";
         return req.CreateResponse(HttpStatusCode.BadRequest, new
         {
             error = "Please pass the job ID in the input object (JobId)"
@@ -72,7 +86,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         _context = new CloudMediaContext(_cachedCredentials);
 
         // Get the job
-        string jobid = (string)data.JobId;
+        string jobid = (string)data.jobId;
         job = _context.Jobs.Where(j => j.Id == jobid).FirstOrDefault();
 
         if (job == null)
@@ -103,8 +117,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     return req.CreateResponse(HttpStatusCode.OK, new
     {
-        JobId = job.Id,
-        JobState = job.State
+        jobState = job.State
     });
 }
 
