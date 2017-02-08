@@ -1,3 +1,13 @@
+/*
+This function create the asset files based on the blobs in the asset container.
+
+Input:
+{
+    "assetId" : "the Id of the asset"
+}
+
+*/
+
 #r "Newtonsoft.Json"
 #r "Microsoft.WindowsAzure.Storage"
 #r "System.Web"
@@ -47,14 +57,14 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     log.Info(jsonContent);
 
-    if (data.AssetId == null)
+    if (data.assetId == null)
     {
         // for test
         // data.Path = "/input/WP_20121015_081924Z.mp4";
 
         return req.CreateResponse(HttpStatusCode.BadRequest, new
         {
-            error = "Please pass AssetId in the input object"
+            error = "Please pass assetId in the input object"
         });
     }
 
@@ -78,7 +88,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         // using code from this sample - https://azure.microsoft.com/en-us/documentation/articles/media-services-copying-existing-blob/
 
         // Get the asset
-        string assetid = data.AssetId;
+        string assetid = data.assetId;
         var asset = _context.Assets.Where(a => a.Id == assetid).FirstOrDefault();
 
         if (asset == null)
