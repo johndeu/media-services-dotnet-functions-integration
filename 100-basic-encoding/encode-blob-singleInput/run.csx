@@ -9,6 +9,7 @@ using Microsoft.WindowsAzure.MediaServices.Client;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
@@ -73,7 +74,8 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
 
         // Read in custom preset string
-        string preset = File.ReadAllText(@"D:\home\site\wwwroot\Presets\singleMP4.json");
+        string presetPath = Path.Combine(Environment.GetEnvironmentVariable("HOME", EnvironmentVariableTarget.Process), @"site\repository\100-basic-encoding\presets\singleMP4.json");
+        string preset = File.ReadAllText(presetPath);
 
         // Create a task with the encoding details, using a custom preset
         ITask task = job.Tasks.AddNew("Encode with Custom Preset",

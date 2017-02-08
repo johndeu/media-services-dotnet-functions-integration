@@ -113,7 +113,8 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
         IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
 
         // Change or modify the custom preset JSON used here.
-        // string preset = File.ReadAllText("D:\home\site\wwwroot\Presets\H264 Multiple Bitrate 720p.json");
+        //string presetPath = Path.Combine(Environment.GetEnvironmentVariable("HOME", EnvironmentVariableTarget.Process), @"site\repository\100-basic-encoding\presets\singleMP4.json");
+        //string preset = File.ReadAllText(presetPath);
 
         // Create a task with the encoding details, using a string preset.
         // In this case "H264 Multiple Bitrate 720p" system defined preset is used.
