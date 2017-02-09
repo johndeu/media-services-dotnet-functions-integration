@@ -84,6 +84,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     log.Info(jsonContent);
 
+    log.Info($"asset id : {data.assetId}");
+
     if (data.assetId == null)
     {
         // for test
