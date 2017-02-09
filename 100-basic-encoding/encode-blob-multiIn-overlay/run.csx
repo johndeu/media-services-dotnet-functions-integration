@@ -1,4 +1,6 @@
 #r "Microsoft.WindowsAzure.Storage"
+#r "Newtonsoft.Json"
+#r "System.Web"
 #load "../helpers/copyBlobHelpers.csx"
 #load "../helpers/mediaServicesHelpers.csx"
 
