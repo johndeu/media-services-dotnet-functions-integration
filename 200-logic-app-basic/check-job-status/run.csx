@@ -10,9 +10,9 @@ Output:
 {
     "jobState" : 2, // The state of the job (int)
  }
+*/
 
-
-*/#r "Newtonsoft.Json"
+#r "Newtonsoft.Json"
 #r "Microsoft.WindowsAzure.Storage"
 #r "System.Web"
 #load "../Shared/mediaServicesHelpers.csx"
