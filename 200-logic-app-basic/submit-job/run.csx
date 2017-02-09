@@ -143,7 +143,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             // processor to use for the specific task.
             IMediaProcessor processorMES = GetLatestMediaProcessorByName("Media Encoder Standard");
 
-            string preset = data.MESPreset;
+            string preset = data.mesPreset;
 
             if (preset.ToUpper().EndsWith(".JSON"))
             {
