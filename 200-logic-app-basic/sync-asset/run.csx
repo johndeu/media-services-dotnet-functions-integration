@@ -1,3 +1,13 @@
+/*
+This function create the asset files based on the blobs in the asset container.
+
+Input:
+{
+    "assetId" : "the Id of the asset"
+}
+
+*/
+
 #r "Newtonsoft.Json"
 #r "Microsoft.WindowsAzure.Storage"
 #r "System.Web"
@@ -47,19 +57,21 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     log.Info(jsonContent);
 
-    if (data.JobId == null)
+    if (data.assetId == null)
     {
-        // used to test the function
-        //data.JobId = "nb:jid:UUID:acf38b8a-aef9-4789-9f0f-f69bf6ccb8e5";
+        // for test
+        // data.Path = "/input/WP_20121015_081924Z.mp4";
+
         return req.CreateResponse(HttpStatusCode.BadRequest, new
         {
-            error = "Please pass the job ID in the input object (JobId)"
+            error = "Please pass assetId in the input object"
         });
     }
 
+
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
-    IJob job = null;
+    IAsset newAsset = null;
 
     try
     {
@@ -71,19 +83,58 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         // Used the chached credentials to create CloudMediaContext.
         _context = new CloudMediaContext(_cachedCredentials);
 
-        // Get the job
-        string jobid = (string)data.JobId;
-        job = _context.Jobs.Where(j => j.Id == jobid).FirstOrDefault();
+        // Step 1:  Copy the Blob into a new Input Asset for the Job
+        // ***NOTE: Ideally we would have a method to ingest a Blob directly here somehow. 
+        // using code from this sample - https://azure.microsoft.com/en-us/documentation/articles/media-services-copying-existing-blob/
 
-        if (job == null)
+        // Get the asset
+        string assetid = data.assetId;
+        var asset = _context.Assets.Where(a => a.Id == assetid).FirstOrDefault();
+
+        if (asset == null)
         {
-            log.Info($"Job not found {jobid}");
+            log.Info($"Asset not found {assetid}");
 
             return req.CreateResponse(HttpStatusCode.BadRequest, new
             {
-                error = "Job not found"
+                error = "Asset not found"
             });
         }
+
+        log.Info("Asset found, ID: " + asset.Id);
+
+        //Get a reference to the storage account that is associated with the Media Services account. 
+        StorageCredentials mediaServicesStorageCredentials =
+            new StorageCredentials(_storageAccountName, _storageAccountKey);
+        var _destinationStorageAccount = new CloudStorageAccount(mediaServicesStorageCredentials, false);
+
+        CloudBlobClient destBlobStorage = _destinationStorageAccount.CreateCloudBlobClient();
+
+        // Get the destination asset container reference
+        string destinationContainerName = asset.Uri.Segments[1];
+        log.Info($"destinationContainerName : {destinationContainerName}");
+
+        CloudBlobContainer assetContainer = destBlobStorage.GetContainerReference(destinationContainerName);
+        log.Info($"assetContainer retrieved");
+
+        // Get hold of the destination blobs
+        var blobs = assetContainer.ListBlobs();
+        log.Info($"blobs retrieved");
+
+
+        foreach (CloudBlockBlob blob in blobs)
+        {
+            var assetFile = asset.AssetFiles.Create(blob.Name);
+            assetFile.ContentFileSize = blob.Properties.Length;
+            //assetFile.IsPrimary = true;
+            assetFile.Update();
+            log.Info($"Asset file updated : {assetFile.Name}");
+
+        }
+
+        asset.Update();
+
+        log.Info("Asset updated");
     }
     catch (Exception ex)
     {
@@ -91,21 +142,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         return req.CreateResponse(HttpStatusCode.BadRequest);
     }
 
-    log.Info($"Job {job.Id} status is {job.State}");
 
-
-    if (job.State == JobState.Queued || job.State == JobState.Scheduled || job.State == JobState.Processing)
-    {
-        log.Info("Waiting 15 s...");
-        System.Threading.Thread.Sleep(15 * 1000);
-    }
-
-
-    return req.CreateResponse(HttpStatusCode.OK, new
-    {
-        JobId = job.Id,
-        JobState = job.State
-    });
+    return req.CreateResponse(HttpStatusCode.OK);
 }
 
 

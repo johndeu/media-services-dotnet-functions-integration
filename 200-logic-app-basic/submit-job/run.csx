@@ -1,3 +1,36 @@
+
+/*
+This function submits a job wth encoding and/or analytics.
+
+Input:
+{
+    "assetId" : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc", // Mandatory, Id of the source asset
+    "mesPreset" : "H264 Multiple Bitrate 720p", // Optional. If MESPreset contains an extension "H264 Multiple Bitrate 720p with thumbnail.json" then it loads this file from D:\home\site\wwwroot\Presets
+    "workflowAssetId" : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc", // Optional, Id for the workflow asset
+    "indexV1Language" : "English", // Optional
+    "indexV2Language" : "EnUs", // Optional
+    "ocrLanguage" : "AutoDetect" or "English", // Optional
+    "faceDetectionMode" : "PerFaceEmotion, // Optional
+    "motionDetectionLevel" : "medium", // Optional
+    "summarizationDuration" : "0.0", // Optional. 0.0 for automatic
+    "hyperlapseSpeed" : "8" // Optional
+}
+
+Output:
+{
+        "jobId" :  // job id
+        "outputAssetMESId" : "", 
+        "outputAssetMEPWId" : "",
+        "outputAssetIndexV1Id" : "",
+        "outputAssetIndexV2Id" : "",
+        "outputAssetOCRId" : "",
+        "outputAssetFaceDetectionId" : "",
+        "outputAssetMotionDetectionId" : "",
+        "outputAssetSummarizationId" : "",
+        "outputAssetHyperlapseId" : ""
+}
+*/
+
 #r "Newtonsoft.Json"
 #r "Microsoft.WindowsAzure.Storage"
 #r "System.Web"
@@ -23,9 +56,6 @@ using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.Azure.WebJobs;
 
 // Read values from the App.config file.
-static string _sourceStorageAccountName = Environment.GetEnvironmentVariable("SourceStorageAccountName");
-static string _sourceStorageAccountKey = Environment.GetEnvironmentVariable("SourceStorageAccountKey");
-
 private static readonly string _mediaServicesAccountName = Environment.GetEnvironmentVariable("AMSAccount");
 private static readonly string _mediaServicesAccountKey = Environment.GetEnvironmentVariable("AMSKey");
 
@@ -39,19 +69,6 @@ private static CloudStorageAccount _destinationStorageAccount = null;
 
 private static int _taskindex = 0;
 
-// Submit an encoding job
-// Required : data.AssetId (Example : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc")
-// with MES if MESPreset is specified (Example : "H264 Multiple Bitrate 720p"). If MESPreset contains an extension "H264 Multiple Bitrate 720p with thumbnail.json" then it loads this file from D:\home\site\wwwroot\Presets 
-// with Premium Encoder if WorkflowAssetId is specified (Example : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc")
-// with Indexer v1 if IndexV1Language is specified (Example : "English")
-// with Indexer v2 if IndexV2Language is specified (Example : "EnUs")
-// with Video OCR if OCRLanguage is specified (Example: "AutoDetect" or "English")
-// with Face Detection if FaceDetectionMode is specified (Example : "PerFaceEmotion")
-// with Motion Detection if MotionDetectionLevel is specified (Example : "medium")
-// with Video Summarization if SummarizationDuration is specified (Example : "0.0" for automatic)
-// with Hyperlapse if HyperlapseSpeed is specified (Example : "8" for speed x8)
-
-
 public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 {
     _taskindex = 0;
@@ -63,14 +80,16 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     log.Info(jsonContent);
 
-    if (data.AssetId == null)
+    log.Info($"asset id : {data.assetId}");
+
+    if (data.assetId == null)
     {
         // for test
-        // data.AssetId = "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc";
+        // data.assetId = "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc";
 
         return req.CreateResponse(HttpStatusCode.BadRequest, new
         {
-            error = "Please pass asset ID in the input object (AssetId)"
+            error = "Please pass asset ID in the input object (assetId)"
         });
     }
 
@@ -104,7 +123,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         _context = new CloudMediaContext(_cachedCredentials);
 
         // find the Asset
-        string assetid = (string)data.AssetId;
+        string assetid = (string)data.assetId;
         IAsset asset = _context.Assets.Where(a => a.Id == assetid).FirstOrDefault();
 
         if (asset == null)
@@ -116,7 +135,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             });
         }
 
-        if (data.MESPreset != null)  // MES Task
+        if (data.mesPreset != null)  // MES Task
         {
             // Declare a new encoding job with the Standard encoder
             job = _context.Jobs.Create("Azure Function - MES Job");
@@ -124,7 +143,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             // processor to use for the specific task.
             IMediaProcessor processorMES = GetLatestMediaProcessorByName("Media Encoder Standard");
 
-            string preset = data.MESPreset;
+            string preset = data.mesPreset;
 
             if (preset.ToUpper().EndsWith(".JSON"))
             {
@@ -149,11 +168,11 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             taskEncoding.OutputAssets.AddNew(asset.Name + " MES encoded", AssetCreationOptions.None);
         }
 
-        if (data.WorkflowAssetId != null)// Premium Encoder Task
+        if (data.workflowAssetId != null)// Premium Encoder Task
         {
 
             //find the workflow asset
-            string workflowassetid = (string)data.WorkflowAssetId;
+            string workflowassetid = (string)data.workflowAssetId;
             IAsset workflowAsset = _context.Assets.Where(a => a.Id == workflowassetid).FirstOrDefault();
 
             if (workflowAsset == null)
@@ -194,13 +213,13 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
 
         // Media Analytics
-        OutputIndex1 = AddTask(job, asset, (string)data.IndexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English");
-        OutputIndex2 = AddTask(job, asset, (string)data.IndexV2Language, "Azure Media Indexer 2 Preview", "IndexerV2.json", "EnUs");
-        OutputOCR = AddTask(job, asset, (string)data.OCRLanguage, "Azure Media OCR", "OCR.json", "AutoDetect");
-        OutputFace = AddTask(job, asset, (string)data.FaceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion");
-        OutputMotion = AddTask(job, asset, (string)data.MotionDetectionLevel, "Azure Media Motion Detector", "MotionDetection.json", "medium");
-        OutputSummarization = AddTask(job, asset, (string)data.SummarizationDuration, "Azure Media Video Thumbnails", "Summarization.json", "0.0");
-        OutputHyperlapse = AddTask(job, asset, (string)data.HyperlapseSpeed, "Azure Media Hyperlapse", "Hyperlapse.json", "8");
+        OutputIndex1 = AddTask(job, asset, (string)data.indexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English");
+        OutputIndex2 = AddTask(job, asset, (string)data.indexV2Language, "Azure Media Indexer 2 Preview", "IndexerV2.json", "EnUs");
+        OutputOCR = AddTask(job, asset, (string)data.ocrLanguage, "Azure Media OCR", "OCR.json", "AutoDetect");
+        OutputFace = AddTask(job, asset, (string)data.faceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion");
+        OutputMotion = AddTask(job, asset, (string)data.motionDetectionLevel, "Azure Media Motion Detector", "MotionDetection.json", "medium");
+        OutputSummarization = AddTask(job, asset, (string)data.summarizationDuration, "Azure Media Video Thumbnails", "Summarization.json", "0.0");
+        OutputHyperlapse = AddTask(job, asset, (string)data.hyperlapseSpeed, "Azure Media Hyperlapse", "Hyperlapse.json", "8");
 
         job.Submit();
         log.Info("Job Submitted");
@@ -226,16 +245,16 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     return req.CreateResponse(HttpStatusCode.OK, new
     {
-        JobId = job.Id,
-        OutputAssetMESId = ReturnId(job, OutputMES),
-        OutputAssetMEPWId = ReturnId(job, OutputMEPW),
-        OutputAssetIndexV1Id = ReturnId(job, OutputIndex1),
-        OutputAssetIndexV2Id = ReturnId(job, OutputIndex2),
-        OutputAssetOCRId = ReturnId(job, OutputOCR),
-        OutputAssetFaceDetectionId = ReturnId(job, OutputFace),
-        OutputAssetMotionDetectionId = ReturnId(job, OutputMotion),
-        OutputAssetSummarizationId = ReturnId(job, OutputSummarization),
-        OutputAssetHyperlapseId = ReturnId(job, OutputHyperlapse),
+        jobId = job.Id,
+        outputAssetMESId = ReturnId(job, OutputMES),
+        outputAssetMEPWId = ReturnId(job, OutputMEPW),
+        outputAssetIndexV1Id = ReturnId(job, OutputIndex1),
+        outputAssetIndexV2Id = ReturnId(job, OutputIndex2),
+        outputAssetOCRId = ReturnId(job, OutputOCR),
+        outputAssetFaceDetectionId = ReturnId(job, OutputFace),
+        outputAssetMotionDetectionId = ReturnId(job, OutputMotion),
+        outputAssetSummarizationId = ReturnId(job, OutputSummarization),
+        outputAssetHyperlapseId = ReturnId(job, OutputHyperlapse),
     });
 }
 

@@ -1,5 +1,22 @@
+/*
+This function creates an empty asset.
+
+Input:
+{
+    "assetName" : "the name of the asset"
+}
+
+Output:
+{
+    "assetId" : "the Id of the asset created",
+    "containerPath" : "the url to the storage container of the asset"
+}
+
+*/
+
 #r "Newtonsoft.Json"
 #r "Microsoft.WindowsAzure.Storage"
+#r "System.Web"
 #load "../Shared/mediaServicesHelpers.csx"
 #load "../Shared/copyBlobHelpers.csx"
 
@@ -23,9 +40,6 @@ using Microsoft.Azure.WebJobs;
 
 
 // Read values from the App.config file.
-static string _sourceStorageAccountName = Environment.GetEnvironmentVariable("SourceStorageAccountName");
-static string _sourceStorageAccountKey = Environment.GetEnvironmentVariable("SourceStorageAccountKey");
-
 private static readonly string _mediaServicesAccountName = Environment.GetEnvironmentVariable("AMSAccount");
 private static readonly string _mediaServicesAccountKey = Environment.GetEnvironmentVariable("AMSKey");
 
@@ -46,21 +60,22 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     log.Info(jsonContent);
 
-    if (data.AssetId == null)
+    if (data.fileName == null)
     {
         // for test
-        // data.AssetId = "nb:cid:UUID:c0d770b4-1a69-43c4-a4e6-bc60d20ab0b2";
+        // data.Path = "/input/WP_20121015_081924Z.mp4";
+
         return req.CreateResponse(HttpStatusCode.BadRequest, new
         {
-            error = "Please pass asset ID in the input object (AssetId)"
+            error = "Please pass fileName in the input object"
         });
     }
 
-    string playerUrl = "";
-    string smoothUrl = "";
-    string pathUrl = "";
+    string FileName = data.fileName;
 
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
+
+    IAsset newAsset = null;
 
     try
     {
@@ -72,37 +87,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         // Used the chached credentials to create CloudMediaContext.
         _context = new CloudMediaContext(_cachedCredentials);
 
-        // Get the asset
-        string assetid = data.AssetId;
-        var outputAsset = _context.Assets.Where(a => a.Id == assetid).FirstOrDefault();
+        newAsset = _context.Assets.Create(FileName, AssetCreationOptions.None);
 
-        if (outputAsset == null)
-        {
-            log.Info($"Asset not found {assetid}");
-
-            return req.CreateResponse(HttpStatusCode.BadRequest, new
-            {
-                error = "Asset not found"
-            });
-        }
-
-        // publish with a streaming locator
-        IAccessPolicy readPolicy2 = _context.AccessPolicies.Create("readPolicy", TimeSpan.FromHours(4), AccessPermissions.Read);
-        ILocator outputLocator2 = _context.Locators.CreateLocator(LocatorType.OnDemandOrigin, outputAsset, readPolicy2);
-        Uri publishurl = GetValidOnDemandURI(outputAsset);
-        if (outputLocator2 != null && publishurl != null)
-        {
-            smoothUrl = publishurl.ToString();
-            UriBuilder u2 = new UriBuilder();
-            u2.Host = publishurl.Host;
-            u2.Path = publishurl.Segments[0] + publishurl.Segments[1];
-            u2.Scheme = publishurl.Scheme;
-            pathUrl = u2.ToString();
-        }
-
-        log.Info($"Smooth url : {smoothUrl}");
-
-        playerUrl = "http://ampdemo.azureedge.net/?url=" + System.Web.HttpUtility.UrlEncode(smoothUrl);
     }
     catch (Exception ex)
     {
@@ -110,13 +96,14 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         return req.CreateResponse(HttpStatusCode.BadRequest);
     }
 
-    log.Info($"");
+    log.Info("asset Id: " + newAsset.Id);
+    log.Info("container Path: " + newAsset.Uri.Segments[1]);
+
     return req.CreateResponse(HttpStatusCode.OK, new
     {
-        PlayerUrl = playerUrl,
-        SmoothUrl = smoothUrl,
-        PathUrl = pathUrl
-    });
+        containerPath = newAsset.Uri.Segments[1],
+        assetId = newAsset.Id
+});
 }
 
 
