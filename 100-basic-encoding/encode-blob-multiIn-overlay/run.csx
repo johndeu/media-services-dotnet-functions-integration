@@ -121,12 +121,18 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
         // processor to use for the specific task.
         IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
 
+        string presetPath = Path.Combine(GetScriptPath(), @"Presets\MesWithOverlay.json");
+        log.Info($"Preset path : {presetPath}");
 
+        preset = File.ReadAllText(prestPath);
+
+        log.Info($"Preset : {preset}");
+   
         // Create a task with the encoding details, using a string preset.
         // In this case "H264 Multiple Bitrate 720p" system defined preset is used.
         ITask task = job.Tasks.AddNew("My encoding task",
             processor,
-            "H264 Multiple Bitrate 720p",
+            preset,
             TaskOptions.None);
 
         // Specify the input asset to be encoded.
@@ -194,3 +200,10 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
         throw ex;
     }
 }
+
+
+private static string GetScriptPath()
+    => Path.Combine(GetEnvironmentVariable("HOME"), @"site\wwwroot");
+
+private static string GetEnvironmentVariable(string name)
+    => System.Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Process);
