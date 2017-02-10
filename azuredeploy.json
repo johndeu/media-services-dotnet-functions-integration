@@ -17,7 +17,7 @@
     },
     "sourceCodeRepositoryURL": {
       "type": "string",
-      "defaultValue": "https://github.com/Azure-Samples/media-services-dotnet-functions-integration",
+      "defaultValue": "ENTER PATH to YOUR FORK of https://github.com/Azure-Samples/media-services-dotnet-functions-integration",
       "metadata": {
         "description": "Source code repository URL. Is is highly recommended that you first fork the samples repository and point this to your fork. If you are using your own fork, set the sourceCodeManualIntegration property to false below."
       }
@@ -129,6 +129,7 @@
             "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
           ],
           "properties": {
+            "Project": "100-basic-encoding",
             "FUNCTIONS_EXTENSION_VERSION": "~1",
             "WEBSITE_NODE_DEFAULT_VERSION": "6.5.0",
             "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]",
