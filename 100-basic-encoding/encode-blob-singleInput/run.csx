@@ -1,3 +1,17 @@
+/*
+This function monitors a storage account container location folder named "input" for new MP4 files. 
+Once a file is dropped into the storage container, the blob trigger will execute the Function.
+
+This sample shows how to ingest the asset into Media Services, point to a custom preset and submit a job running Media Encoder Standard.
+The result of the job is output to another container called "output" that is bound in the function.json settings with the 
+file naming convention of {filename}-Output.mp4.  
+
+This function is a basic example of single file input to single file output encoding. 
+
+For a multi-file encoding sample, please look next at encode-blob-multiIn-overlay
+
+*/
+
 #r "Microsoft.WindowsAzure.Storage"
 #r "Newtonsoft.Json"
 #r "System.Web"
