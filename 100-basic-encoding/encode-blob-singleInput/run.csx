@@ -1,6 +1,6 @@
 /*
 This function monitors a storage account container location folder named "input" for new MP4 files. 
-Once a file is dropped into the storage container, the blob trigger will execute the Function.
+Once a file is dropped into the storage container, the blob trigger will execute the function.
 
 This sample shows how to ingest the asset into Media Services, point to a custom preset and submit a job running Media Encoder Standard.
 The result of the job is output to another container called "output" that is bound in the function.json settings with the 

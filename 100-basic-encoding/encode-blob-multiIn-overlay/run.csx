@@ -1,3 +1,24 @@
+/*
+This function monitors a storage account container location folder named "input" for new MP4 files and a JSON
+file that indicates the mulitple files to ingest into an Asset.  The files should be uploaded first, followed
+by the JSON file last to trigger the funciton processing. Once the JSON file  is dropped into the storage 
+container, the blob trigger will execute the function.
+
+This sample shows how to ingest multiple assets into Media Services,  submit a job running Media Encoder Standard with 
+multiple inputs. This is very useful for encoding jobs that require an overlay image on a video. 
+
+Sample JSON File (extension must be .json (in lowercase))
+[
+  {
+    "fileName": "BigBuckBunny.mp4",
+    "isPrimary": true
+  },
+  {
+    "fileName": "Logo.png"
+  }
+]
+
+*/
 #r "Microsoft.WindowsAzure.Storage"
 #r "Newtonsoft.Json"
 #r "System.Web"
@@ -45,18 +66,6 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
     // No need to do any Retry strategy in this function, By default, the SDK calls a function up to 5 times for a 
     // given blob. If the fifth try fails, the SDK adds a message to a queue named webjobs-blobtrigger-poison.
 
-    // Sample JSON File (extension must be json (in lowercase))
-    /*
-     * 
-[
-  {
-    "fileName": "BigBuckBunny.mp4",
-    "isPrimary": true
-  },
-  {
-    "fileName": "Logo.png"
-  }
-]
 
     */
 
@@ -115,9 +124,6 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
         // processor to use for the specific task.
         IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
 
-        // Change or modify the custom preset JSON used here.
-        //string presetPath = Path.Combine(Environment.GetEnvironmentVariable("HOME", EnvironmentVariableTarget.Process), @"site\repository\100-basic-encoding\presets\singleMP4.json");
-        //string preset = File.ReadAllText(presetPath);
 
         // Create a task with the encoding details, using a string preset.
         // In this case "H264 Multiple Bitrate 720p" system defined preset is used.
