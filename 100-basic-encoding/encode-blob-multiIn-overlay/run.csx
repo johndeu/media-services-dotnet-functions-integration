@@ -7,9 +7,10 @@ container, the blob trigger will execute the function.
 This sample shows how to ingest multiple assets into Media Services,  submit a job running Media Encoder Standard with 
 multiple inputs. This is very useful for encoding jobs that require an overlay image on a video. 
 
+In this sample, the expected JSON must contain a single MP4 file, and an image to overlay called "logoForOverlay.png".
+
 Sample JSON File (extension must be .json (in lowercase))
-[
-  {
+[{
     "fileName": "BigBuckBunny.mp4",
     "isPrimary": true
   },
@@ -19,6 +20,7 @@ Sample JSON File (extension must be .json (in lowercase))
 ]
 
 */
+
 #r "Microsoft.WindowsAzure.Storage"
 #r "Newtonsoft.Json"
 #r "System.Web"
@@ -121,13 +123,21 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
         // processor to use for the specific task.
         IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
 
-        string presetPath = Path.Combine(GetScriptPath(), @"Presets\MesWithOverlay.json");
+
+        // Read in custom preset string
+        string homePath = Environment.GetEnvironmentVariable("HOME", EnvironmentVariableTarget.Process);
+        log.Info("Home= " + homePath);
+        string presetPath;
+        
+        if (homePath == String.Empty){
+            presetPath = @"../presets/MesWithOverlay.json"; 
+        }else{
+            presetPath =  Path.Combine(homePath, @"site\repository\100-basic-encoding\presets\MesWithOverlay.json");
+        }
         log.Info($"Preset path : {presetPath}");
-
         string preset = File.ReadAllText(presetPath);
-        log.Info($"Preset : {preset}");
 
-        preset.Replace("logoForOverlay.png", )
+        preset.Replace("logoForOverlay.png","Logo.png" )
    
         // Create a task with the encoding details, using a string preset.
         // In this case a local preset is loaded. It includes an overlay with Logo.png which should be present in the asset
