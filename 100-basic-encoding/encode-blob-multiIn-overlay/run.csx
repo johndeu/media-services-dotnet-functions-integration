@@ -124,8 +124,7 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
         string presetPath = Path.Combine(GetScriptPath(), @"Presets\MesWithOverlay.json");
         log.Info($"Preset path : {presetPath}");
 
-        preset = File.ReadAllText(prestPath);
-
+        string preset = File.ReadAllText(presetPath);
         log.Info($"Preset : {preset}");
    
         // Create a task with the encoding details, using a string preset.
