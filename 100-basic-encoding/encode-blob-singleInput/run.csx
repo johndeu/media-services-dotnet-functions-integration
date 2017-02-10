@@ -1,3 +1,17 @@
+/*
+This function monitors a storage account container location folder named "input" for new MP4 files. 
+Once a file is dropped into the storage container, the blob trigger will execute the function.
+
+This sample shows how to ingest the asset into Media Services, point to a custom preset and submit a job running Media Encoder Standard.
+The result of the job is output to another container called "output" that is bound in the function.json settings with the 
+file naming convention of {filename}-Output.mp4.  
+
+This function is a basic example of single file input to single file output encoding. 
+
+For a multi-file encoding sample, please look next at encode-blob-multiIn-overlay
+
+*/
+
 #r "Microsoft.WindowsAzure.Storage"
 #r "Newtonsoft.Json"
 #r "System.Web"
@@ -13,7 +27,6 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
-using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Auth;
@@ -74,14 +87,23 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
 
         // Read in custom preset string
-        string presetPath = Path.Combine(Environment.GetEnvironmentVariable("HOME", EnvironmentVariableTarget.Process), @"site\repository\100-basic-encoding\presets\singleMP4.json");
+        string homePath = Environment.GetEnvironmentVariable("HOME", EnvironmentVariableTarget.Process);
+        log.Info("Home= " + homePath);
+        string presetPath;
+        
+        if (homePath == String.Empty){
+            presetPath = @"../presets/singleMP4.json"; 
+        }else{
+            presetPath =  Path.Combine(homePath, @"site\repository\100-basic-encoding\presets\singleMP4.json");
+        }
+
         string preset = File.ReadAllText(presetPath);
 
         // Create a task with the encoding details, using a custom preset
         ITask task = job.Tasks.AddNew("Encode with Custom Preset",
             processor,
             preset,
-            TaskOptions.None);
+            TaskOptions.None); 
 
         // Specify the input asset to be encoded.
         task.InputAssets.Add(newAsset);
