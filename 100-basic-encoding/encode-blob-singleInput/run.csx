@@ -74,8 +74,8 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
 
         // Read in custom preset string
-        log.Info("Home= " + Environment.GetEnvironmentVariable("HOME", EnvironmentVariableTarget.Process));
-        string homePath = Environment.GetEnvironmentVariable("HOME", EnvironmentVariableTarget.Process));
+        string homePath = Environment.GetEnvironmentVariable("HOME", EnvironmentVariableTarget.Process);
+        log.Info("Home= " + homePath);
         string presetPath;
         
         if (homePath == String.Empty){
@@ -83,7 +83,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         }else{
             presetPath =  Path.Combine(homePath, @"site\repository\100-basic-encoding\presets\singleMP4.json");
         }
-        
+
         string preset = File.ReadAllText(presetPath);
 
         // Create a task with the encoding details, using a custom preset
