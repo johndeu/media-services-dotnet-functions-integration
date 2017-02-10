@@ -75,14 +75,22 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
 
         // Read in custom preset string
         log.Info("Home= " + Environment.GetEnvironmentVariable("HOME", EnvironmentVariableTarget.Process));
-        // string presetPath = Path.Combine(Environment.GetEnvironmentVariable("HOME", EnvironmentVariableTarget.Process), @"site\repository\100-basic-encoding\presets\singleMP4.json");
-        string preset = File.ReadAllText(@"../presets/singleMP4.json");
+        string homePath = Environment.GetEnvironmentVariable("HOME", EnvironmentVariableTarget.Process));
+        string presetPath;
+        
+        if (homePath == String.Empty){
+            presetPath = @"../presets/singleMP4.json"; 
+        }else{
+            presetPath =  Path.Combine(homePath, @"site\repository\100-basic-encoding\presets\singleMP4.json");
+        }
+        
+        string preset = File.ReadAllText(presetPath);
 
         // Create a task with the encoding details, using a custom preset
         ITask task = job.Tasks.AddNew("Encode with Custom Preset",
             processor,
             preset,
-            TaskOptions.None);
+            TaskOptions.None); 
 
         // Specify the input asset to be encoded.
         task.InputAssets.Add(newAsset);
