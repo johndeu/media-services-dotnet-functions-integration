@@ -17,6 +17,7 @@ using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Auth;
+using Newtonsoft.Json;
 
 
 // Read values from the App.config file.
