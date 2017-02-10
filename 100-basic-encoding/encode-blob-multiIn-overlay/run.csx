@@ -126,9 +126,11 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
 
         string preset = File.ReadAllText(presetPath);
         log.Info($"Preset : {preset}");
+
+        preset.Replace("logoForOverlay.png", )
    
         // Create a task with the encoding details, using a string preset.
-        // In this case "H264 Multiple Bitrate 720p" system defined preset is used.
+        // In this case a local preset is loaded. It includes an overlay with Logo.png which should be present in the asset
         ITask task = job.Tasks.AddNew("My encoding task",
             processor,
             preset,
