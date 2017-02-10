@@ -13,7 +13,6 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
-using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Auth;

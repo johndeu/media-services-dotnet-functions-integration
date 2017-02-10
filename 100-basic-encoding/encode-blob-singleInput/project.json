@@ -2,6 +2,7 @@
   "frameworks": {
     "net46":{
       "dependencies": {
+        "windowsazure.storage" : "8.0.1",
         "windowsazure.mediaservices": "3.8.0.5",
         "windowsazure.mediaservices.extensions": "3.8.0.3"
       }
