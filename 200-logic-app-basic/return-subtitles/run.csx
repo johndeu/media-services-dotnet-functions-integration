@@ -63,7 +63,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     string vttContent = "";
     string ttmlContent = "";
 
-
     string jsonContent = await req.Content.ReadAsStringAsync();
     dynamic data = JsonConvert.DeserializeObject(jsonContent);
 
@@ -72,13 +71,12 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     if (data.assetId == null)
     {
         // for test
-        data.assetId = "nb:cid:UUID:d9496372-32f5-430d-a4c6-d21ec3e01525";
+        // data.assetId = "nb:cid:UUID:d9496372-32f5-430d-a4c6-d21ec3e01525";
 
-        /*        return req.CreateResponse(HttpStatusCode.BadRequest, new
-                {
-                    error = "Please pass asset ID in the input object (AssetId)"
-                });
-        */
+        return req.CreateResponse(HttpStatusCode.BadRequest, new
+        {
+            error = "Please pass asset ID in the input object (AssetId)"
+        });
     }
 
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
@@ -127,8 +125,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
                 log.Info($"vtt url : {vttUrl}");
             }
             vttContent = ReturnContent(vttSubtitle);
-            log.Info($"vtt content : {vttContent}");
-
         }
 
         if (ttmlSubtitle != null)
@@ -139,9 +135,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
                 log.Info($"ttml url : {ttmlUrl}");
             }
             ttmlContent = ReturnContent(ttmlSubtitle);
-            log.Info($"ttml content : {ttmlContent}");
         }
-
     }
     catch (Exception ex)
     {
@@ -189,6 +183,3 @@ public static string ReturnContent(IAssetFile assetFile)
 
     return datastring;
 }
-
-
-
