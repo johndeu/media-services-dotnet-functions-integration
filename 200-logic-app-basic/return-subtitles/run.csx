@@ -1,3 +1,21 @@
+/*
+This function returns subtitles from an asset.
+
+Input:
+{
+    "assetId" : "nb:cid:UUID:88432c30-cb4a-4496-88c2-b2a05ce9033b", // Mandatory, Id of the source asset
+ }
+
+Output:
+{
+    "vttUrl" : "",      // the full path to vtt file if asset is publised
+    "ttmlUrl" : "",     // the full path to vtt file if asset is publised
+    "pathUrl" : "",     // the path to the asset if asset is publised
+    "vttDocument" : "", // the full vtt document
+    "ttmlDocument : ""  // the full ttml document
+ }
+*/
+
 #r "Newtonsoft.Json"
 #r "Microsoft.WindowsAzure.Storage"
 #load "../Shared/mediaServicesHelpers.csx"
@@ -29,9 +47,6 @@ static string _sourceStorageAccountKey = Environment.GetEnvironmentVariable("Sou
 private static readonly string _mediaServicesAccountName = Environment.GetEnvironmentVariable("AMSAccount");
 private static readonly string _mediaServicesAccountKey = Environment.GetEnvironmentVariable("AMSKey");
 
-static string _storageAccountName = Environment.GetEnvironmentVariable("MediaServicesStorageAccountName");
-static string _storageAccountKey = Environment.GetEnvironmentVariable("MediaServicesStorageAccountKey");
-
 // Field for service context.
 private static CloudMediaContext _context = null;
 private static MediaServicesCredentials _cachedCredentials = null;
@@ -41,25 +56,30 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 {
     log.Info($"Webhook was triggered!");
 
+    // Init variables
+    string vttUrl = "";
+    string pathUrl = "";
+    string ttmlUrl = "";
+    string vttContent = "";
+    string ttmlContent = "";
+
+
     string jsonContent = await req.Content.ReadAsStringAsync();
     dynamic data = JsonConvert.DeserializeObject(jsonContent);
 
     log.Info(jsonContent);
 
-    if (data.AssetId == null)
+    if (data.assetId == null)
     {
         // for test
-        //data.AssetId = "nb:cid:UUID:88432c30-cb4a-4496-88c2-b2a05ce9033b";
-        
+        //data.assetId = "nb:cid:UUID:88432c30-cb4a-4496-88c2-b2a05ce9033b";
+
         return req.CreateResponse(HttpStatusCode.BadRequest, new
         {
             error = "Please pass asset ID in the input object (AssetId)"
         });
-        
-    }
 
-    string vttUrl = "";
-    string pathUrl = "";
+    }
 
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
@@ -74,7 +94,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         _context = new CloudMediaContext(_cachedCredentials);
 
         // Get the asset
-        string assetid = data.AssetId;
+        string assetid = data.assetId;
         var outputAsset = _context.Assets.Where(a => a.Id == assetid).FirstOrDefault();
 
         if (outputAsset == null)
@@ -86,37 +106,38 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             });
         }
 
+        var vttSubtitle = outputAsset.AssetFiles.Where(a => a.Name.ToUpper().EndsWith(".VTT")).FirstOrDefault();
+        var ttmlSubtitle = outputAsset.AssetFiles.Where(a => a.Name.ToUpper().EndsWith(".TTML")).FirstOrDefault();
+
         Uri publishurl = GetValidOnDemandPath(outputAsset);
         if (publishurl != null)
         {
             pathUrl = publishurl.ToString();
-
-            var subtitle = outputAsset.AssetFiles.Where(a => a.Name.ToUpper().EndsWith(".VTT")).FirstOrDefault();
-            if (subtitle == null)
-            {
-                log.Info($"VTT Subtitle file not found {assetid}");
-                return req.CreateResponse(HttpStatusCode.BadRequest, new
-                {
-                    error = "VTT subtitle not found"
-                });
-            }
-            else
-            {
-                vttUrl = pathUrl + subtitle.Name;
-            }
         }
         else
         {
             log.Info($"Asset not published");
-
-            return req.CreateResponse(HttpStatusCode.BadRequest, new
-            {
-                error = "Asset not published"
-            });
-
         }
 
-        log.Info($"Vtt url : {vttUrl}");
+        if (vttSubtitle != null)
+        {
+            if (publishurl != null)
+            {
+                vttUrl = pathUrl + vttSubtitle.Name;
+                log.Info($"vtt url : {vttUrl}");
+            }
+            vttContent = ReturnContent(vttSubtitle);
+        }
+
+        if (ttmlSubtitle != null)
+        {
+            if (publishurl != null)
+            {
+                ttmlUrl = pathUrl + vttSubtitle.Name;
+                log.Info($"ttml url : {ttmlUrl}");
+            }
+            ttmlContent = ReturnContent(ttmlSubtitle);
+        }
 
     }
     catch (Exception ex)
@@ -128,11 +149,43 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info($"");
     return req.CreateResponse(HttpStatusCode.OK, new
     {
-        VttUrl = vttUrl,
-        PathUrl = pathUrl
+        vttUrl = vttUrl,
+        ttmlUrl = ttmlUrl,
+        pathUrl = pathUrl,
+        ttmlDocument = ttmlContent,
+        vttDocument = vttContent
     });
 }
 
+public static string ReturnContent(IAssetFile assetFile)
+{
+    string datastring = null;
+
+    try
+    {
+        string tempPath = System.IO.Path.GetTempPath();
+        string filePath = Path.Combine(tempPath, fileName);
+
+        if (File.Exists(filePath))
+        {
+            File.Delete(filePath);
+        }
+        assetFile.Download(filePath);
+
+        StreamReader streamReader = new StreamReader(filePath);
+        Encoding fileEncoding = streamReader.CurrentEncoding;
+        datastring = streamReader.ReadToEnd();
+        streamReader.Close();
+       
+        File.Delete(filePath);
+    }
+    catch
+    {
+
+    }
+
+    return datastring;
+}
 
 
 

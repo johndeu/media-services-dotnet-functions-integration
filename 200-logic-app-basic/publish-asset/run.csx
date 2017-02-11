@@ -102,21 +102,24 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         // publish with a streaming locator
         IAccessPolicy readPolicy2 = _context.AccessPolicies.Create("readPolicy", TimeSpan.FromHours(4), AccessPermissions.Read);
         ILocator outputLocator2 = _context.Locators.CreateLocator(LocatorType.OnDemandOrigin, outputAsset, readPolicy2);
-        Uri publishurl = GetValidOnDemandURI(outputAsset);
-        if (outputLocator2 != null && publishurl != null)
+
+        var publishurlsmooth = GetValidOnDemandURI(outputAsset);
+        var publishurlpath = GetValidOnDemandPath(outputAsset);
+
+        if (outputLocator2 != null && publishurlsmooth != null)
         {
-            smoothUrl = publishurl.ToString();
-            UriBuilder u2 = new UriBuilder();
-            u2.Host = publishurl.Host;
-            u2.Path = publishurl.Segments[0] + publishurl.Segments[1];
-            u2.Scheme = publishurl.Scheme;
-            pathUrl = u2.ToString();
+            smoothUrl = publishurlsmooth.ToString();
+            playerUrl = "http://ampdemo.azureedge.net/?url=" + System.Web.HttpUtility.UrlEncode(smoothUrl);
+            log.Info($"smooth url : {smoothUrl}");
         }
 
-        log.Info($"Smooth url : {smoothUrl}");
-
-        playerUrl = "http://ampdemo.azureedge.net/?url=" + System.Web.HttpUtility.UrlEncode(smoothUrl);
+        if (outputLocator2 != null && publishurlpath != null)
+        {
+            pathUrl = publishurlpath.ToString();
+            log.Info($"path url : {pathUrl}");
+        }
     }
+
     catch (Exception ex)
     {
         log.Info($"Exception {ex}");
@@ -131,7 +134,3 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         pathUrl = pathUrl
     });
 }
-
-
-
-
