@@ -78,9 +78,9 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         {
             error = "Please pass asset ID in the input object (AssetId)"
         });
-
-    }
 */
+    }
+
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
     try
