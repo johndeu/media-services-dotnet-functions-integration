@@ -164,7 +164,7 @@ public static string ReturnContent(IAssetFile assetFile)
     try
     {
         string tempPath = System.IO.Path.GetTempPath();
-        string filePath = Path.Combine(tempPath, fileName);
+        string filePath = Path.Combine(tempPath, assetFile.Name);
 
         if (File.Exists(filePath))
         {
