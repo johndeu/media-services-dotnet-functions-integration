@@ -74,13 +74,13 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         // for test
         data.assetId = "nb:cid:UUID:d9496372-32f5-430d-a4c6-d21ec3e01525";
 
-        return req.CreateResponse(HttpStatusCode.BadRequest, new
+/*        return req.CreateResponse(HttpStatusCode.BadRequest, new
         {
             error = "Please pass asset ID in the input object (AssetId)"
         });
 
     }
-
+*/
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
     try
