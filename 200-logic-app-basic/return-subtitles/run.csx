@@ -72,7 +72,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     if (data.assetId == null)
     {
         // for test
-        //data.assetId = "nb:cid:UUID:88432c30-cb4a-4496-88c2-b2a05ce9033b";
+        data.assetId = "nb:cid:UUID:d9496372-32f5-430d-a4c6-d21ec3e01525";
 
         return req.CreateResponse(HttpStatusCode.BadRequest, new
         {
