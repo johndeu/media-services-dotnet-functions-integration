@@ -148,7 +148,23 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             if (preset.ToUpper().EndsWith(".JSON"))
             {
                 // Change or modify the custom preset JSON used here.
-                preset = File.ReadAllText(@"D:\home\site\wwwroot\Presets\" + preset);
+                //  preset = File.ReadAllText(@"D:\home\site\wwwroot\Presets\" + preset);
+
+                // Read in custom preset string
+                string homePath = Environment.GetEnvironmentVariable("HOME", EnvironmentVariableTarget.Process);
+                log.Info("Home= " + homePath);
+                string presetPath;
+
+                if (homePath == String.Empty)
+                {
+                    presetPath = @"../presets/" + preset;
+                }
+                else
+                {
+                    presetPath = Path.Combine(homePath, @"site\repository\200-logic-app-basic\presets\" + preset);
+                }
+                log.Info($"Preset path : {presetPath}");
+                preset = File.ReadAllText(presetPath);
             }
 
             // Create a task with the encoding details, using a string preset.

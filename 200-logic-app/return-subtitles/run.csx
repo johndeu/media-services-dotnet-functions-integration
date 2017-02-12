@@ -1,17 +1,19 @@
 /*
-This function publishes an asset.
+This function returns subtitles from an asset.
 
 Input:
 {
-    "assetId" : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc", // Mandatory, Id of the source asset
-}
+    "assetId" : "nb:cid:UUID:88432c30-cb4a-4496-88c2-b2a05ce9033b", // Mandatory, Id of the source asset
+ }
 
 Output:
 {
-    playerUrl : "", // Url of demo AMP with content
-    smoothUrl : "", // Url for the published asset (contains name.ism/manifest at the end) for dynamic packaging
-    pathUrl : ""    // Url of the asset (path)
-}
+    "vttUrl" : "",      // the full path to vtt file if asset is publised
+    "ttmlUrl" : "",     // the full path to vtt file if asset is publised
+    "pathUrl" : "",     // the path to the asset if asset is publised
+    "vttDocument" : "", // the full vtt document
+    "ttmlDocument : ""  // the full ttml document
+ }
 */
 
 #r "Newtonsoft.Json"
@@ -54,6 +56,13 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 {
     log.Info($"Webhook was triggered!");
 
+    // Init variables
+    string vttUrl = "";
+    string pathUrl = "";
+    string ttmlUrl = "";
+    string vttContent = "";
+    string ttmlContent = "";
+
     string jsonContent = await req.Content.ReadAsStringAsync();
     dynamic data = JsonConvert.DeserializeObject(jsonContent);
 
@@ -62,16 +71,13 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     if (data.assetId == null)
     {
         // for test
-        // data.assetId = "nb:cid:UUID:c0d770b4-1a69-43c4-a4e6-bc60d20ab0b2";
+        // data.assetId = "nb:cid:UUID:d9496372-32f5-430d-a4c6-d21ec3e01525";
+
         return req.CreateResponse(HttpStatusCode.BadRequest, new
         {
-            error = "Please pass asset ID in the input object (assetId)"
+            error = "Please pass asset ID in the input object (AssetId)"
         });
     }
-
-    string playerUrl = "";
-    string smoothUrl = "";
-    string pathUrl = "";
 
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
@@ -92,30 +98,44 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         if (outputAsset == null)
         {
             log.Info($"Asset not found {assetid}");
-
             return req.CreateResponse(HttpStatusCode.BadRequest, new
             {
                 error = "Asset not found"
             });
         }
 
-        // publish with a streaming locator
-        IAccessPolicy readPolicy2 = _context.AccessPolicies.Create("readPolicy", TimeSpan.FromHours(4), AccessPermissions.Read);
-        ILocator outputLocator2 = _context.Locators.CreateLocator(LocatorType.OnDemandOrigin, outputAsset, readPolicy2);
-        Uri publishurl = GetValidOnDemandURI(outputAsset);
-        if (outputLocator2 != null && publishurl != null)
+        var vttSubtitle = outputAsset.AssetFiles.Where(a => a.Name.ToUpper().EndsWith(".VTT")).FirstOrDefault();
+        var ttmlSubtitle = outputAsset.AssetFiles.Where(a => a.Name.ToUpper().EndsWith(".TTML")).FirstOrDefault();
+
+        Uri publishurl = GetValidOnDemandPath(outputAsset);
+        if (publishurl != null)
         {
-            smoothUrl = publishurl.ToString();
-            UriBuilder u2 = new UriBuilder();
-            u2.Host = publishurl.Host;
-            u2.Path = publishurl.Segments[0] + publishurl.Segments[1];
-            u2.Scheme = publishurl.Scheme;
-            pathUrl = u2.ToString();
+            pathUrl = publishurl.ToString();
+        }
+        else
+        {
+            log.Info($"Asset not published");
         }
 
-        log.Info($"Smooth url : {smoothUrl}");
+        if (vttSubtitle != null)
+        {
+            if (publishurl != null)
+            {
+                vttUrl = pathUrl + vttSubtitle.Name;
+                log.Info($"vtt url : {vttUrl}");
+            }
+            vttContent = ReturnContent(vttSubtitle);
+        }
 
-        playerUrl = "http://ampdemo.azureedge.net/?url=" + System.Web.HttpUtility.UrlEncode(smoothUrl);
+        if (ttmlSubtitle != null)
+        {
+            if (publishurl != null)
+            {
+                ttmlUrl = pathUrl + vttSubtitle.Name;
+                log.Info($"ttml url : {ttmlUrl}");
+            }
+            ttmlContent = ReturnContent(ttmlSubtitle);
+        }
     }
     catch (Exception ex)
     {
@@ -126,12 +146,40 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info($"");
     return req.CreateResponse(HttpStatusCode.OK, new
     {
-        playerUrl = playerUrl,
-        smoothUrl = smoothUrl,
-        pathUrl = pathUrl
+        vttUrl = vttUrl,
+        ttmlUrl = ttmlUrl,
+        pathUrl = pathUrl,
+        ttmlDocument = ttmlContent,
+        vttDocument = vttContent
     });
 }
 
+public static string ReturnContent(IAssetFile assetFile)
+{
+    string datastring = null;
 
+    try
+    {
+        string tempPath = System.IO.Path.GetTempPath();
+        string filePath = Path.Combine(tempPath, assetFile.Name);
 
+        if (File.Exists(filePath))
+        {
+            File.Delete(filePath);
+        }
+        assetFile.Download(filePath);
 
+        StreamReader streamReader = new StreamReader(filePath);
+        Encoding fileEncoding = streamReader.CurrentEncoding;
+        datastring = streamReader.ReadToEnd();
+        streamReader.Close();
+
+        File.Delete(filePath);
+    }
+    catch
+    {
+
+    }
+
+    return datastring;
+}

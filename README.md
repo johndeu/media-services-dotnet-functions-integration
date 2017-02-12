@@ -168,10 +168,10 @@ The format of the json file is:
       }
     ]
 
-## LA-1-CreateEmptyAsset, LA-2-SyncAssset, LA-3-LiveAnalytics, LA-3-SubmitJob, LA-4-CheckJobStatus, LA-5-Publish functions
+## create-empty-asset, sync-asset, live-analytics, submit-job, check-job-status, publish-asset, return-subtitles functions in "200-logic-app" folder
 These functions are designed to be called by a Logic App. More details and Logic App samples to come. 
 
-One specific patterns to pay attention to here include the LA-4-CheckJobStatus function which is used to poll for 
+One specific patterns to pay attention to here include the check-job-status function which is used to poll for 
 job status from a Logic App workflow. 
 
 ## WF-1 through WF-5 Functions
