@@ -201,7 +201,6 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
 
         log.Info($"TargetContainer = {targetContainer.Name}");
         CopyBlobsToTargetContainer(outContainer, targetContainer, log).Wait();
-
     }
     catch (Exception ex)
     {
