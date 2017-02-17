@@ -8,9 +8,9 @@ Input:
 
 Output:
 {
-    "vttUrl" : "",      // the full path to vtt file if asset is publised
-    "ttmlUrl" : "",     // the full path to vtt file if asset is publised
-    "pathUrl" : "",     // the path to the asset if asset is publised
+    "vttUrl" : "",      // the full path to vtt file if asset is published
+    "ttmlUrl" : "",     // the full path to vtt file if asset is published
+    "pathUrl" : "",     // the path to the asset if asset is published
     "vttDocument" : "", // the full vtt document
     "ttmlDocument : ""  // the full ttml document
  }

@@ -60,18 +60,18 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     log.Info(jsonContent);
 
-    if (data.fileName == null)
+    if (data.assetName == null)
     {
         // for test
         // data.Path = "/input/WP_20121015_081924Z.mp4";
 
         return req.CreateResponse(HttpStatusCode.BadRequest, new
         {
-            error = "Please pass fileName in the input object"
+            error = "Please pass assetName in the input object"
         });
     }
 
-    string FileName = data.fileName;
+    string assetName = data.assetName;
 
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
@@ -87,7 +87,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         // Used the chached credentials to create CloudMediaContext.
         _context = new CloudMediaContext(_cachedCredentials);
 
-        newAsset = _context.Assets.Create(FileName, AssetCreationOptions.None);
+        newAsset = _context.Assets.Create(assetName, AssetCreationOptions.None);
 
     }
     catch (Exception ex)
