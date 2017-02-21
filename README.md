@@ -174,9 +174,10 @@ These functions are designed to be called by a Logic App. More details and Logic
 One specific patterns to pay attention to here include the check-job-status function which is used to poll for 
 job status from a Logic App workflow. 
 
-## WF-1 through WF-5 Functions
-This set of functions is designed to be used with a Logic App template that is being developed. You are welcome to use these as Samples
-for your own logic apps at this time.
+## 201-logic-app-workflow-1
+This set of functions shows how to build a complex workflow using Logic Apps and Azure Functions.
+For details on setting up the Logic App and using these functions please refer to the 
+documentation page [201-logic-app-workflow-1](201-logic-app-workflow-1/README.md)
 
 ### License
 This sample project is licensed under [the MIT License](LICENSE.txt)
