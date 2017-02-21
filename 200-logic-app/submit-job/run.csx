@@ -161,7 +161,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
                 }
                 else
                 {
-                    presetPath = Path.Combine(homePath, @"site\repository\200-logic-app-basic\presets\" + preset);
+                    presetPath = Path.Combine(homePath, @"site\repository\200-logic-app\presets\" + preset);
                 }
                 log.Info($"Preset path : {presetPath}");
                 preset = File.ReadAllText(presetPath);
