@@ -16,7 +16,7 @@ The project includes several folders of sample Azure Functions for use with Azur
 to ingesting content directly from blob storage, encoding, and writing content back to blob storage.
 
 
-# How to use WF-x sample media workflow
+# How to use 201-logic-app-workflow-1 sample media workflow
 
 
 ## Setup media workflow functions on your Azure Subscription
