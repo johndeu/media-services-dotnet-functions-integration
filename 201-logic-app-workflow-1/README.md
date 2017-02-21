@@ -58,28 +58,28 @@ Use "OneDrive - When a file is created" action.
 * Specify a frequecy to watch the specified watch folder 
 * Note that when multiple JSON files will be uploaded then multiple workflows will be triggered 
 
-![Screen capture](/images/WorkflowSample-Step1.png?raw=true)
+![Screen capture](images/WorkflowSample-Step1.png?raw=true)
 
 #### Step 2) Import Asset (Create empty asset and copy blobs)
 Use Azure Function - **WF-1-CreateAsset-ImportAssetFromIngestAssetConfig**
 * Specify "OneDrive – File content" as "FileContent" input
 * Specify "OneDrive – File name" as "FileName" input
 
-![Screen capture](/images/WorkflowSample-Step2.png?raw=true)
+![Screen capture](images/WorkflowSample-Step2.png?raw=true)
 
 #### Step 3) Wait for Copy Blobs
 Use "Until" loop with **WF-1-CreateAsset-MonitorCopyBlob**
 * Wait until when **WF-1-CreateAsset-MonitorCopyBlob** - "CopyStatus" *is equal to* "2"
 * Specify "WF-1-CreateAsset-ImportAssetFromIngestAssetConfig – DestinationContainer" as "DestinationContainer" input
 
-![Screen capture](/images/WorkflowSample-Step3.png?raw=true)
+![Screen capture](images/WorkflowSample-Step3.png?raw=true)
 
 #### Step 4) Finalize Creating Asset
 Use Azure Function **WF-1-CreateAsset-UpdateFinal**
 * Specify "WF-1-CreateAsset-ImportAssetFromIngestAssetConfig – AssetId" as "AssetId" input
 * Specify "OneDrive – File content" as "IngestAssetConfigJson" input
 
-![Screen capture](/images/WorkflowSample-Step4.png?raw=true)
+![Screen capture](images/WorkflowSample-Step4.png?raw=true)
 
 #### Step 5) Check if Media Processing is required
 Use "Condition"
@@ -87,9 +87,9 @@ Use "Condition"
 * IF "MediaProcessRequired" *is greater than* "0", goto Step 6
 * IF NO, goto Step 7
 
-![Screen capture](/images/WorkflowSample-Step5.png?raw=true)  
-![Screen capture](/images/WorkflowSample-Step6-C1YES.png?raw=true)  
-![Screen capture](/images/WorkflowSample-Step6-C2NO.png?raw=true)  
+![Screen capture](images/WorkflowSample-Step5.png?raw=true)  
+![Screen capture](images/WorkflowSample-Step6-C1YES.png?raw=true)  
+![Screen capture](images/WorkflowSample-Step6-C2NO.png?raw=true)  
 
 #### Step 6-1) [Condition=YES] Encode Asset
 Use **WF-2-ProcessAsset-SubmitEncodingJob**
@@ -101,14 +101,14 @@ Use "Until" loop with **WF-2-ProcessAsset-MonitorJob**
 * Wait until when **WF-2-ProcessAsset-SubmitEncodingJob** - "JobState" *is greater than* "2"
 * Specify "WF-2-ProcessAsset-SubmitEncodingJob – JobId" as "JobId"
 
-![Screen capture](/images/WorkflowSample-Step6-C1YES-P1.png?raw=true)
+![Screen capture](images/WorkflowSample-Step6-C1YES-P1.png?raw=true)
 
 #### Step 6-3) [Condition=YES] Check if Encoding Job is successfully done 
 Use "Condition"
 * Use "WF-2-ProcessAsset-MonitorJob – JobState" as "Condition" parameter
 * IF "JobState" *is equal to* "3", goto Step 6-4
 
-![Screen capture](/images/WorkflowSample-Step6-C1YES-P2.png?raw=true)
+![Screen capture](images/WorkflowSample-Step6-C1YES-P2.png?raw=true)
 
 #### Step 6-4) [Condition=YES] Send an email
 Use **WF-5-PublishAsset**
@@ -123,7 +123,7 @@ Use **WF-5-PublishAsset**
 * Specify "WF-1-CreateAsset-ImportAssetFromIngestAssetConfig – AssetId" as "AssetId" input
 * Specify "OneDrive – File content" as "IngestAssetConfigJson" input
 
-![Screen capture](/images/WorkflowSample-Step6-C2NO_Details.png?raw=true)
+![Screen capture](images/WorkflowSample-Step6-C2NO_Details.png?raw=true)
 
 #### Step 7-2) [Condition=NO] Send an email
 Use "Outlook.com - Send an email" to send an email
