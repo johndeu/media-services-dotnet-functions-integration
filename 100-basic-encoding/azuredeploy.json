@@ -15,24 +15,9 @@
         "description": "Function App Key to use for authorization of Webhook. You should replace this with the key you want to use for your Function application authorization"
       }
     },
-    "project":{
-      "type": "string",
-      "defaultValue": "100-basic-encoding",
-      "allowedValues": [
-        "100-basic-encoding",
-        "101-notify-webhooks",
-        "102-notify-queues",
-        "200-logic-app",
-        "200-logic-app-basic",
-        "201-logic-app-workflow-1"
-      ],
-        "metadata": {
-        "description": "The project in the Media Services Functions samples to deploy. Choose the name that matches the folder name containing the functions samples that you wish to deploy."
-      }
-    },
     "sourceCodeRepositoryURL": {
       "type": "string",
-      "defaultValue": "ENTER PATH to YOUR FORK of https://github.com/Azure-Samples/media-services-dotnet-functions-integration",
+      "defaultValue": "ENTER PATH TO YOUR FORK OF REPO - https://github.com/Azure-Samples/media-services-dotnet-functions-integration",
       "metadata": {
         "description": "Source code repository URL. Is is highly recommended that you first fork the samples repository and point this to your fork. If you are using your own fork, set the sourceCodeManualIntegration property to false below."
       }
@@ -144,7 +129,7 @@
             "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
           ],
           "properties": {
-            "Project": "[parameters('project')]",
+            "Project": "100-basic-encoding",
             "FUNCTIONS_EXTENSION_VERSION": "~1",
             "WEBSITE_NODE_DEFAULT_VERSION": "6.5.0",
             "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]",

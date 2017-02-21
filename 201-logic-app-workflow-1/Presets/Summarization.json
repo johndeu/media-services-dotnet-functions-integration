@@ -1,0 +1,9 @@
+{
+  "Version": "1.0",
+  "Options": {
+    "OutputType": "video",
+    "MaxMotionThumbnailDurationInSecs": "0.0",
+    "OutputAudio": "True",
+    "FadeInFadeOut": "True"
+  }
+}

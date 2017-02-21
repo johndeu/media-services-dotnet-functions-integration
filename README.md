@@ -186,15 +186,16 @@ The format of the json file is:
       }
     ]
 
-## LA-1-CreateEmptyAsset, LA-2-SyncAssset, LA-3-LiveAnalytics, LA-3-SubmitJob, LA-4-CheckJobStatus, LA-5-Publish functions
+## create-empty-asset, sync-asset, live-analytics, submit-job, check-job-status, publish-asset, return-subtitles functions in "200-logic-app" folder
 These functions are designed to be called by a Logic App. More details and Logic App samples to come. 
 
-One specific patterns to pay attention to here include the LA-4-CheckJobStatus function which is used to poll for 
+One specific patterns to pay attention to here include the check-job-status function which is used to poll for 
 job status from a Logic App workflow. 
 
-## WF-1 through WF-5 Functions
-This set of functions is designed to be used with a Logic App template that is being developed. You are welcome to use these as Samples
-for your own logic apps at this time.
+## 201-logic-app-workflow-1
+This set of functions shows how to build a complex workflow using Logic Apps and Azure Functions.
+For details on setting up the Logic App and using these functions please refer to the 
+documentation page [201-logic-app-workflow-1](201-logic-app-workflow-1/README.md)
 
 ### License
 This sample project is licensed under [the MIT License](LICENSE.txt)
@@ -206,3 +207,5 @@ This sample project is licensed under [the MIT License](LICENSE.txt)
 - [ ] We are still working on improving the ARM template and we also plan to modify the 
 directoy structure of this project to make it easier to understand and deploy smaller "scenarios"
 
+---
+_This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments._

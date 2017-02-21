@@ -1,0 +1,12 @@
+{
+  "bindings": [
+    {
+      "name": "inputBlob",
+      "type": "blobTrigger",
+      "direction": "in",
+      "path": "input/{fileName}.json",
+      "connection": "StorageConnection"
+    }
+  ],
+  "disabled": false
+}
