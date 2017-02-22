@@ -23,7 +23,6 @@
         "101-notify-webhooks",
         "102-notify-queues",
         "200-logic-app",
-        "200-logic-app-basic",
         "201-logic-app-workflow-1"
       ],
         "metadata": {
