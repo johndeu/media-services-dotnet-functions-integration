@@ -40,7 +40,7 @@ public static IEnumerable<Uri> GetValidURIs(IAsset asset)
 
         var se = _context.StreamingEndpoints.AsEnumerable().Where(o => (o.State == StreamingEndpointState.Running) && (CanDoDynPackaging(o))).OrderByDescending(o => o.CdnEnabled);
 
-        if (se.Count()==0) // No running which can do dynpackaging SE. Let's use the default one to get URL
+        if (se.Count==0) // No running which can do dynpackaging SE. Let's use the default one to get URL
         {
             se = _context.StreamingEndpoints.AsEnumerable().Where(o=> o.Name =="default");
         }
@@ -83,7 +83,7 @@ public static IEnumerable<Uri> GetValidPaths(IAsset asset)
 
         var se = _context.StreamingEndpoints.AsEnumerable().Where(o => (o.State == StreamingEndpointState.Running) && (CanDoDynPackaging(o))).OrderByDescending(o => o.CdnEnabled);
 
-        if (se.Count()==0) // No running which can do dynpackaging SE. Let's use the default one to get URL
+        if (se.Count==0) // No running which can do dynpackaging SE. Let's use the default one to get URL
         {
             se = _context.StreamingEndpoints.AsEnumerable().Where(o=> o.Name =="default");
         }
