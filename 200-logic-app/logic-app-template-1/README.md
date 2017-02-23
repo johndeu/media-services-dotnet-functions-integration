@@ -3,4 +3,4 @@
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
-(Beta) This template allows you to create a Logic app that listens to a onedrive folder and will copy it to an Azure Media Services asset, triggers an encoding job and publish the output asset.
+This template allows you to create a Logic app that listens to a onedrive folder and will copy it to an Azure Media Services asset, triggers an encoding job, publish the output asset and send an email when the process is complete.
