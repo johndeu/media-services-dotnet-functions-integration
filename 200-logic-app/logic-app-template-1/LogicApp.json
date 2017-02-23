@@ -130,8 +130,7 @@
               "inputs": {
                 "body": {
                   "assetId": "@{body('create-empty-asset')['assetId']}",
-                  "mesPreset": "H264 Multiple Bitrate 720p with thumbnail.json",
-                  "indexV2Language": "EnUs"
+                  "mesPreset": "H264 Multiple Bitrate 720p with thumbnail.json"
                 },
                 "function": {
                   "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/submit-job')]"
