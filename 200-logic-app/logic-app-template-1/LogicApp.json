@@ -10,36 +10,6 @@
         "description": "Name of the Logic App."
       }
     },
-    "logicAppLocation": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().location]",
-      "allowedValues": [
-        "eastasia",
-        "southeastasia",
-        "centralus",
-        "eastus",
-        "eastus2",
-        "westus",
-        "northcentralus",
-        "southcentralus",
-        "northeurope",
-        "westeurope",
-        "japanwest",
-        "japaneast",
-        "brazilsouth",
-        "australiaeast",
-        "australiasoutheast",
-        "southindia",
-        "centralindia",
-        "westindia",
-        "westcentralus",
-        "westus2",
-        "[resourceGroup().location]"
-      ],
-      "metadata": {
-        "description": "Location of the Logic App."
-      }
-    },
     "onedrive_1_Connection_Name": {
       "type": "string",
       "defaultValue": "onedrive"
@@ -101,13 +71,14 @@
     }
   },
   "variables": {
-      "storageAccountid": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+      "storageAccountid": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+      "logicAppLocation": "[resourceGroup().location]",
   },
   "resources": [
     {
       "name": "[parameters('logicAppName')]",
       "type": "Microsoft.Logic/workflows",
-      "location": "[parameters('logicAppLocation')]",
+      "location": "[variables('logicAppLocation')]",
       "tags": {
         "displayName": "LogicApp"
       },
@@ -222,7 +193,7 @@
                   "type": "Function",
                   "inputs": {
                     "body": {
-                      "assetId": "@{body('create-empty-asset')['assetId']}"
+                      "assetId": "@{body('submit-job')['outputAssetMESId']}"
                     },
                     "function": {
                       "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/publish-asset')]"
@@ -267,9 +238,10 @@
                     "method": "post",
                     "path": "/Mail",
                     "body": {
-                      "To": "[parameters('outlookSendEmailTo')]",
-                      "Subject": "New video published!",
-                      "Body": "Playback link:@{body('Create_a_bitlink')['url']}"
+                        "Body": "<html><body><p><a href=\"@{body('Create_a_bitlink')['url']}\">Playback the entire video</a></p></body></html>",
+                        "IsHtml": true,
+                        "Subject": "New video published!",
+                        "To": "[parameters('outlookSendEmailTo')]"
                     }
                   },
                   "runAfter": {
@@ -351,27 +323,27 @@
           "$connections": {
             "value": {
               "azureblob": {
-                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'azureblob')]",
+                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'azureblob')]",
                 "connectionId": "[resourceId('Microsoft.Web/connections', parameters('azureblob_1_Connection_Name'))]",
                 "connectionName": "[parameters('azureblob_1_Connection_Name')]"
               },
               "bitly": {
-                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'bitly')]",
+                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'bitly')]",
                 "connectionId": "[resourceId('Microsoft.Web/connections', parameters('bitly_1_Connection_Name'))]",
                 "connectionName": "[parameters('bitly_1_Connection_Name')]"
               },
               "outlook": {
-                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'outlook')]",
+                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'outlook')]",
                 "connectionId": "[resourceId('Microsoft.Web/connections', parameters('outlook_1_Connection_Name'))]",
                 "connectionName": "[parameters('outlook_1_Connection_Name')]"
               },
               "outlook_1": {
-                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'outlook')]",
+                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'outlook')]",
                 "connectionId": "[resourceId('Microsoft.Web/connections', parameters('outlook_1_Connection_Name'))]",
                 "connectionName": "[parameters('outlook_1_Connection_Name')]"
               },
               "onedrive": {
-                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'onedrive')]",
+                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'onedrive')]",
                 "connectionId": "[resourceId('Microsoft.Web/connections', parameters('onedrive_1_Connection_Name'))]",
                 "connectionName": "[parameters('onedrive_1_Connection_Name')]"
               }
@@ -390,10 +362,10 @@
       "type": "MICROSOFT.WEB/CONNECTIONS",
       "apiVersion": "2016-06-01",
       "name": "[parameters('onedrive_1_Connection_Name')]",
-      "location": "[parameters('logicAppLocation')]",
+      "location": "[variables('logicAppLocation')]",
       "properties": {
         "api": {
-          "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'onedrive')]"
+          "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'onedrive')]"
         },
         "displayName": "[parameters('onedrive_1_Connection_DisplayName')]"
       }
@@ -402,10 +374,10 @@
       "type": "MICROSOFT.WEB/CONNECTIONS",
       "apiVersion": "2016-06-01",
       "name": "[parameters('azureblob_1_Connection_Name')]",
-      "location": "[parameters('logicAppLocation')]",
+      "location": "[variables('logicAppLocation')]",
       "properties": {
         "api": {
-          "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'azureblob')]"
+          "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'azureblob')]"
         },
         "displayName": "[parameters('azureblob_1_Connection_DisplayName')]",
         "parameterValues": {
@@ -418,10 +390,10 @@
       "type": "MICROSOFT.WEB/CONNECTIONS",
       "apiVersion": "2016-06-01",
       "name": "[parameters('outlook_1_Connection_Name')]",
-      "location": "[parameters('logicAppLocation')]",
+      "location": "[variables('logicAppLocation')]",
       "properties": {
         "api": {
-          "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'outlook')]"
+          "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'outlook')]"
         },
         "displayName": "[parameters('outlook_1_Connection_DisplayName')]"
       }
@@ -430,10 +402,10 @@
       "type": "MICROSOFT.WEB/CONNECTIONS",
       "apiVersion": "2016-06-01",
       "name": "[parameters('bitly_1_Connection_Name')]",
-      "location": "[parameters('logicAppLocation')]",
+      "location": "[variables('logicAppLocation')]",
       "properties": {
         "api": {
-          "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'bitly')]"
+          "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'bitly')]"
         },
         "displayName": "[parameters('bitly_1_Connection_DisplayName')]"
       }
