@@ -34,9 +34,6 @@ using Microsoft.Azure.WebJobs;
 
 
 // Read values from the App.config file.
-static string _sourceStorageAccountName = Environment.GetEnvironmentVariable("SourceStorageAccountName");
-static string _sourceStorageAccountKey = Environment.GetEnvironmentVariable("SourceStorageAccountKey");
-
 private static readonly string _mediaServicesAccountName = Environment.GetEnvironmentVariable("AMSAccount");
 private static readonly string _mediaServicesAccountKey = Environment.GetEnvironmentVariable("AMSKey");
 
