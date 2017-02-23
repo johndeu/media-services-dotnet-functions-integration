@@ -46,7 +46,7 @@
     },
     "onedrive_1_Connection_DisplayName": {
       "type": "string",
-      "defaultValue": "xpouyat@hotmail.com"
+      "defaultValue": "user@hotmail.com"
     },
     "azureblob_1_Connection_Name": {
       "type": "string",
@@ -54,20 +54,14 @@
     },
     "azureblob_1_Connection_DisplayName": {
       "type": "string",
-      "defaultValue": "xpouyatdemoamsstorage"
+      "defaultValue": "demoamsstorage"
     },
-    "azureblob_1_accountName": {
+    "storageAccountName": {
       "type": "string",
       "metadata": {
         "description": "Name of the storage account the connector should use."
       },
       "defaultValue": "mediasvcs6gbv2zdblgmj"
-    },
-    "azureblob_1_accessKey": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Specify a valid primary/secondary storage account access key."
-      }
     },
     "outlook_1_Connection_Name": {
       "type": "string",
@@ -75,15 +69,11 @@
     },
     "outlook_1_Connection_DisplayName": {
       "type": "string",
-      "defaultValue": "xpouyat@hotmail.com"
+      "defaultValue": "user@hotmail.com"
     },
-    "outlook_2_Connection_Name": {
+     "outlookSendEmailTo": {
       "type": "string",
-      "defaultValue": "outlook"
-    },
-    "outlook_2_Connection_DisplayName": {
-      "type": "string",
-      "defaultValue": "Xavier.Pouyat@microsoft.com"
+      "defaultValue": "user@hotmail.com"
     },
     "bitly_1_Connection_Name": {
       "type": "string",
@@ -92,9 +82,27 @@
     "bitly_1_Connection_DisplayName": {
       "type": "string",
       "defaultValue": "Bitly"
+    },
+    "functionsDeploymentResourceGroup": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "metadata": {
+        "description": "Name of deployment resource used by the functions."
+      }
+    },
+    "functionsDeploymentName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "metadata": {
+        "description": "Name of deployment of the functions."
+      }
     }
   },
-  "variables": {},
+  "variables": {
+      "storageAccountid": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+  },
   "resources": [
     {
       "name": "[parameters('logicAppName')]",
@@ -115,7 +123,7 @@
                   "assetName": "@{triggerOutputs()['headers']['x-ms-file-name']}"
                 },
                 "function": {
-                  "id": "/subscriptions/28a75405-95db-4d15-9a7f-ab84003a63aa/resourceGroups/amsfunctions/providers/Microsoft.Web/sites/AMSFunctions/functions/create-empty-asset"
+                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/create-empty-asset')]"
                 }
               },
               "runAfter": {}
@@ -152,7 +160,7 @@
                   "assetId": "@{body('create-empty-asset')['assetId']}"
                 },
                 "function": {
-                  "id": "/subscriptions/28a75405-95db-4d15-9a7f-ab84003a63aa/resourceGroups/amsfunctions/providers/Microsoft.Web/sites/AMSFunctions/functions/sync-asset"
+                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/sync-asset')]"
                 }
               },
               "runAfter": {
@@ -170,7 +178,7 @@
                   "indexV2Language": "EnUs"
                 },
                 "function": {
-                  "id": "/subscriptions/28a75405-95db-4d15-9a7f-ab84003a63aa/resourceGroups/amsfunctions/providers/Microsoft.Web/sites/AMSFunctions/functions/submit-job"
+                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/submit-job')]"
                 }
               },
               "runAfter": {
@@ -194,7 +202,7 @@
                       "jobId": "@{body('submit-job')['jobId']}"
                     },
                     "function": {
-                      "id": "/subscriptions/28a75405-95db-4d15-9a7f-ab84003a63aa/resourceGroups/amsfunctions/providers/Microsoft.Web/sites/AMSFunctions/functions/check-job-status"
+                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/check-job-status')]"
                     }
                   },
                   "runAfter": {}
@@ -217,7 +225,7 @@
                       "assetId": "@{body('create-empty-asset')['assetId']}"
                     },
                     "function": {
-                      "id": "/subscriptions/28a75405-95db-4d15-9a7f-ab84003a63aa/resourceGroups/test/providers/Microsoft.Web/sites/mediaservicesxp3/functions/publish-asset"
+                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/publish-asset')]"
                     }
                   },
                   "runAfter": {}
@@ -259,7 +267,7 @@
                     "method": "post",
                     "path": "/Mail",
                     "body": {
-                      "To": "xpouyat@hotmail.com",
+                      "To": "[parameters('outlookSendEmailTo')]",
                       "Subject": "New video published!",
                       "Body": "Playback link:@{body('Create_a_bitlink')['url']}"
                     }
@@ -292,7 +300,7 @@
                       "method": "post",
                       "path": "/Mail",
                       "body": {
-                        "To": "xpouyat@hotmail.com",
+                        "To": "[parameters('outlookSendEmailTo')]",
                         "Subject": "Error when encoding file ",
                         "Body": "There was an error when encoding file : @{triggerOutputs()['headers']['x-ms-file-name']}"
                       }
@@ -354,8 +362,8 @@
               },
               "outlook": {
                 "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'outlook')]",
-                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('outlook_2_Connection_Name'))]",
-                "connectionName": "[parameters('outlook_2_Connection_Name')]"
+                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('outlook_1_Connection_Name'))]",
+                "connectionName": "[parameters('outlook_1_Connection_Name')]"
               },
               "outlook_1": {
                 "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'outlook')]",
@@ -374,7 +382,6 @@
       "dependsOn": [
         "[resourceId('Microsoft.Web/connections', parameters('azureblob_1_Connection_Name'))]",
         "[resourceId('Microsoft.Web/connections', parameters('bitly_1_Connection_Name'))]",
-        "[resourceId('Microsoft.Web/connections', parameters('outlook_2_Connection_Name'))]",
         "[resourceId('Microsoft.Web/connections', parameters('outlook_1_Connection_Name'))]",
         "[resourceId('Microsoft.Web/connections', parameters('onedrive_1_Connection_Name'))]"
       ]
@@ -402,8 +409,8 @@
         },
         "displayName": "[parameters('azureblob_1_Connection_DisplayName')]",
         "parameterValues": {
-          "accountName": "[parameters('azureblob_1_accountName')]",
-          "accessKey": "[parameters('azureblob_1_accessKey')]"
+          "accountName": "[parameters('storageAccountName')]",
+          "accessKey": "[listKeys(variables('storageAccountid'),'2015-05-01-preview').key1]"
         }
       }
     },
@@ -417,18 +424,6 @@
           "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'outlook')]"
         },
         "displayName": "[parameters('outlook_1_Connection_DisplayName')]"
-      }
-    },
-    {
-      "type": "MICROSOFT.WEB/CONNECTIONS",
-      "apiVersion": "2016-06-01",
-      "name": "[parameters('outlook_2_Connection_Name')]",
-      "location": "[parameters('logicAppLocation')]",
-      "properties": {
-        "api": {
-          "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'outlook')]"
-        },
-        "displayName": "[parameters('outlook_2_Connection_DisplayName')]"
       }
     },
     {
