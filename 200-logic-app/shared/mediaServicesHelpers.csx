@@ -42,7 +42,7 @@ public static IEnumerable<Uri> GetValidURIs(IAsset asset)
 
         if (se.Count() == 0) // No running which can do dynpackaging SE. Let's use the default one to get URL
         {
-            se = _context.StreamingEndpoints.AsEnumerable().OrderByDescending(o => o.CdnEnabled);
+            se = _context.StreamingEndpoints.AsEnumerable().Where(o => o.Name == "default").OrderByDescending(o => o.CdnEnabled);
         }
 
         var template = new UriTemplate("{contentAccessComponent}/{ismFileName}/manifest");
