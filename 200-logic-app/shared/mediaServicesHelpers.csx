@@ -33,20 +33,20 @@ public static IEnumerable<Uri> GetValidURIs(IAsset asset)
 {
     IEnumerable<Uri> ValidURIs;
     var ismFile = asset.AssetFiles.AsEnumerable().Where(f => f.Name.EndsWith(".ism")).OrderByDescending(f => f.IsPrimary).FirstOrDefault();
- 
+
     if (ismFile != null)
     {
         var locators = asset.Locators.Where(l => l.Type == LocatorType.OnDemandOrigin && l.ExpirationDateTime > DateTime.UtcNow).OrderByDescending(l => l.ExpirationDateTime);
 
         var se = _context.StreamingEndpoints.AsEnumerable().Where(o => (o.State == StreamingEndpointState.Running) && (CanDoDynPackaging(o))).OrderByDescending(o => o.CdnEnabled);
 
-        if (se.Count==0) // No running which can do dynpackaging SE. Let's use the default one to get URL
+        if (se.Count() == 0) // No running which can do dynpackaging SE. Let's use the default one to get URL
         {
-            se = _context.StreamingEndpoints.AsEnumerable().Where(o=> o.Name =="default");
+            se = (IOrderedEnumerable<IStreamingEndpoint>)_context.StreamingEndpoints.AsEnumerable().Where(o => o.Name == "default");
         }
 
         var template = new UriTemplate("{contentAccessComponent}/{ismFileName}/manifest");
-       
+
         ValidURIs = locators.SelectMany(l =>
             se.Select(
                     o =>
@@ -78,23 +78,23 @@ public static Uri GetValidOnDemandPath(IAsset asset)
 public static IEnumerable<Uri> GetValidPaths(IAsset asset)
 {
     IEnumerable<Uri> ValidURIs;
-    
-        var locators = asset.Locators.Where(l => l.Type == LocatorType.OnDemandOrigin && l.ExpirationDateTime > DateTime.UtcNow).OrderByDescending(l => l.ExpirationDateTime);
 
-        var se = _context.StreamingEndpoints.AsEnumerable().Where(o => (o.State == StreamingEndpointState.Running) && (CanDoDynPackaging(o))).OrderByDescending(o => o.CdnEnabled);
+    var locators = asset.Locators.Where(l => l.Type == LocatorType.OnDemandOrigin && l.ExpirationDateTime > DateTime.UtcNow).OrderByDescending(l => l.ExpirationDateTime);
 
-        if (se.Count==0) // No running which can do dynpackaging SE. Let's use the default one to get URL
-        {
-            se = _context.StreamingEndpoints.AsEnumerable().Where(o=> o.Name =="default");
-        }
+    var se = _context.StreamingEndpoints.AsEnumerable().Where(o => (o.State == StreamingEndpointState.Running) && (CanDoDynPackaging(o))).OrderByDescending(o => o.CdnEnabled);
 
-        var template = new UriTemplate("{contentAccessComponent}/");
-        ValidURIs = locators.SelectMany(l => se.Select(
-                    o =>
-                        template.BindByPosition(new Uri("http://" + o.HostName), l.ContentAccessComponent)))
-            .ToArray();
+    if (se.Count() == 0) // No running which can do dynpackaging SE. Let's use the default one to get URL
+    {
+        se = (IOrderedEnumerable<IStreamingEndpoint>)_context.StreamingEndpoints.AsEnumerable().Where(o => o.Name == "default");
+    }
 
-        return ValidURIs;
+    var template = new UriTemplate("{contentAccessComponent}/");
+    ValidURIs = locators.SelectMany(l => se.Select(
+                o =>
+                    template.BindByPosition(new Uri("http://" + o.HostName), l.ContentAccessComponent)))
+        .ToArray();
+
+    return ValidURIs;
 }
 
 static public bool CanDoDynPackaging(IStreamingEndpoint mySE)
