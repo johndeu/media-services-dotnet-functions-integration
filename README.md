@@ -189,7 +189,7 @@ The format of the json file is:
 ## 200-logic-app
 Functions : create-empty-asset, sync-asset, live-analytics, submit-job, check-job-status, publish-asset, return-subtitles.
 These functions are designed to be called by a Logic App.
-A first template to deploy the sample logic app is available in [201-logic-app](201-logic-app/logic-app-template-1/README.md) 
+A first template to deploy the sample logic app is available in [200-logic-app](../../200-logic-app/logic-app-template-1/README.md) 
 
 One specific patterns to pay attention to here include the check-job-status function which is used to poll for 
 job status from a Logic App workflow. 
