@@ -99,8 +99,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             });
         }
 
-        // publish with a streaming locator
-        IAccessPolicy readPolicy2 = _context.AccessPolicies.Create("readPolicy", TimeSpan.FromHours(4), AccessPermissions.Read);
+        // publish with a streaming locator (10 years)
+        IAccessPolicy readPolicy2 = _context.AccessPolicies.Create("readPolicy", TimeSpan.FromDays(365*10), AccessPermissions.Read);
         ILocator outputLocator2 = _context.Locators.CreateLocator(LocatorType.OnDemandOrigin, outputAsset, readPolicy2);
 
         var publishurlsmooth = GetValidOnDemandURI(outputAsset);
