@@ -104,7 +104,7 @@
               "type": "Function",
               "inputs": {
                 "body": {
-                  "fileName": "@{triggerOutputs()['headers']['x-ms-file-name']}"
+                  "assetName": "@{triggerOutputs()['headers']['x-ms-file-name']}"
                 },
                 "function": {
                   "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/create-empty-asset')]"
