@@ -9,7 +9,7 @@ This template creates a Logic app that listens to an onedrive folder and will co
 ![Screen capture](images/simplevod-1.png?raw=true)
 ![Screen capture](images/simplevod-2.png?raw=true)
 
-[See the detailed view of the logic app.](simplevod-detailed.md)
+[See the detailed view of the logic app.](logicapp-simplevod-screen.md)
 
 ### 1. Prerequisite
 If not already done : fork the repo, deploy Azure Functions and select the **"200-logic-app"** Project (important !)
