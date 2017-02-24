@@ -206,7 +206,7 @@ This sample project is licensed under [the MIT License](LICENSE.txt)
 - [ ] The Azure Queue notification function is not yet complete
 - [ ] Copy Blobs currently is using Streams, and copies in an inefficient way.
 - [ ] Document the Logic Apps functions
-- [ ] We are still working on improving the ARM template and we also plan to modify the 
+- [X] DONE: We are still working on improving the ARM template and we also plan to modify the 
 directoy structure of this project to make it easier to understand and deploy smaller "scenarios"
 
 ---
