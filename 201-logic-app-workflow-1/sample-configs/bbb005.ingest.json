@@ -1,0 +1,20 @@
+{
+    "IngestSource": {
+        "SourceContainerName": "bigbuckbunny-2160p60p"
+    },
+    "IngestAsset": {
+        "AssetName": "BigBuckBunny_2160p60p",
+        "AssetFiles": [
+            {
+                "FileName": "bbb_sunflower_2160p_60fps_normal.mp4",
+                "IsPrimary": true
+            }
+        ],
+        "AssetCreationOption": "None"
+    },
+    "IngestAssetEncoding": {
+        "Encoding": true,
+        "Encoder": "MES",
+        "EncodingConfiguration": "H264 Multiple Bitrate 1080p"
+    }
+}

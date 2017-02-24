@@ -1,0 +1,45 @@
+{
+    "IngestSource": {
+        "SourceContainerName": "superspeedway-720p-smooth"
+    },
+    "IngestAsset": {
+        "AssetName": "SuperSpeedway_720_Smooth",
+        "AssetFiles": [
+            {
+                "fileName": "SuperSpeedway_720.ism",
+                "isPrimary": true
+            },
+            {
+                "fileName": "SuperSpeedway_720.ismc"
+            },
+            {
+                "fileName": "SuperSpeedway_720_230.ismv"
+            },
+            {
+                "fileName": "SuperSpeedway_720_331.ismv"
+            },
+            {
+                "fileName": "SuperSpeedway_720_477.ismv"
+            },
+            {
+                "fileName": "SuperSpeedway_720_688.ismv"
+            },
+            {
+                "fileName": "SuperSpeedway_720_991.ismv"
+            },
+            {
+                "fileName": "SuperSpeedway_720_1427.ismv"
+            },
+            {
+                "fileName": "SuperSpeedway_720_2056.ismv"
+            },
+            {
+                "fileName": "SuperSpeedway_720_2962.ismv"
+            }
+        ],
+        "AssetCreationOption": "None"
+    },
+    "IngestAssetEncoding": {
+        "Encoding": "false"
+    }
+}
