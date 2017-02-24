@@ -42,7 +42,7 @@
         },
         "SourceStorageAccountName": {
             "type": "string",
-            "defaultValue": "onedrive",
+            "defaultValue": "",
             "metadata": {
                 "description": "Azure Storage Account Name for source assets."
             }
