@@ -2,6 +2,13 @@
 
 ## First Logic App : Simple VOD workflow
 
+### Presentation
+
+This template creates a Logic app that listens to an onedrive folder and will copy it to an Azure Media Services asset, triggers an encoding job, publish the output asset and send an email when the process is complete.
+
+![Screen capture](images/simplevod-1.png?raw=true)
+![Screen capture](images/simplevod-2.png?raw=true)
+
 ### 1. Prerequisite
 If not already done : Deploy Azure Functions and select the **"200-logic-app"** Project (important !)
 
@@ -15,4 +22,3 @@ If not already done : Deploy Azure Functions and select the **"200-logic-app"** 
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
-This template creates a Logic app that listens to a onedrive folder and will copy it to an Azure Media Services asset, triggers an encoding job, publish the output asset and send an email when the process is complete.
