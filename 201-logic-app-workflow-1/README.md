@@ -15,8 +15,10 @@ to ingesting content directly from blob storage, encoding, and writing content b
 
 ## Setup media workflow functions on your Azure Subscription
 1. Fork https://github.com/Azure-Samples/media-services-dotnet-functions-integration to your own repo
-2. Deploy Azure Functions
-  * <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2Fmedia-services-dotnet-functions-integration%2Fmaster%2Fazuredeploy.json" target="_blank"><img src="http://azuredeploy.net/deploybutton.png"/></a>
+2. Deploy Azure Functions  
+
+  <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2Fmedia-services-dotnet-functions-integration%2Fmaster%2Fazuredeploy.json" target="_blank"><img src="http://azuredeploy.net/deploybutton.png"/></a>  
+
   * This deployment script will create an Azure Media Services account and an Azure Storage account 
   * Please consider Consumption Plan or App Service Plan if you will deploy manually without the deployment script above
     * Consumption Plan – Timeout of function will be 5 mins
@@ -34,10 +36,13 @@ to ingesting content directly from blob storage, encoding, and writing content b
 
 4. Check if Azure Functions are deployed from your Github repo into your Azure Function App  @ Azure Portal
   * If not, please do "Sync" manually from "Configure continusous integration" in Function app settings
-5. Deploy Logic App for sample media workflow
-  * <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fshigeyf%2Fmedia-services-dotnet-functions-integration%2Fmaster%2F201-logic-app-workflow-1%2Fazuredeploy-logic-app-workflow.json" target="_blank"><img src="http://azuredeploy.net/deploybutton.png"/></a>
+5. Deploy Logic App for sample media workflow  
+
+  <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fshigeyf%2Fmedia-services-dotnet-functions-integration%2Fmaster%2F201-logic-app-workflow-1%2Fazuredeploy-logic-app-workflow.json" target="_blank"><img src="http://azuredeploy.net/deploybutton.png"/></a>  
+
   * This deployment script will create a Logic App which is using the deployed Azure Functions above
   * Please refer the next section if you will deploy manually
+6. Update both API Connection's credentials for Outlook and OneDrve accounts
 
 
 ## Setup media workflow with Azure Logic Apps manually
