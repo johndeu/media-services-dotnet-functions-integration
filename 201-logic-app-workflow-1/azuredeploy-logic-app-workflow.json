@@ -1,0 +1,409 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "logicAppName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "metadata": {
+                "description": "vod-workflow-with-ingest-asset-config"
+            }
+        },
+        "logicAppLocation": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().location]",
+            "allowedValues": [
+                "northcentralus",
+                "centralus",
+                "southcentralus",
+                "northeurope",
+                "westeurope",
+                "eastasia",
+                "southeastasia",
+                "westus",
+                "eastus",
+                "eastus2",
+                "japanwest",
+                "japaneast",
+                "brazilsouth",
+                "australiaeast",
+                "australiasoutheast",
+                "southindia",
+                "centralindia",
+                "westindia",
+                "westus2",
+                "westcentralus",
+                "[resourceGroup().location]"
+            ],
+            "metadata": {
+                "description": "Location of the Logic App."
+            }
+        },
+        "SourceStorageAccountName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Azure Storage Account Name for source assets."
+            }
+        },
+        "SourceStorageAccountKey": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Azure Storage Account Key for source assets."
+            }
+        },
+        "onedrive_1_Connection_Name": {
+            "type": "string",
+            "defaultValue": "onedrive",
+            "metadata": {
+                "description": "OneDrive account name."
+            }
+        },
+        "onedrive_1_Connection_DisplayName": {
+            "type": "string",
+            "defaultValue": "user@hotmail.com",
+            "metadata": {
+                "description": "OneDrive account connection name."
+            }
+        },
+        "outlook_1_Connection_Name": {
+            "type": "string",
+            "defaultValue": "outlook",
+            "metadata": {
+                "description": "E-mail sending Outlook account name."
+            }
+        },
+        "outlook_1_Connection_DisplayName": {
+            "type": "string",
+            "defaultValue": "user@hotmail.com",
+            "metadata": {
+                "description": "E-mail sending Outlook account connection name."
+            }
+        },
+        "outlook_1_Send_To_Address": {
+            "type": "string",
+            "defaultValue": "user@hotmail.com",
+            "metadata": {
+                "description": "E-mail workflow notification will be sent to."
+            }
+        },
+        "functionsDeploymentResourceGroup": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "metadata": {
+                "description": "Name of deployment resource used by the functions."
+            }
+        },
+        "functionsDeploymentName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "metadata": {
+                "description": "Name of deployment of the functions."
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "name": "[parameters('logicAppName')]",
+            "type": "Microsoft.Logic/workflows",
+            "location": "[parameters('logicAppLocation')]",
+            "tags": {
+                "displayName": "LogicApp"
+            },
+            "apiVersion": "2016-06-01",
+            "properties": {
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "outputs": {},
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "actions": {
+                        "WF-1-CreateAsset-ImportAssetFromIngestAssetConfig": {
+                            "inputs": {
+                                "body": {
+                                    "FileContent": "@{triggerBody()}",
+                                    "FileName": "@{triggerOutputs()['headers']['x-ms-file-name']}",
+                                    "SourceStorageAccountName": "[parameters('SourceStorageAccountName')]",
+                                    "SourceStorageAccountKey": "[parameters('SourceStorageAccountKey')]"
+                                },
+                                "function": {
+                                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/WF-1-CreateAsset-ImportAssetFromIngestAssetConfig')]"
+                                }
+                            },
+                            "runAfter": {},
+                            "type": "Function"
+                        },
+                        "Until_Copy_Blob_Finish": {
+                            "actions": {
+                                "WF-1-CreateAsset-MonitorCopyBlob": {
+                                    "inputs": {
+                                        "body": {
+                                            "DestinationContainer": "@{body('WF-1-CreateAsset-ImportAssetFromIngestAssetConfig')['DestinationContainer']}"
+                                        },
+                                        "function": {
+                                            "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/WF-1-CreateAsset-MonitorCopyBlob')]"
+                                        }
+                                    },
+                                    "runAfter": {},
+                                    "type": "Function"
+                                }
+                            },
+                            "expression": "@equals(body('WF-1-CreateAsset-MonitorCopyBlob')['CopyStatus'], 2)",
+                            "limit": {
+                                "count": 1000,
+                                "timeout": "PT2H"
+                            },
+                            "runAfter": {
+                                "WF-1-CreateAsset-ImportAssetFromIngestAssetConfig": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Until"
+                        },
+                        "WF-1-CreateAsset-UpdateFinal": {
+                            "inputs": {
+                                "body": {
+                                    "AssetId": "@{body('WF-1-CreateAsset-ImportAssetFromIngestAssetConfig')['AssetId']}",
+                                    "IngestAssetConfigJson": "@{triggerBody()}"
+                                },
+                                "function": {
+                                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/WF-1-CreateAsset-UpdateFinal')]"
+                                }
+                            },
+                            "runAfter": {
+                                "Until_Copy_Blob_Finish": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Function"
+                        },
+                        "Condition_If_Asset_Created": {
+                            "actions": {
+                                "Condition_If_Encoding_Finished": {
+                                    "actions": {
+                                        "Send_an_email_-_Case_1": {
+                                            "inputs": {
+                                                "body": {
+                                                    "Body": "Asset Uploaded & Encoded:\nIngestAssetConfig: @{triggerOutputs()['headers']['x-ms-file-name']}\nPlayback link: @{body('WF-5-PublishAsset_(Encoded)')['StreamingUrl']}",
+                                                    "Subject": "Media Services Workflow - Published!",
+                                                    "To": "[parameters('outlook_1_Send_To_Address')]"
+                                                },
+                                                "host": {
+                                                    "api": {
+                                                        "runtimeUrl": "[concat('https://logic-apis-', parameters('logicAppLocation'), '.azure-apim.net/apim/outlook')]"
+                                                    },
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['outlook']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "post",
+                                                "path": "/Mail"
+                                            },
+                                            "runAfter": {
+                                                "WF-5-PublishAsset_(Encoded)": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ApiConnection"
+                                        },
+                                        "WF-5-PublishAsset_(Encoded)": {
+                                            "inputs": {
+                                                "body": {
+                                                    "AssetId": "@{body('WF-2-ProcessAsset-SubmitEncodingJob')['OutputAssetId']}",
+                                                    "IngestAssetConfigJson": "@{triggerBody()}"
+                                                },
+                                                "function": {
+                                                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/WF-5-PublishAsset')]"
+                                                }
+                                            },
+                                            "runAfter": {},
+                                            "type": "Function"
+                                        }
+                                    },
+                                    "expression": "@equals(body('WF-2-ProcessAsset-MonitorJob')['JobState'], 3)",
+                                    "runAfter": {
+                                        "Until_Encoding_Finish": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "Until_Encoding_Finish": {
+                                    "actions": {
+                                        "WF-2-ProcessAsset-MonitorJob": {
+                                            "inputs": {
+                                                "body": {
+                                                    "JobId": "@{body('WF-2-ProcessAsset-SubmitEncodingJob')['JobId']}"
+                                                },
+                                                "function": {
+                                                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/WF-2-ProcessAsset-MonitorJob')]"
+                                                }
+                                            },
+                                            "runAfter": {},
+                                            "type": "Function"
+                                        }
+                                    },
+                                    "expression": "@greater(body('WF-2-ProcessAsset-MonitorJob')['JobState'], 2)",
+                                    "limit": {
+                                        "count": 5000,
+                                        "timeout": "PT48H"
+                                    },
+                                    "runAfter": {
+                                        "WF-2-ProcessAsset-SubmitEncodingJob": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Until"
+                                },
+                                "WF-2-ProcessAsset-SubmitEncodingJob": {
+                                    "inputs": {
+                                        "body": {
+                                            "AssetId": "@{body('WF-1-CreateAsset-ImportAssetFromIngestAssetConfig')['AssetId']}",
+                                            "IngestAssetConfigJson": "@{triggerBody()}"
+                                        },
+                                        "function": {
+                                            "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/WF-2-ProcessAsset-SubmitEncodingJob')]"
+                                        }
+                                    },
+                                    "runAfter": {},
+                                    "type": "Function"
+                                }
+                            },
+                            "else": {
+                                "actions": {
+                                    "Send_an_email_-_Case_2": {
+                                        "inputs": {
+                                            "body": {
+                                                "Body": "Asset Uploaded:\nIngestAssetConfig: @{triggerOutputs()['headers']['x-ms-file-name']}\nPlayback link: @{body('WF-5-PublishAsset')['StreamingUrl']}",
+                                                "Subject": "Media Services Workflow - Published!",
+                                                "To": "[parameters('outlook_1_Send_To_Address')]"
+                                            },
+                                            "host": {
+                                                "api": {
+                                                    "runtimeUrl": "[concat('https://logic-apis-', parameters('logicAppLocation'), '.azure-apim.net/apim/outlook')]"
+                                                },
+                                                "connection": {
+                                                    "name": "@parameters('$connections')['outlook']['connectionId']"
+                                                }
+                                            },
+                                            "method": "post",
+                                            "path": "/Mail"
+                                        },
+                                        "runAfter": {
+                                            "WF-5-PublishAsset": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "ApiConnection"
+                                    },
+                                    "WF-5-PublishAsset": {
+                                        "inputs": {
+                                            "body": {
+                                                "AssetId": "@{body('WF-1-CreateAsset-ImportAssetFromIngestAssetConfig')['AssetId']}",
+                                                "IngestAssetConfigJson": "@{triggerBody()}"
+                                            },
+                                            "function": {
+                                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/WF-5-PublishAsset')]"
+                                            }
+                                        },
+                                        "runAfter": {},
+                                        "type": "Function"
+                                    }
+                                }
+                            },
+                            "expression": "@greater(body('WF-1-CreateAsset-UpdateFinal')['MediaProcessRequired'], 0)",
+                            "runAfter": {
+                                "WF-1-CreateAsset-UpdateFinal": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "If"
+                        }
+                    },
+                    "triggers": {
+                        "When_a_file_is_created": {
+                            "inputs": {
+                                "host": {
+                                    "api": {
+                                        "runtimeUrl": "[concat('https://logic-apis-', parameters('logicAppLocation'), '.azure-apim.net/apim/onedrive')]"
+                                    },
+                                    "connection": {
+                                        "name": "@parameters('$connections')['onedrive']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/datasets/default/triggers/onnewfile",
+                                "queries": {
+                                    "folderId": "9489574E958E3430!137"
+                                }
+                            },
+                            "metadata": {
+                                "9489574E958E3430!137": "/AMSImports"
+                            },
+                            "recurrence": {
+                                "frequency": "Minute",
+                                "interval": 3
+                            },
+                            "type": "ApiConnection"
+                        }
+                    }
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "outlook": {
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'outlook')]",
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('outlook_1_Connection_Name'))]",
+                                "connectionName": "[parameters('outlook_1_Connection_Name')]"
+                            },
+                            "onedrive": {
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'onedrive')]",
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('onedrive_1_Connection_Name'))]",
+                                "connectionName": "[parameters('onedrive_1_Connection_Name')]"
+                            }
+                        }
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', parameters('outlook_1_Connection_Name'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('onedrive_1_Connection_Name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('onedrive_1_Connection_Name')]",
+            "location": "[parameters('logicAppLocation')]",
+            "properties": {
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'onedrive')]"
+                },
+                "displayName": "[parameters('onedrive_1_Connection_DisplayName')]"
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('outlook_1_Connection_Name')]",
+            "location": "[parameters('logicAppLocation')]",
+            "properties": {
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'outlook')]"
+                },
+                "displayName": "[parameters('outlook_1_Connection_DisplayName')]"
+            }
+        }
+    ],
+    "outputs": {}
+}

@@ -4,12 +4,6 @@ platforms: dotnet
 author: shigeyf
 ---
 
-# Deployment: Azure Resource Management Template
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2Fmedia-services-dotnet-functions-integration%2Fmaster%2Fazuredeploy.json" target="_blank">
-    <img src="http://azuredeploy.net/deploybutton.png"/>
-</a>
-
-
 # Media Services: Integrating Azure Media Services with Azure Functions
 This project contains examples of using Azure Functions with Azure Media Services. 
 The project includes several folders of sample Azure Functions for use with Azure Media Services that show workflows related
@@ -20,15 +14,17 @@ to ingesting content directly from blob storage, encoding, and writing content b
 
 
 ## Setup media workflow functions on your Azure Subscription
-1. Create Function App instance at Azure Portal
-  * Select Consumption Plan or App Service Plan
+1. Fork https://github.com/Azure-Samples/media-services-dotnet-functions-integration to your own repo
+2. Deploy Azure Functions  
+
+  <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2Fmedia-services-dotnet-functions-integration%2Fmaster%2Fazuredeploy.json" target="_blank"><img src="http://azuredeploy.net/deploybutton.png"/></a>  
+
+  * This deployment script will create an Azure Media Services account and an Azure Storage account 
+  * Please consider Consumption Plan or App Service Plan if you will deploy manually without the deployment script above
     * Consumption Plan – Timeout of function will be 5 mins
     * App Service Plan (Dedicated Plan) – There is no timeout (if AlwaysOn is enabled)
-2. Setup Function App
-  * Fork https://github.com/Azure-Samples/media-services-dotnet-functions-integration
-  * Configure continuous integration with your forked repo (master branch)
-3. Configure App Settings – App settings
-  * Configura environment Key/Value pair on the "App Settings" of your Azure Functions
+3. Check App Settings of Azure Functions @ Azure Portal
+  * Plaese makes sure if the following environment Key/Value pairs in the "App Settings" of your Azure Functions are correctly configured
 
     | Key | Value Description |
     | --- | --- |
@@ -37,15 +33,19 @@ to ingesting content directly from blob storage, encoding, and writing content b
     | **AMSKey** | Your AMS Account Key |
     | **MediaServicesStorageAccountName** | Your Media Services Storage Account Name |
     | **MediaServicesStorageAccountKey** | Your Media Services Storage Account Key |
-    | **SourceStorageAccountName** | Your Source Storage Account Name |
-    | **SourceStorageAccountKey** | Your Source Storage Account Key |
 
-4. Create Logic App instance at Azure Portal
-  * Edit your workflow with Logic App Designer tool
-  * Edit detailed parameters in your workflow with Logic App Code View tool
+4. Check if Azure Functions are deployed from your Github repo into your Azure Function App  @ Azure Portal
+  * If not, please do "Sync" manually from "Configure continusous integration" in Function app settings
+5. Deploy Logic App for sample media workflow  
+
+  <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fshigeyf%2Fmedia-services-dotnet-functions-integration%2Fmaster%2F201-logic-app-workflow-1%2Fazuredeploy-logic-app-workflow.json" target="_blank"><img src="http://azuredeploy.net/deploybutton.png"/></a>  
+
+  * This deployment script will create a Logic App which is using the deployed Azure Functions above
+  * Please refer the next section if you will deploy manually
+6. Update both API Connection's credentials for Outlook and OneDrve accounts
 
 
-## Setup media workflow with Azure Logic Apps
+## Setup media workflow with Azure Logic Apps manually
 This media workflow sample functions are implemented as a set of Azure Functions.
 These functions are sequentially arranged and called in the Azure Logic Apps as a workflow.
 Many pre-defined APIs for Logic Apps which are already provided from Microsoft and 3rd party partners can be combined for your workflow.
@@ -322,6 +322,8 @@ IngestAssetConfig (v1) containes:
 * Input – JSON format data
   * *FileName* : **IngestAssetConfig** filename for target asset
   * *FileContent* : **IngestAssetConfig** JSON for target asset
+  * *SourceStorageAccountName* : Azure Storage Account Name for source assets
+  * *SourceStorageAccountKey* : Azure Storage Account Key for source assets
 * Output – JSON format data
   * *AssetId* : Created AMS Asset Id (e.g. nb:cid:UUID:2f7e6884-2637-42f8-a336-97dc04942e69)
   * *SourceContainer* : Azure Blob Storage container name of target asset

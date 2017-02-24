@@ -1,0 +1,48 @@
+{
+    "IngestSource": {
+        "SourceContainerName": "bigbuckbunny-720p-smooth"
+    },
+    "IngestAsset": {
+        "AssetName": "BigBuckBunny_720_Smooth",
+        "AssetFiles": [
+            {
+                "FileName": "BigBuckBunny.ism",
+                "IsPrimary": true
+            },
+            {
+                "FileName": "BigBuckBunny.ismc"
+            },
+            {
+                "FileName": "BigBuckBunny_230.ismv"
+            },
+            {
+                "FileName": "BigBuckBunny_331.ismv"
+            },
+            {
+                "FileName": "BigBuckBunny_477.ismv"
+            },
+            {
+                "FileName": "BigBuckBunny_688.ismv"
+            },
+            {
+                "FileName": "BigBuckBunny_991.ismv"
+            },
+            {
+                "FileName": "BigBuckBunny_1427.ismv"
+            },
+            {
+                "FileName": "BigBuckBunny_2056.ismv"
+            },
+            {
+                "FileName": "BigBuckBunny_2962.ismv"
+            },
+            {
+                "FileName": "BigBuckBunny_Thumb.jpg"
+            }
+        ],
+        "AssetCreationOption": "None"
+    },
+    "IngestAssetEncoding": {
+        "Encoding": "false"
+    }
+}

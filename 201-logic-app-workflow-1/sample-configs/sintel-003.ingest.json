@@ -1,0 +1,20 @@
+{
+    "IngestSource": {
+        "SourceContainerName": "sintel-2048"
+    },
+    "IngestAsset": {
+        "AssetName": "sintel_1080p",
+        "AssetFiles": [
+            {
+                "FileName": "sintel-2048-surround.mp4",
+                "IsPrimary": true
+            }
+        ],
+        "AssetCreationOption": "None"
+    },
+    "IngestAssetEncoding": {
+        "Encoding": true,
+        "Encoder": "MES",
+        "EncodingConfiguration": "H264 Multiple Bitrate 1080p"
+    }
+}

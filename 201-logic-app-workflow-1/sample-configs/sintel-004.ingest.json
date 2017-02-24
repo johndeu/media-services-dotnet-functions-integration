@@ -1,0 +1,20 @@
+{
+    "IngestSource": {
+        "SourceContainerName": "sintel-4k"
+    },
+    "IngestAsset": {
+        "AssetName": "sintel_3840p",
+        "AssetFiles": [
+            {
+                "FileName": "sintel_4k.mov",
+                "IsPrimary": true
+            }
+        ],
+        "AssetCreationOption": "None"
+    },
+    "IngestAssetEncoding": {
+        "Encoding": true,
+        "Encoder": "MES",
+        "EncodingConfiguration": "H264 Multiple Bitrate 1080p"
+    }
+}

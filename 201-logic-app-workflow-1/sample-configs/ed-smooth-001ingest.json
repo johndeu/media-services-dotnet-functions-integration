@@ -1,0 +1,57 @@
+{
+    "IngestSource": {
+        "SourceContainerName": "elephantsdream-720p-smooth"
+    },
+    "IngestAsset": {
+        "AssetName": "ElephantsDream_720_Smooth",
+        "AssetFiles": [
+            {
+                "fileName": "ElephantsDream.ism",
+                "isPrimary": true
+            },
+            {
+                "fileName": "ElephantsDream.ismc"
+            },
+            {
+                "fileName": "ElephantsDream_230.ismv"
+            },
+            {
+                "fileName": "ElephantsDream_331.ismv"
+            },
+            {
+                "fileName": "ElephantsDream_477.ismv"
+            },
+            {
+                "fileName": "ElephantsDream_688.ismv"
+            },
+            {
+                "fileName": "ElephantsDream_991.ismv"
+            },
+            {
+                "fileName": "ElephantsDream_1427.ismv"
+            },
+            {
+                "fileName": "ElephantsDream_2056.ismv"
+            },
+            {
+                "fileName": "ElephantsDream_2962.ismv"
+            },
+            {
+                "fileName": "ElephantsDream_Commentary_230.ismv"
+            },
+            {
+                "fileName": "ElephantsDream_Spanish_230.ismv"
+            },
+            {
+                "fileName": "Elephants_Dream.dfxp.ismt"
+            },
+            {
+                "fileName": "ElephantsDream_Thumb.jpg"
+            }
+        ],
+        "AssetCreationOption": "None"
+    },
+    "IngestAssetEncoding": {
+        "Encoding": "false"
+    }
+}

@@ -15,8 +15,6 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Auth;
 
 // Read values from the App.config file.
-private static readonly string _sourceStorageAccountName = Environment.GetEnvironmentVariable("SourceStorageAccountName");
-private static readonly string _sourceStorageAccountKey = Environment.GetEnvironmentVariable("SourceStorageAccountKey");
 private static readonly string _mediaServicesAccountName = Environment.GetEnvironmentVariable("AMSAccount");
 private static readonly string _mediaServicesAccountKey = Environment.GetEnvironmentVariable("AMSKey");
 private static readonly string _storageAccountName = Environment.GetEnvironmentVariable("MediaServicesStorageAccountName");
@@ -39,8 +37,16 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         return req.CreateResponse(HttpStatusCode.BadRequest, new { error = "Please pass FileName in the input object" });
     if (data.FileContent == null)
         return req.CreateResponse(HttpStatusCode.BadRequest, new { error = "Please pass FileContent in the input object" });
+    if (data.SourceStorageAccountName == null)
+        return req.CreateResponse(HttpStatusCode.BadRequest, new { error = "Please pass SourceStorageAccountName in the input object" });
+    if (data.SourceStorageAccountKey == null)
+        return req.CreateResponse(HttpStatusCode.BadRequest, new { error = "Please pass SourceStorageAccountKey in the input object" });
     log.Info("Input - File Name : " + data.FileName);
     log.Info("Input - File Content : " + data.FileContent);
+    log.Info("Input - SourceStorageAccountName : " + data.SourceStorageAccountName);
+    log.Info("Input - SourceStorageAccountKey : " + data.SourceStorageAccountKey);
+    string _sourceStorageAccountName = data.SourceStorageAccountName;
+    string _sourceStorageAccountKey = data.SourceStorageAccountKey;
 
     // Validate IngestAssetConfig with FileContent
     string ingestAssetConfigJson = data.FileContent;

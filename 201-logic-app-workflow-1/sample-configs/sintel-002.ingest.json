@@ -1,0 +1,20 @@
+{
+    "IngestSource": {
+        "SourceContainerName": "sintel-1080p-2010"
+    },
+    "IngestAsset": {
+        "AssetName": "sintel_2010_1080p",
+        "AssetFiles": [
+            {
+                "FileName": "Sintel.2010.1080p.mkv",
+                "IsPrimary": true
+            }
+        ],
+        "AssetCreationOption": "None"
+    },
+    "IngestAssetEncoding": {
+        "Encoding": true,
+        "Encoder": "MES",
+        "EncodingConfiguration": "H264 Multiple Bitrate 1080p"
+    }
+}

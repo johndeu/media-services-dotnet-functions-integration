@@ -16,8 +16,6 @@ using Microsoft.WindowsAzure.Storage.Auth;
 
 
 // Read values from the App.config file.
-private static readonly string _sourceStorageAccountName = Environment.GetEnvironmentVariable("SourceStorageAccountName");
-private static readonly string _sourceStorageAccountKey = Environment.GetEnvironmentVariable("SourceStorageAccountKey");
 private static readonly string _mediaServicesAccountName = Environment.GetEnvironmentVariable("AMSAccount");
 private static readonly string _mediaServicesAccountKey = Environment.GetEnvironmentVariable("AMSKey");
 private static readonly string _storageAccountName = Environment.GetEnvironmentVariable("MediaServicesStorageAccountName");
