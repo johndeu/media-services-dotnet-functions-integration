@@ -9,7 +9,7 @@ This template creates a Logic app that listens to an onedrive folder and will co
 ![Screen capture](images/simplevod-1.png?raw=true)
 ![Screen capture](images/simplevod-2.png?raw=true)
 
-[see a detailed view of the components.](images/simplevod-1.png?raw=true)
+[See the detailed view of the logic app.](simplevod-detailed.md)
 
 ### 1. Prerequisite
 If not already done : fork the repo, deploy Azure Functions and select the **"200-logic-app"** Project (important !)
@@ -24,6 +24,11 @@ If not already done : fork the repo, deploy Azure Functions and select the **"20
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
+![Screen capture](images/form-simplevod.png?raw=true)
+
+You can use the same resource group that the functions or another one.
+The functions and Logic App must be deployed in the same region.
+Please specify the name of the storage account used by Media Services.
 
 ## Functions documentation
 This section list the functions available and describes the input and output parameters.
