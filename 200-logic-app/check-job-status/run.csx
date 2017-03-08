@@ -102,15 +102,19 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         return req.CreateResponse(HttpStatusCode.BadRequest);
     }
 
-    log.Info($"Job {job.Id} status is {job.State}");
-
-
-    if (job.State == JobState.Queued || job.State == JobState.Scheduled || job.State == JobState.Processing)
+    for (int i = 1; i <= 3; i++) // let's wait 3 times 5 seconds (15 seconds)
     {
-        log.Info("Waiting 15 s...");
-        System.Threading.Thread.Sleep(15 * 1000);
-    }
+        log.Info($"Job {job.Id} status is {job.State}");
 
+        if (job.State == JobState.Finished || job.State == JobState.Canceled || job.State == JobState.Error)
+        {
+            break;
+        }
+
+        log.Info("Waiting 5 s...");
+        System.Threading.Thread.Sleep(5 * 1000);
+        job = _context.Jobs.Where(j => j.Id == job.Id).FirstOrDefault();
+    }
 
     return req.CreateResponse(HttpStatusCode.OK, new
     {

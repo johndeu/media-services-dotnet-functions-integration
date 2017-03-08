@@ -4,6 +4,7 @@ This function returns subtitles from an asset.
 Input:
 {
     "assetId" : "nb:cid:UUID:88432c30-cb4a-4496-88c2-b2a05ce9033b", // Mandatory, Id of the source asset
+    "timeOffset" :"00:01:00" // optional, offset to add to subtitles (used for live analytics)
  }
 
 Output:
@@ -11,13 +12,16 @@ Output:
     "vttUrl" : "",      // the full path to vtt file if asset is published
     "ttmlUrl" : "",     // the full path to vtt file if asset is published
     "pathUrl" : "",     // the path to the asset if asset is published
-    "vttDocument" : "", // the full vtt document
+    "vttDocument" : "", // the full vtt document,
+    "vttDocumentOffset" : "", // the full vtt document with offset
     "ttmlDocument : ""  // the full ttml document
+    "ttmlDocumentOffset : ""  // the full ttml document with offset
  }
 */
 
 #r "Newtonsoft.Json"
 #r "Microsoft.WindowsAzure.Storage"
+#r "System.Xml.Linq"
 #load "../Shared/mediaServicesHelpers.csx"
 #load "../Shared/copyBlobHelpers.csx"
 
@@ -38,6 +42,7 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.Azure.WebJobs;
+using System.Xml.Linq;
 
 
 // Read values from the App.config file.
@@ -62,6 +67,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     string ttmlUrl = "";
     string vttContent = "";
     string ttmlContent = "";
+    string ttmlContentTimeCorrected = "";
+    string vttContentTimeCorrected = "";
 
     string jsonContent = await req.Content.ReadAsStringAsync();
     dynamic data = JsonConvert.DeserializeObject(jsonContent);
@@ -125,6 +132,28 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
                 log.Info($"vtt url : {vttUrl}");
             }
             vttContent = ReturnContent(vttSubtitle);
+
+            if (data.timeOffset != null) // let's update the ttml with new timecode
+            {
+                var tsoffset = TimeSpan.Parse((string)data.timeOffset);
+                string arrow = " --> ";
+                StringBuilder sb = new StringBuilder();
+                string[] delim = { Environment.NewLine, "\n" }; // "\n" added in case you manually appended a newline
+                string[] vttlines = vttContent.Split(delim, StringSplitOptions.None);
+
+                foreach (string vttline in vttlines)
+                {
+                    string line = vttline;
+                    if (vttline.Contains(arrow))
+                    {
+                        TimeSpan begin = TimeSpan.Parse(vttline.Substring(0, vttline.IndexOf(arrow)));
+                        TimeSpan end = TimeSpan.Parse(vttline.Substring(vttline.IndexOf(arrow) + 5));
+                        line = (begin + tsoffset).ToString(@"d\.hh\:mm\:ss\.fff") + arrow + (end + tsoffset).ToString(@"d\.hh\:mm\:ss\.fff");
+                    }
+                    sb.AppendLine(line);
+                }
+                vttContentTimeCorrected = sb.ToString();
+            }
         }
 
         if (ttmlSubtitle != null)
@@ -135,6 +164,23 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
                 log.Info($"ttml url : {ttmlUrl}");
             }
             ttmlContent = ReturnContent(ttmlSubtitle);
+            if (data.timeOffset != null) // let's update the vtt with new timecode
+            {
+                var tsoffset = TimeSpan.Parse((string)data.timeOffset);
+                log.Info("tsoffset : " + tsoffset.ToString(@"d\.hh\:mm\:ss\.fff"));
+                XNamespace xmlns = "http://www.w3.org/ns/ttml";
+                XDocument docXML = XDocument.Parse(ttmlContent);
+                var tt = docXML.Element(xmlns + "tt");
+                var subtitles = docXML.Element(xmlns + "tt").Element(xmlns + "body").Element(xmlns + "div").Elements(xmlns + "p");
+                foreach (var sub in subtitles)
+                {
+                    var begin = TimeSpan.Parse((string)sub.Attribute("begin"));
+                    var end = TimeSpan.Parse((string)sub.Attribute("end"));
+                    sub.SetAttributeValue("end", (end + tsoffset).ToString(@"d\.hh\:mm\:ss\.fff"));
+                    sub.SetAttributeValue("begin", (begin + tsoffset).ToString(@"d\.hh\:mm\:ss\.fff"));
+                }
+                ttmlContentTimeCorrected = docXML.Declaration.ToString() + Environment.NewLine + docXML.ToString();
+            }
         }
     }
     catch (Exception ex)
@@ -150,7 +196,9 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         ttmlUrl = ttmlUrl,
         pathUrl = pathUrl,
         ttmlDocument = ttmlContent,
-        vttDocument = vttContent
+        ttmlDocumentWithOffset = ttmlContentTimeCorrected,
+        vttDocument = vttContent,
+        vttDocumentWithOffset = vttContentTimeCorrected
     });
 }
 
