@@ -143,3 +143,22 @@ Output:
  }
 ```
 
+
+### add-textfile-to-asset
+
+This function adds a text file to an existing asset.
+As a option, the text can be converted from ttml to vtt (useful when the ttml has been translated with MS Translator and the user wants a VTT file for Azure Media Player).
+
+```c#
+Input:
+{
+    "document" : "", // content of the text file to create
+    "fileName" : "subtitle-en.ttml", // file name to create
+    "assetId" : "nb:cid:UUID:88432c30-cb4a-4496-88c2-b2a05ce9033b", // Mandatory, Id of the asset
+    "convertTtml" :true // optional, convert the document from ttml to vtt, and create another file in the asset : subtitle-en.vtt
+}
+
+Output:
+{
+}
+```
