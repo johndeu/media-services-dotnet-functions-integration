@@ -14,9 +14,11 @@ to ingesting content directly from blob storage, encoding, and writing content b
 how to monitor job notifications via WebHooks and Azure Queues. 
 
 ## Deploying to Azure
-It is recommended that you first fork the project and update the "sourceCodeRepositoryURL" in the [azuredeploy.json](azuredeploy.json) template parameters
+It is **REQUIRED** that you first fork the project and update the "sourceCodeRepositoryURL" in the [azuredeploy.json](azuredeploy.json) template parameters
 when deploying to your own Azure account.  That way you can more easily update, experiment and edit the code and see changes
-reflected quickly in your own Functions deployment.  
+reflected quickly in your own Functions deployment. 
+
+**WARNING**: If you attempt to deploy from the public samples Github repo, and not your own fork, you will see an Error during deployment with a "BadRequest" and an OAuth exception. 
 
 ## Questions & Help
 
