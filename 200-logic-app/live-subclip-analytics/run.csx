@@ -5,6 +5,8 @@ The first task is a subclipping task that createq a MP4 file, then media analyti
 Input:
 {
     "programId" : "nb:pgid:UUID:e1a61286-2467-4be3-84b6-5a4e8006d43d", // Mandatory, Id of the source program
+    "channelName": "channel1", // Mandatory
+    "programName" : "program1", // Mandatory
     "intervalSec" : 60 // Optional. Default is 60 seconds. The duration of subclip (and interval between two calls)
     "indexV1Language" : "English", // Optional
     "indexV2Language" : "EnUs", // Optional
@@ -86,22 +88,24 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     log.Info(jsonContent);
 
+    if (data.channelName == null || data.programName == null)
+    {
+        return req.CreateResponse(HttpStatusCode.BadRequest, new
+        {
+            error = "Please pass channel name and program name in the input object (channelName, programName)"
+        });
+    }
+
+    /*
     if (data.programId == null)
     {
-        // for test
-        /*
-        data.ProgramId = "nb:pgid:UUID:e1a61286-2467-4be3-84b6-5a4e8006d43d";
-        data.IndexV2Language = "EnUs";
-        data.OCRLanguage = "AutoDetect";
-        data.FaceDetectionMode = "PerFaceEmotion";
-        data.MotionDetectionLevel = "medium";
-        */
-
+      
         return req.CreateResponse(HttpStatusCode.BadRequest, new
         {
             error = "Please pass program ID in the input object (programId)"
         });
     }
+    */
 
     int intervalsec = 30; // Interval for each subclip job (sec)
     if (data.intervalSec != null)
@@ -139,16 +143,36 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         // Used the chached credentials to create CloudMediaContext.
         _context = new CloudMediaContext(_cachedCredentials);
 
-        // find the Asset
-        programid = (string)data.programId;
+        // find the Channel, Program and Asset
+        var channel = _context.Channels.Where(channel => channel.Name == (string)data.channelName).FirstOrDefault();
+        if (channel == null)
+        {
+            log.Info("Channel not found");
+            return req.CreateResponse(HttpStatusCode.BadRequest, new
+            {
+                error = "Channel not found"
+            });
+        }
+
+        var program = channel.Programs.Where(p => p.Name == (string)data.programName).FirstOrDefault();
+        if (program == null)
+        {
+            log.Info("Program not found");
+            return req.CreateResponse(HttpStatusCode.BadRequest, new
+            {
+                error = "Program not found"
+            });
+        }
+
+        programid = program.Id;
         var asset = GetAssetFromProgram(programid);
 
         if (asset == null)
         {
-            log.Info($"Asset or Program not found {programid}");
+            log.Info($"Asset not found for program {programid}");
             return req.CreateResponse(HttpStatusCode.BadRequest, new
             {
-                error = "Asset or Program not found"
+                error = "Asset not found"
             });
         }
 
