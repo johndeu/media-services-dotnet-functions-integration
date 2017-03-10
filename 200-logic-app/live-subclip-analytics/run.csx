@@ -4,17 +4,16 @@ The first task is a subclipping task that createq a MP4 file, then media analyti
 
 Input:
 {
-    "programId" : "nb:pgid:UUID:e1a61286-2467-4be3-84b6-5a4e8006d43d", // Mandatory, Id of the source program
-    "channelName": "channel1", // Mandatory
-    "programName" : "program1", // Mandatory
-    "intervalSec" : 60 // Optional. Default is 60 seconds. The duration of subclip (and interval between two calls)
-    "indexV1Language" : "English", // Optional
-    "indexV2Language" : "EnUs", // Optional
-    "ocrLanguage" : "AutoDetect" or "English", // Optional
-    "faceDetectionMode" : "PerFaceEmotion, // Optional
-    "motionDetectionLevel" : "medium", // Optional
-    "summarizationDuration" : "0.0", // Optional. 0.0 for automatic
-    "hyperlapseSpeed" : "8" // Optional
+    "channelName": "channel1",      // Mandatory
+    "programName" : "program1",     // Mandatory
+    "intervalSec" : 60              // Optional. Default is 60 seconds. The duration of subclip (and interval between two calls)
+    "indexV1Language" : "English",  // Optional
+    "indexV2Language" : "EnUs",     // Optional
+    "ocrLanguage" : "AutoDetect" or "English",  // Optional
+    "faceDetectionMode" : "PerFaceEmotion,      // Optional
+    "motionDetectionLevel" : "medium",          // Optional
+    "summarizationDuration" : "0.0",            // Optional. 0.0 for automatic
+    "hyperlapseSpeed" : "8"                     // Optional
 }
 
 Output:
@@ -95,17 +94,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             error = "Please pass channel name and program name in the input object (channelName, programName)"
         });
     }
-
-    /*
-    if (data.programId == null)
-    {
-      
-        return req.CreateResponse(HttpStatusCode.BadRequest, new
-        {
-            error = "Please pass program ID in the input object (programId)"
-        });
-    }
-    */
 
     int intervalsec = 30; // Interval for each subclip job (sec)
     if (data.intervalSec != null)
@@ -208,8 +196,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
         log.Info("Timestamps: " + string.Join(",", assetmanifestdata.TimestampList.Select(n => n.ToString()).ToArray()));
 
-
-        //var livetime = TimeSpan.FromSeconds((double)assetmanifestdata.TimestampOffset / (double)assetmanifestdata.TimeScale) + assetmanifestdata.AssetDuration;
         var livetime = TimeSpan.FromSeconds((double)assetmanifestdata.TimestampEndLastChunk / (double)assetmanifestdata.TimeScale);
 
         log.Info($"Livetime: {livetime}");
@@ -244,7 +230,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         string ConfigurationSubclip = File.ReadAllText(@"D:\home\site\wwwroot\Presets\LiveSubclip.json").Replace("0:00:00.000000", starttime.Subtract(TimeSpan.FromMilliseconds(100)).ToString()).Replace("0:00:30.000000", duration.Add(TimeSpan.FromMilliseconds(200)).ToString());
 
 
-        //MES Subclipping TASK
+        // MES Subclipping TASK
         // Declare a new encoding job with the Standard encoder
         job = _context.Jobs.Create("Azure Function - Job for Live Analytics");
         // Get a media processor reference, and pass to it the name of the 
