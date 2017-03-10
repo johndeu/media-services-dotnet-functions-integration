@@ -144,7 +144,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         _context = new CloudMediaContext(_cachedCredentials);
 
         // find the Channel, Program and Asset
-        var channel = _context.Channels.Where(c => c.Name == (string)data.channelName).FirstOrDefault();
+        string channelName = (string)data.channelName;
+        var channel = _context.Channels.Where(c => c.Name == channelName).FirstOrDefault();
         if (channel == null)
         {
             log.Info("Channel not found");
@@ -154,7 +155,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             });
         }
 
-        var program = channel.Programs.Where(p => p.Name == (string)data.programName).FirstOrDefault();
+        string programName = (string)data.programName;
+        var program = channel.Programs.Where(p => p.Name == programName).FirstOrDefault();
         if (program == null)
         {
             log.Info("Program not found");
