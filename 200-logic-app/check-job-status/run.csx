@@ -4,11 +4,21 @@ This function chevck a job status.
 Input:
 {
     "jobId" : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc", // Mandatory, Id of the source asset
+    "extendedInfo" : true // optional. Returns ams account unit size, nb units, nb of jobs in queue, scheduled and running states. Only if job is complete or error
  }
 
 Output:
 {
     "jobState" : 2, // The state of the job (int)
+    "errorText" : "" // error(s) text if job state is error
+    "startTime" :""
+    "endTime" : "",
+    "runningDuration" : ""
+    "mediaUnitNumber" : 2,   // if extendedInfo is true and job is finished or in error
+    "mediaUnitSize" : "S2", // if extendedInfo is true and job is finished or in error
+    "jobQueue" : 3, // if extendedInfo is true and job is finished or in error
+    "jobScheduled" : 1, // if extendedInfo is true and job is finished or in error
+    "jobProcessing" : 2, // if extendedInfo is true and job is finished or in error
  }
 */
 
@@ -72,6 +82,12 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     IJob job = null;
 
+    bool extendedInfo = false;
+    if (data.extendedInfo != null && ((bool)data.extendedInfo) == true)
+    {
+        extendedInfo = true;
+    }
+
     try
     {
         // Create and cache the Media Services credentials in a static class variable.
@@ -116,10 +132,78 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         job = _context.Jobs.Where(j => j.Id == job.Id).FirstOrDefault();
     }
 
-    return req.CreateResponse(HttpStatusCode.OK, new
+    StringBuilder sberror = new StringBuilder();
+    if (job.State == JobState.Error)
     {
-        jobState = job.State
-    });
+        foreach (var task in job.Tasks)
+        {
+            foreach (var details in task.ErrorDetails)
+            {
+                sberror.AppendLine(details.Message);
+            }
+        }
+    }
+
+    string startTime = "";
+    if (job.StartTime != null) startTime = job.StartTime.ToString();
+
+    string endTime = "";
+    if (job.EndTime != null) endTime = job.EndTime.ToString();
+
+    string runningDuration = "";
+    if (job.RunningDuration != null) runningDuration = job.RunningDuration.ToString();
+
+    if (extendedInfo && (job.State == JobState.Finished || job.State == JobState.Canceled || job.State == JobState.Error))
+    {
+        int mediaUnitNumber = _context.EncodingReservedUnits.FirstOrDefault().CurrentReservedUnits;
+        string mediaUnitSize = ReturnMediaReservedUnitName(_context.EncodingReservedUnits.FirstOrDefault().ReservedUnitType);
+        var jobQueue = _context.Jobs.Where(j => j.State == JobState.Queued).Count();
+        var jobScheduled = _context.Jobs.Where(j => j.State == JobState.Scheduled).Count();
+        var jobProcessing = _context.Jobs.Where(j => j.State == JobState.Processing).Count();
+
+        return req.CreateResponse(HttpStatusCode.OK, new
+        {
+            jobState = job.State,
+            errorText = sberror.ToString(),
+            startTime = startTime,
+            endTime = endTime,
+            runningDuration = runningDuration,
+            mediaUnitNumber = mediaUnitNumber,
+            mediaUnitSize = mediaUnitSize,
+            jobQueue = jobQueue,
+            jobScheduled= jobScheduled,
+            jobProcessing = jobProcessing
+        });
+    }
+    else
+    {
+        return req.CreateResponse(HttpStatusCode.OK, new
+        {
+            jobState = job.State,
+            errorText = sberror.ToString(),
+            startTime = startTime,
+            endTime = endTime,
+            runningDuration = runningDuration
+        });
+    }
+}
+
+// Return the new name of Media Reserved Unit
+public static string ReturnMediaReservedUnitName(ReservedUnitType unitType)
+{
+    switch (unitType)
+    {
+        case ReservedUnitType.Basic:
+        default:
+            return "S1";
+
+        case ReservedUnitType.Standard:
+            return "S2";
+
+        case ReservedUnitType.Premium:
+            return "S3";
+
+    }
 }
 
 

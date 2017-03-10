@@ -99,11 +99,21 @@ This function chevck a job status.
 Input:
 {
     "jobId" : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc", // Mandatory, Id of the source asset
+    "extendedInfo" : true // optional. Returns ams account unit size, nb units, nb of jobs in queue, scheduled and running states. Only if job is complete or error
  }
 
 Output:
 {
     "jobState" : 2, // The state of the job (int)
+    "errorText" : "" // error(s) text if job state is error
+    "startTime" : ""
+    "endTime" : "",
+    "runningDuration": ""
+    "mediaUnitNumber" : 2,   // if extendedInfo is true and job is finished or in error
+    "mediaUnitSize" : "S2", // if extendedInfo is true and job is finished or in error
+    "jobQueue" : 3, // if extendedInfo is true and job is finished or in error
+    "jobScheduled" : 1, // if extendedInfo is true and job is finished or in error
+    "jobProcessing" : 2, // if extendedInfo is true and job is finished or in error
 }
 ```
 
