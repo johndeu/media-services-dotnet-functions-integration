@@ -22,7 +22,7 @@
         "100-basic-encoding",
         "101-notify-webhooks",
         "102-notify-queues",
-        "200-logic-app",
+        "media-functions-for-logic-app",
         "201-logic-app-workflow-1"
       ],
         "metadata": {
