@@ -41,6 +41,7 @@ Output:
 #r "System.XML.Linq"
 #load "../Shared/mediaServicesHelpers.csx"
 #load "../Shared/copyBlobHelpers.csx"
+#load "../Shared/jobHelpers.csx"
 
 using System;
 using System.Net;
@@ -349,54 +350,6 @@ public static void UpdateLastEndTime(CloudTable table, TimeSpan endtime, string 
     table.Execute(tableOperation);
 }
 
-
-public static string ReturnId(IJob job, int index)
-{
-    return index > -1 ? job.OutputMediaAssets[index].Id : null;
-}
-
-public static int AddTask(IJob job, IAsset sourceAsset, string value, string processor, string presetfilename, string stringtoreplace, ref int taskindex)
-{
-    if (value != null)
-    {
-        // Get a media processor reference, and pass to it the name of the 
-        // processor to use for the specific task.
-        IMediaProcessor mediaProcessor = GetLatestMediaProcessorByName(processor);
-
-        string homePath = Environment.GetEnvironmentVariable("HOME", EnvironmentVariableTarget.Process);
-        string presetPath;
-
-        if (homePath == String.Empty)
-        {
-            presetPath = @"../presets/" + presetfilename;
-        }
-        else
-        {
-            presetPath = Path.Combine(homePath, @"site\repository\media-functions-for-logic-app\presets\" + presetfilename);
-        }
-
-        string Configuration = File.ReadAllText(presetPath).Replace(stringtoreplace, value);
-
-        // Create a task with the encoding details, using a string preset.
-        var task = job.Tasks.AddNew(processor + " task",
-           mediaProcessor,
-           Configuration,
-           TaskOptions.None);
-
-        // Specify the input asset to be indexed.
-        task.InputAssets.Add(sourceAsset);
-
-        // Add an output asset to contain the results of the job.
-        task.OutputAssets.AddNew(processor + " Output Asset", AssetCreationOptions.None);
-
-        return taskindex++;
-    }
-    else
-    {
-        return -1;
-    }
-}
-
 static IAsset GetAssetFromProgram(string programId)
 {
     IAsset asset = null;
@@ -628,7 +581,3 @@ public class EndTimeInTable : TableEntity
         }
     }
 }
-
-
-
-
