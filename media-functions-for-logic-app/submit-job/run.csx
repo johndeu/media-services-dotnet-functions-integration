@@ -272,8 +272,3 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         outputAssetHyperlapseId = ReturnId(job, OutputHyperlapse),
     });
 }
-
-public static string ReturnId(IJob job, int index)
-{
-    return index > -1 ? job.OutputMediaAssets[index].Id : "";
-}
