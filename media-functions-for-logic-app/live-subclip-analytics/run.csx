@@ -363,7 +363,19 @@ public static int AddTask(IJob job, IAsset sourceAsset, string value, string pro
         // processor to use for the specific task.
         IMediaProcessor mediaProcessor = GetLatestMediaProcessorByName(processor);
 
-        string Configuration = File.ReadAllText(@"D:\home\site\wwwroot\Presets\" + presetfilename).Replace(stringtoreplace, value);
+        string homePath = Environment.GetEnvironmentVariable("HOME", EnvironmentVariableTarget.Process);
+        string presetPath;
+
+        if (homePath == String.Empty)
+        {
+            presetPath = @"../presets/" + presetfilename;
+        }
+        else
+        {
+            presetPath = Path.Combine(homePath, @"site\repository\media-functions-for-logic-app\presets\" + presetfilename);
+        }
+
+        string Configuration = File.ReadAllText(presetPath).Replace(stringtoreplace, value);
 
         // Create a task with the encoding details, using a string preset.
         var task = job.Tasks.AddNew(processor + " task",
