@@ -1,0 +1,399 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "logicAppName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "metadata": {
+        "description": "Name of the Logic App."
+      }
+    },
+    "functionsDeploymentResourceGroup": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "metadata": {
+        "description": "Name of deployment resource used by the functions."
+      }
+    },
+    "functionsDeploymentName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "metadata": {
+        "description": "Name of deployment of the functions."
+      }
+    },
+    "onedriveFolderToWatch": {
+      "type": "string",
+      "metadata": {
+        "description": "Folder in your OneDrive where videos must be uploaded to trigger the workflow."
+      },
+      "defaultValue": "/IngestVideos"
+    },
+    "mediaServicesStorageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the storage account used by the media services account."
+      }
+    },
+    "outlookSendEmailTo": {
+      "type": "string",
+       "metadata": {
+        "description": "Email where the Outlook messages will be sent."
+      },
+      "defaultValue": "user@hotmail.com"
+    }
+  },
+  "variables": {
+      "storageAccountid": "[resourceId('Microsoft.Storage/storageAccounts', parameters('mediaServicesStorageAccountName'))]",
+      "logicAppLocation": "[resourceGroup().location]",
+      "onedrive_1_Connection_Name": "onedrive-1",
+      "onedrive_1_Connection_DisplayName": "onedrive-1",
+      "bitly_1_Connection_Name": "bitly-1",
+      "bitly_1_Connection_DisplayName": "bitly-1",
+      "azureblob_1_Connection_Name": "azureblob-1",
+      "azureblob_1_Connection_DisplayName": "[parameters('mediaServicesStorageAccountName')]",
+      "outlook_1_Connection_Name": "outlook-1",
+      "outlook_1_Connection_DisplayName": "outlook-1"
+  },
+  "resources": [
+    {
+      "name": "[parameters('logicAppName')]",
+      "type": "Microsoft.Logic/workflows",
+      "location": "[variables('logicAppLocation')]",
+      "tags": {
+        "displayName": "LogicApp"
+      },
+      "apiVersion": "2016-06-01",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "create-empty-asset": {
+              "type": "Function",
+              "inputs": {
+                "body": {
+                  "assetName": "@{triggerOutputs()['headers']['x-ms-file-name']}"
+                },
+                "function": {
+                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/create-empty-asset')]"
+                }
+              },
+              "runAfter": {}
+            },
+            "Create_blob": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "api": {
+                    "runtimeUrl": "https://logic-apis-westeurope.azure-apim.net/apim/azureblob"
+                  },
+                  "connection": {
+                    "name": "@parameters('$connections')['azureblob']['connectionId']"
+                  }
+                },
+                "method": "post",
+                "path": "/datasets/default/files",
+                "queries": {
+                  "folderPath": "@{body('create-empty-asset')['containerPath']}",
+                  "name": "@{triggerOutputs()['headers']['x-ms-file-name']}"
+                },
+                "body": "@triggerBody()"
+              },
+              "runAfter": {
+                "create-empty-asset": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "sync-asset": {
+              "type": "Function",
+              "inputs": {
+                "body": {
+                  "assetId": "@{body('create-empty-asset')['assetId']}"
+                },
+                "function": {
+                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/sync-asset')]"
+                }
+              },
+              "runAfter": {
+                "Create_blob": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "submit-job": {
+              "type": "Function",
+              "inputs": {
+                "body": {
+                  "assetId": "@{body('create-empty-asset')['assetId']}",
+                  "mesPreset": "H264 Multiple Bitrate 720p with thumbnail.json"
+                },
+                "function": {
+                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/submit-job')]"
+                }
+              },
+              "runAfter": {
+                "sync-asset": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Until": {
+              "type": "Until",
+              "expression": "@greater(body('check-job-status')['jobState'], 2)",
+              "limit": {
+                "count": 60,
+                "timeout": "PT1H"
+              },
+              "actions": {
+                "check-job-status": {
+                  "type": "Function",
+                  "inputs": {
+                    "body": {
+                      "jobId": "@{body('submit-job')['jobId']}"
+                    },
+                    "function": {
+                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/check-job-status')]"
+                    }
+                  },
+                  "runAfter": {}
+                }
+              },
+              "runAfter": {
+                "submit-job": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Condition": {
+              "type": "If",
+              "expression": "@equals(body('check-job-status')['jobState'], 3)",
+              "actions": {
+                "publish-asset": {
+                  "type": "Function",
+                  "inputs": {
+                    "body": {
+                      "assetId": "@{body('submit-job')['outputAssetMESId']}"
+                    },
+                    "function": {
+                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/publish-asset')]"
+                    }
+                  },
+                  "runAfter": {}
+                },
+                "Create_a_bitlink": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "api": {
+                        "runtimeUrl": "https://logic-apis-westeurope.azure-apim.net/apim/bitly"
+                      },
+                      "connection": {
+                        "name": "@parameters('$connections')['bitly']['connectionId']"
+                      }
+                    },
+                    "method": "get",
+                    "path": "/shorten",
+                    "queries": {
+                      "longUrl": "@{body('publish-asset')['playerUrl']}"
+                    }
+                  },
+                  "runAfter": {
+                    "publish-asset": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Send_an_email": {
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "api": {
+                        "runtimeUrl": "https://logic-apis-westeurope.azure-apim.net/apim/outlook"
+                      },
+                      "connection": {
+                        "name": "@parameters('$connections')['outlook']['connectionId']"
+                      }
+                    },
+                    "method": "post",
+                    "path": "/Mail",
+                    "body": {
+                        "Body": "<html><body><p><a href=\"@{body('Create_a_bitlink')['url']}\">Playback the entire video</a></p></body></html>",
+                        "IsHtml": true,
+                        "Subject": "New video published!",
+                        "To": "[parameters('outlookSendEmailTo')]"
+                    }
+                  },
+                  "runAfter": {
+                    "Create_a_bitlink": [
+                      "Succeeded"
+                    ]
+                  }
+                }
+              },
+              "runAfter": {
+                "Until": [
+                  "Succeeded"
+                ]
+              },
+              "else": {
+                "actions": {
+                  "Send_an_email_error": {
+                    "type": "ApiConnection",
+                    "inputs": {
+                      "host": {
+                        "api": {
+                          "runtimeUrl": "https://logic-apis-westeurope.azure-apim.net/apim/outlook"
+                        },
+                        "connection": {
+                          "name": "@parameters('$connections')['outlook_1']['connectionId']"
+                        }
+                      },
+                      "method": "post",
+                      "path": "/Mail",
+                      "body": {
+                        "To": "[parameters('outlookSendEmailTo')]",
+                        "Subject": "Error when encoding file ",
+                        "Body": "There was an error when encoding file : @{triggerOutputs()['headers']['x-ms-file-name']}"
+                      }
+                    },
+                    "runAfter": {}
+                  }
+                }
+              }
+            }
+          },
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            }
+          },
+          "triggers": {
+            "When_a_file_is_created": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "api": {
+                    "runtimeUrl": "https://logic-apis-westeurope.azure-apim.net/apim/onedrive"
+                  },
+                  "connection": {
+                    "name": "@parameters('$connections')['onedrive']['connectionId']"
+                  }
+                },
+                "method": "get",
+                "path": "/datasets/default/triggers/onnewfile",
+                "queries": {
+                  "folderId": "A56BE8B37BAEFEF9!294871"
+                }
+              },
+              "recurrence": {
+                "frequency": "Minute",
+                "interval": 1
+              },
+              "metadata": {
+                "A56BE8B37BAEFEF9!294871": "[parameters('onedriveFolderToWatch')]"
+              }
+            }
+          },
+          "contentVersion": "1.0.0.0",
+          "outputs": {}
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "azureblob": {
+                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'azureblob')]",
+                "connectionId": "[resourceId('Microsoft.Web/connections', variables('azureblob_1_Connection_Name'))]",
+                "connectionName": "[variables('azureblob_1_Connection_Name')]"
+              },
+              "bitly": {
+                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'bitly')]",
+                "connectionId": "[resourceId('Microsoft.Web/connections', variables('bitly_1_Connection_Name'))]",
+                "connectionName": "[variables('bitly_1_Connection_Name')]"
+              },
+              "outlook": {
+                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'outlook')]",
+                "connectionId": "[resourceId('Microsoft.Web/connections', variables('outlook_1_Connection_Name'))]",
+                "connectionName": "[variables('outlook_1_Connection_Name')]"
+              },
+              "outlook_1": {
+                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'outlook')]",
+                "connectionId": "[resourceId('Microsoft.Web/connections', variables('outlook_1_Connection_Name'))]",
+                "connectionName": "[variables('outlook_1_Connection_Name')]"
+              },
+              "onedrive": {
+                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'onedrive')]",
+                "connectionId": "[resourceId('Microsoft.Web/connections', variables('onedrive_1_Connection_Name'))]",
+                "connectionName": "[variables('onedrive_1_Connection_Name')]"
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/connections', variables('azureblob_1_Connection_Name'))]",
+        "[resourceId('Microsoft.Web/connections', variables('bitly_1_Connection_Name'))]",
+        "[resourceId('Microsoft.Web/connections', variables('outlook_1_Connection_Name'))]",
+        "[resourceId('Microsoft.Web/connections', variables('onedrive_1_Connection_Name'))]"
+      ]
+    },
+    {
+      "type": "MICROSOFT.WEB/CONNECTIONS",
+      "apiVersion": "2016-06-01",
+      "name": "[variables('onedrive_1_Connection_Name')]",
+      "location": "[variables('logicAppLocation')]",
+      "properties": {
+        "api": {
+          "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'onedrive')]"
+        },
+        "displayName": "[variables('onedrive_1_Connection_DisplayName')]"
+      }
+    },
+    {
+      "type": "MICROSOFT.WEB/CONNECTIONS",
+      "apiVersion": "2016-06-01",
+      "name": "[variables('azureblob_1_Connection_Name')]",
+      "location": "[variables('logicAppLocation')]",
+      "properties": {
+        "api": {
+          "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'azureblob')]"
+        },
+        "displayName": "[variables('azureblob_1_Connection_DisplayName')]",
+        "parameterValues": {
+          "accountName": "[parameters('mediaServicesStorageAccountName')]",
+          "accessKey": "[listKeys(variables('storageAccountid'),'2015-05-01-preview').key1]"
+        }
+      }
+    },
+    {
+      "type": "MICROSOFT.WEB/CONNECTIONS",
+      "apiVersion": "2016-06-01",
+      "name": "[variables('outlook_1_Connection_Name')]",
+      "location": "[variables('logicAppLocation')]",
+      "properties": {
+        "api": {
+          "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'outlook')]"
+        },
+        "displayName": "[variables('outlook_1_Connection_DisplayName')]"
+      }
+    },
+    {
+      "type": "MICROSOFT.WEB/CONNECTIONS",
+      "apiVersion": "2016-06-01",
+      "name": "[variables('bitly_1_Connection_Name')]",
+      "location": "[variables('logicAppLocation')]",
+      "properties": {
+        "api": {
+          "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', variables('logicAppLocation'), '/managedApis/', 'bitly')]"
+        },
+        "displayName": "[variables('bitly_1_Connection_DisplayName')]"
+      }
+    }
+  ],
+  "outputs": {}
+}

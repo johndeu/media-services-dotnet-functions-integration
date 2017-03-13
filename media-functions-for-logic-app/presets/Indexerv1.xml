@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration version="2.0">
+  <input></input>
+  <settings></settings>
+  <features>
+    <feature name="ASR">
+      <settings>
+        <add key="Language" value="English" />
+        <add key="GenerateAIB" value="True" />
+        <add key="GenerateKeywords" value="True" />
+        <add key="ForceFullCaption" value="False" />
+        <add key="CaptionFormats" value="ttml;sami;webvtt" />
+      </settings>
+    </feature>
+  </features>
+</configuration>
