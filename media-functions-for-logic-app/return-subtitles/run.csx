@@ -184,7 +184,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             }
         }
 
-        if (ttmlContent != "" && vttContent != "" && data.deleteAsset != null && ((bool) data.deleteAsset)))
+        if (ttmlContent != "" && vttContent != "" && data.deleteAsset != null && ((bool) data.deleteAsset))
         // If asset deletion was asked
         {
             outputAsset.Delete();
