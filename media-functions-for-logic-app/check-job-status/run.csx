@@ -14,11 +14,14 @@ Output:
     "startTime" :""
     "endTime" : "",
     "runningDuration" : ""
-    "mediaUnitNumber" : 2,   // if extendedInfo is true and job is finished or in error
-    "mediaUnitSize" : "S2", // if extendedInfo is true and job is finished or in error
-    "jobQueue" : 3, // if extendedInfo is true and job is finished or in error
-    "jobScheduled" : 1, // if extendedInfo is true and job is finished or in error
-    "jobProcessing" : 2, // if extendedInfo is true and job is finished or in error
+    "extendedInfo" :  // if extendedInfo is true and job is finished or in error
+    {
+        mediaUnitNumber = 2,
+        mediaUnitSize = "S2",
+        otherJobsProcessing = 2;
+        otherJobsScheduled = 1;
+        otherJobsQueue = 1;
+    }
  }
 */
 
@@ -156,16 +159,12 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     if (extendedInfo && (job.State == JobState.Finished || job.State == JobState.Canceled || job.State == JobState.Error))
     {
-        int mediaUnitNumber = _context.EncodingReservedUnits.FirstOrDefault().CurrentReservedUnits;
-        string mediaUnitSize = ReturnMediaReservedUnitName(_context.EncodingReservedUnits.FirstOrDefault().ReservedUnitType);
-        var jobQueue = _context.Jobs.Where(j => j.State == JobState.Queued).Count();
-        var jobScheduled = _context.Jobs.Where(j => j.State == JobState.Scheduled).Count();
-        var jobProcessing = _context.Jobs.Where(j => j.State == JobState.Processing).Count();
-
         dynamic stats = new JObject();
-        stats.mediaUnitNumber = mediaUnitNumber;
-        stats.mediaUnitSize = mediaUnitSize;
-        stats.runningDuration = runningDuration;
+        stats.mediaUnitNumber = _context.EncodingReservedUnits.FirstOrDefault().CurrentReservedUnits;
+        stats.mediaUnitSize = ReturnMediaReservedUnitName(_context.EncodingReservedUnits.FirstOrDefault().ReservedUnitType); ;
+        stats.otherJobsProcessing = _context.Jobs.Where(j => j.State == JobState.Processing).Count();
+        stats.otherJobsScheduled = _context.Jobs.Where(j => j.State == JobState.Scheduled).Count();
+        stats.otherJobsQueue = _context.Jobs.Where(j => j.State == JobState.Queued).Count();
 
         return req.CreateResponse(HttpStatusCode.OK, new
         {
@@ -174,12 +173,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             startTime = startTime,
             endTime = endTime,
             runningDuration = runningDuration,
-            mediaUnitNumber = mediaUnitNumber,
-            mediaUnitSize = mediaUnitSize,
-            jobQueue = jobQueue,
-            jobScheduled= jobScheduled,
-            jobProcessing = jobProcessing,
-            stats = JsonConvert.SerializeObject(stats)
+            extendedInfo = stats.ToString()
         });
     }
     else
