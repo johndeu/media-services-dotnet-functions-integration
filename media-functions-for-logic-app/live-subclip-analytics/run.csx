@@ -325,7 +325,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         outputAssetHyperlapseId = ReturnId(job, OutputHyperlapse),
         subclipStart = starttime,
         subclipDuration = duration,
-        documentId = id.ToString(),
+        documentId = id,
         programId = programid
     });
 }
