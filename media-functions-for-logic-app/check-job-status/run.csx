@@ -32,6 +32,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Microsoft.WindowsAzure.MediaServices.Client;
 using System.Collections.Generic;
 using System.Linq;
