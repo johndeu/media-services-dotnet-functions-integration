@@ -161,6 +161,11 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         var jobScheduled = _context.Jobs.Where(j => j.State == JobState.Scheduled).Count();
         var jobProcessing = _context.Jobs.Where(j => j.State == JobState.Processing).Count();
 
+        dynamic stats = new dynamic();
+        stats.mediaUnitNumber = mediaUnitNumber;
+        stats.mediaUnitSize = mediaUnitSize;
+        stats.runningDuration = runningDuration;
+
         return req.CreateResponse(HttpStatusCode.OK, new
         {
             jobState = job.State,
@@ -172,7 +177,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             mediaUnitSize = mediaUnitSize,
             jobQueue = jobQueue,
             jobScheduled= jobScheduled,
-            jobProcessing = jobProcessing
+            jobProcessing = jobProcessing,
+            stats = JsonConvert.SerializeObject(stats)
         });
     }
     else
