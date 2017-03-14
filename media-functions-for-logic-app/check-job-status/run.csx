@@ -161,7 +161,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         var jobScheduled = _context.Jobs.Where(j => j.State == JobState.Scheduled).Count();
         var jobProcessing = _context.Jobs.Where(j => j.State == JobState.Processing).Count();
 
-        dynamic stats = null;
+        dynamic stats = new JObject();
         stats.mediaUnitNumber = mediaUnitNumber;
         stats.mediaUnitSize = mediaUnitSize;
         stats.runningDuration = runningDuration;
