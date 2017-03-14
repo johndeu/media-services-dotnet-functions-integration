@@ -4,7 +4,8 @@ This function returns subtitles from an asset.
 Input:
 {
     "assetId" : "nb:cid:UUID:88432c30-cb4a-4496-88c2-b2a05ce9033b", // Mandatory, Id of the source asset
-    "timeOffset" :"00:01:00" // optional, offset to add to subtitles (used for live analytics)
+    "timeOffset" :"00:01:00", // optional, offset to add to subtitles (used for live analytics)
+    "deleteAsset" : true // Optional, delete the asset once data has been read from it
  }
 
 Output:
@@ -181,6 +182,12 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
                 }
                 ttmlContentTimeCorrected = docXML.Declaration.ToString() + Environment.NewLine + docXML.ToString();
             }
+        }
+
+        if (ttmlContent != "" && vttContent != "" && data.deleteAsset != null && ((bool) data.deleteAsset)
+        // If asset deletion was asked
+        {
+            outputAsset.Delete();
         }
     }
     catch (Exception ex)
