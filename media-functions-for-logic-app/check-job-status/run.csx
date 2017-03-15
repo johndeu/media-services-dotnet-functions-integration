@@ -170,8 +170,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         {
             jobState = job.State,
             errorText = sberror.ToString(),
-            startTime = startTime,
-            endTime = endTime,
+            startTime = startTime.ToString("o"),
+            endTime = endTime.ToString("o"),
             runningDuration = runningDuration,
             extendedInfo = stats.ToString()
         });
@@ -182,8 +182,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         {
             jobState = job.State,
             errorText = sberror.ToString(),
-            startTime = startTime,
-            endTime = endTime,
+            startTime = startTime.ToString("o"),
+            endTime = endTime.ToString("o"),
             runningDuration = runningDuration
         });
     }
