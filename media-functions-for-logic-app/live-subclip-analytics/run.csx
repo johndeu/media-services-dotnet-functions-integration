@@ -27,10 +27,15 @@ Output:
         "outputAssetMotionDetectionId" : "",
         "outputAssetSummarizationId" : "",
         "outputAssetHyperlapseId" : "",
-        "subclipStart" = "",
-        "subclipduration" = "",
         "documentId" = ,  // 0, 1, 2, 3...
-        "programId" = programid
+        "programId" = programid,
+        "subclipInfo" :
+        {
+            "subclipStart" = "",
+            "subclipduration" = "",
+            "channelName" : "",
+            "programName" : "",
+        }
 }
 */
 
@@ -47,6 +52,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Microsoft.WindowsAzure.MediaServices.Client;
 using System.Collections.Generic;
 using System.Linq;
@@ -118,6 +124,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     int OutputHyperlapse = -1;
     int id = 0;
     string programid = "";
+    string programName = "";
+    string channelName = "";
 
     TimeSpan starttime = TimeSpan.FromSeconds(0);
     TimeSpan duration = TimeSpan.FromSeconds(intervalsec);
@@ -133,7 +141,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         _context = new CloudMediaContext(_cachedCredentials);
 
         // find the Channel, Program and Asset
-        string channelName = (string)data.channelName;
+        channelName = (string)data.channelName;
         var channel = _context.Channels.Where(c => c.Name == channelName).FirstOrDefault();
         if (channel == null)
         {
@@ -144,7 +152,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             });
         }
 
-        string programName = (string)data.programName;
+        programName = (string)data.programName;
         var program = channel.Programs.Where(p => p.Name == programName).FirstOrDefault();
         if (program == null)
         {
@@ -312,6 +320,12 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info("Job Id: " + job.Id);
     log.Info("Output asset Id: " + ((OutputMES > -1) ? ReturnId(job, OutputMES) : ReturnId(job, OutputPremium)));
 
+    dynamic subclipinfo = new JObject();
+    subclipinfo.subclipStart = starttime;
+    subclipinfo.subclipDuration = duration;
+    subclipinfo.channelName = channelName;
+    subclipinfo.programName = programName;
+
     return req.CreateResponse(HttpStatusCode.OK, new
     {
         jobId = job.Id,
@@ -323,8 +337,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         outputAssetMotionDetectionId = ReturnId(job, OutputMotion),
         outputAssetSummarizationId = ReturnId(job, OutputSummarization),
         outputAssetHyperlapseId = ReturnId(job, OutputHyperlapse),
-        subclipStart = starttime,
-        subclipDuration = duration,
+        subclipInfo = subclipinfo,
         documentId = id,
         programId = programid
     });
