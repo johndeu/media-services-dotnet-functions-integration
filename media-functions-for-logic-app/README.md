@@ -173,3 +173,21 @@ Output:
 {
 }
 ```
+
+
+### delete-entity
+
+This function delete AMS entities like job(s) and/or asset(s).
+Several asset ids or job ids can be passed (with a coma separator).
+
+```c#
+Input:
+{
+    "jobID": "nb:jid:UUID:7f566f5e-be9c-434f-bb7b-101b2e24f27e,nb:jid:UUID:58f9e85a-a889-4205-baa1-ecf729f9c753",     // job(s) id. Coma delimited if several job ids 
+    "assetId" : "nb:cid:UUID:61926f1d-69ba-4386-a90e-e27803104853,nb:cid:UUID:b4668bc4-2899-4247-b339-429025153ab9"   // asset(s) id.
+}
+
+Output:
+{
+}
+```
