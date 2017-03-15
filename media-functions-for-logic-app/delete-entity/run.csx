@@ -96,7 +96,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     if (data.jobId != null)
     {
-        foreach (string jobi in data.jobId.Split(','))
+        var jobids = (string)data.jobId;
+        foreach (string jobi in jobids.Split(','))
         {
             log.Info($"Using job Id : {jobi}");
             var job = _context.Jobs.Where(j => j.Id == jobi).FirstOrDefault();
@@ -114,7 +115,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     if (data.assetId != null)
     {
-        foreach (string asseti in data.assetId.Split(','))
+        var assetids = (string)data.assetId;
+        foreach (string asseti in assetids.Split(','))
         {
             log.Info($"Using asset Id : {asseti}");
             var asset = _context.Assets.Where(a => a.Id == asseti).FirstOrDefault();
