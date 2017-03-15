@@ -201,7 +201,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         var lastendtimeInTable = RetrieveLastEndTime(table, programid);
 
         // Get the manifest data (timestamps)
-        var assetmanifestdata = GetManifestTimingData(asset);
+        var assetmanifestdata = GetManifestTimingData(asset, log);
 
         log.Info("Timestamps: " + string.Join(",", assetmanifestdata.TimestampList.Select(n => n.ToString()).ToArray()));
 
@@ -399,7 +399,7 @@ static public TimeSpan ReturnTimeSpanOnGOP(ManifestTimingData data, TimeSpan ts)
 }
 
 
-static public ManifestTimingData GetManifestTimingData(IAsset asset)
+static public ManifestTimingData GetManifestTimingData(IAsset asset, TraceWriter log)
 // Parse the manifest and get data from it
 {
     ManifestTimingData response = new ManifestTimingData() { IsLive = false, Error = false, TimestampOffset = 0, TimestampList = new List<ulong>() };
@@ -415,6 +415,7 @@ static public ManifestTimingData GetManifestTimingData(IAsset asset)
         }
         if (myuri != null)
         {
+            log.Info($"Asset URI {myuri.ToString()}");
             XDocument manifest = XDocument.Load(myuri.ToString());
             var smoothmedia = manifest.Element("SmoothStreamingMedia");
             var videotrack = smoothmedia.Elements("StreamIndex").Where(a => a.Attribute("Type").Value == "video");
