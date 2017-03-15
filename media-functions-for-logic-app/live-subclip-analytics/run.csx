@@ -320,12 +320,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info("Job Id: " + job.Id);
     log.Info("Output asset Id: " + ((OutputMES > -1) ? ReturnId(job, OutputMES) : ReturnId(job, OutputPremium)));
 
-    dynamic subclipinfo = new JObject();
-    subclipinfo.subclipStart = starttime;
-    subclipinfo.subclipDuration = duration;
-    subclipinfo.channelName = channelName;
-    subclipinfo.programName = programName;
-
     return req.CreateResponse(HttpStatusCode.OK, new
     {
         jobId = job.Id,
@@ -337,7 +331,10 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         outputAssetMotionDetectionId = ReturnId(job, OutputMotion),
         outputAssetSummarizationId = ReturnId(job, OutputSummarization),
         outputAssetHyperlapseId = ReturnId(job, OutputHyperlapse),
-        subclipInfo = subclipinfo,
+        subclipStart = starttime,
+        subclipDuration = duration,
+        channelName = channelName,
+        programName = programName,
         documentId = id,
         programId = programid
     });
