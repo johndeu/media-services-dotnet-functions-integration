@@ -19,7 +19,7 @@ Input:
 Output:
 {
         "jobId" :  // job id
-        "outputAssetMESId" : "", 
+        "outputAssetId" : "", 
         "outputAssetIndexV1Id" : "",
         "outputAssetIndexV2Id" : "",
         "outputAssetOCRId" : "",
