@@ -446,13 +446,17 @@ static public ManifestTimingData GetManifestTimingData(IAsset asset, TraceWriter
             foreach (var chunk in videotrack.Elements("c"))
             {
                 durationchunk = chunk.Attribute("d") != null ? ulong.Parse(chunk.Attribute("d").Value) : 0;
+                 log.Info($"duration d {durationchunk}");
+
                 repeatchunk = chunk.Attribute("r") != null ? int.Parse(chunk.Attribute("r").Value) : 1;
+                  log.Info($"repeat r {repeatchunk}");
                 totalduration += durationchunk * (ulong)repeatchunk;
 
                 if (chunk.Attribute("t") != null)
                 {
                     //totalduration = ulong.Parse(chunk.Attribute("t").Value) - response.TimestampOffset; // new timestamp, perhaps gap in live stream....
                     response.TimestampList.Add(ulong.Parse(chunk.Attribute("t").Value));
+                    log.Info($"t value {ulong.Parse(chunk.Attribute("t").Value)}");
                 }
                 else
                 {
