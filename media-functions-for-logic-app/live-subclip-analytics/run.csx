@@ -416,8 +416,7 @@ static public ManifestTimingData GetManifestTimingData(IAsset asset, TraceWriter
         if (myuri != null)
         {
             log.Info($"Asset URI {myuri.ToString()}");
-            WebRequest.DefaultCachePolicy = new RequestCachePolicy(RequestCacheLevel.Revalidate);
-
+   
             XDocument manifest = XDocument.Load(myuri.ToString());
 
              log.Info($"manifest {manifest}");
