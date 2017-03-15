@@ -3,8 +3,8 @@ This function delete an object (job and/or asset)
 
 Input:
 {
-    "jobID": "",      
-    "assetId" : "",
+    "jobID": "nb:jid:UUID:7f566f5e-be9c-434f-bb7b-101b2e24f27e,nb:jid:UUID:58f9e85a-a889-4205-baa1-ecf729f9c753",     // job(s) id. Coma delimited if several job ids 
+    "assetId" : "nb:cid:UUID:61926f1d-69ba-4386-a90e-e27803104853,nb:cid:UUID:b4668bc4-2899-4247-b339-429025153ab9",
     
 }
 
@@ -60,8 +60,6 @@ private static CloudStorageAccount _destinationStorageAccount = null;
 
 public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 {
-    int taskindex = 0;
-
     log.Info($"Webhook was triggered!");
 
     string jsonContent = await req.Content.ReadAsStringAsync();
@@ -90,7 +88,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         // Used the chached credentials to create CloudMediaContext.
         _context = new CloudMediaContext(_cachedCredentials);
     }
-    catch
+    catch (Exception ex)
     {
         log.Info($"Exception {ex}");
         return req.CreateResponse(HttpStatusCode.BadRequest);
@@ -99,31 +97,37 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     if (data.jobId != null)
     {
-        string jobId = data.jobId;
-        log.Info($"Using job Id : {jobId}");
-        var job = _context.Jobs.Where(j => j.Id == jobId).FirstOrDefault();
-        if (job != null)
+        foreach (var jobi in data.jobId.Split(','))
         {
-            job.Delete();
-        }
-        else
-        {
-            log.Info("Job not found!");
+            log.Info($"Using job Id : {jobi}");
+            var job = _context.Jobs.Where(j => j.Id == jobi).FirstOrDefault();
+            if (job != null)
+            {
+                job.Delete();
+                log.Info("Job deleted.");
+            }
+            else
+            {
+                log.Info("Job not found!");
+            }
         }
     }
 
     if (data.assetId != null)
     {
-        string assetId = data.assetId;
-        log.Info($"Using asset Id : assetId}");
-        var asset = _context.Assets.Where(a => a.Id == assetId).FirstOrDefault();
-        if (asset != null)
+        foreach (var asseti in data.assetId.Split(','))
         {
-            asset.Delete();
-        }
-        else
-        {
-            log.Info("Asset not found!");
+            log.Info($"Using asset Id : {asseti}");
+            var asset = _context.Assets.Where(a => a.Id == asseti).FirstOrDefault();
+            if (asset != null)
+            {
+                asset.Delete();
+                log.Info("Asset deleted.");
+            }
+            else
+            {
+                log.Info("Asset not found!");
+            }
         }
     }
 
