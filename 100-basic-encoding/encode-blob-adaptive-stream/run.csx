@@ -116,7 +116,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
             job.Refresh();
             // Refresh every 5 seconds
             Thread.Sleep(5000);
-            log.Info($"Job ID:{job.Id} State: {job.State.ToString()}");
+            log.Info($"Job: {job.Id}    State: {job.State.ToString()}");
 
             if (job.State == JobState.Error || job.State == JobState.Finished || job.State == JobState.Canceled)
                 break;
@@ -154,7 +154,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
     }
     catch (Exception ex)
     {
-        log.Error("ERROR: failed.");
+        log.Error("ERROR: Job Failed.");
         log.Info($"StackTrace : {ex.StackTrace}");
         throw ex;
     }
