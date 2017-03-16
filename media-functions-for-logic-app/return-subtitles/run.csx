@@ -195,21 +195,21 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         log.Info($"Exception {ex}");
         return req.CreateResponse(HttpStatusCode.BadRequestOK, new
         {
-            Error = ex.Message;
-    });
-}
+            Error = ex.Message
+        });
+    }
 
-log.Info($"");
-return req.CreateResponse(HttpStatusCode.OK, new
-{
-    vttUrl = vttUrl,
-    ttmlUrl = ttmlUrl,
-    pathUrl = pathUrl,
-    ttmlDocument = ttmlContent,
-    ttmlDocumentWithOffset = ttmlContentTimeCorrected,
-    vttDocument = vttContent,
-    vttDocumentWithOffset = vttContentTimeCorrected
-});
+    log.Info($"");
+    return req.CreateResponse(HttpStatusCode.OK, new
+    {
+        vttUrl = vttUrl,
+        ttmlUrl = ttmlUrl,
+        pathUrl = pathUrl,
+        ttmlDocument = ttmlContent,
+        ttmlDocumentWithOffset = ttmlContentTimeCorrected,
+        vttDocument = vttContent,
+        vttDocumentWithOffset = vttContentTimeCorrected
+    });
 }
 
 public static string ReturnContent(IAssetFile assetFile)
