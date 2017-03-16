@@ -193,7 +193,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     catch (Exception ex)
     {
         log.Info($"Exception {ex}");
-        return req.CreateResponse(HttpStatusCode.BadRequestOK, new
+        return req.CreateResponse(HttpStatusCode.BadRequest, new
         {
             Error = ex.Message
         });
