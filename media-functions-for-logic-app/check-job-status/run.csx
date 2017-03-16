@@ -85,6 +85,11 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
     IJob job = null;
+    string startTime = "";
+    string endTime = "";
+    StringBuilder sberror = new StringBuilder();
+    string runningDuration = "";
+
 
     bool extendedInfo = false;
     if (data.extendedInfo != null && ((bool)data.extendedInfo) == true)
@@ -115,50 +120,48 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
                 error = "Job not found"
             });
         }
+
+
+        for (int i = 1; i <= 3; i++) // let's wait 3 times 5 seconds (15 seconds)
+        {
+            log.Info($"Job {job.Id} status is {job.State}");
+
+            if (job.State == JobState.Finished || job.State == JobState.Canceled || job.State == JobState.Error)
+            {
+                break;
+            }
+
+            log.Info("Waiting 5 s...");
+            System.Threading.Thread.Sleep(5 * 1000);
+            job = _context.Jobs.Where(j => j.Id == job.Id).FirstOrDefault();
+        }
+
+        if (job.State == JobState.Error)
+        {
+            foreach (var task in job.Tasks)
+            {
+                foreach (var details in task.ErrorDetails)
+                {
+                    sberror.AppendLine(details.Message);
+                }
+            }
+        }
+
+        if (job.StartTime != null) startTime = ((DateTime)job.StartTime).ToString("o");
+
+        if (job.EndTime != null) endTime = ((DateTime)job.EndTime).ToString("o");
+
+        if (job.RunningDuration != null) runningDuration = job.RunningDuration.ToString();
+
     }
     catch (Exception ex)
     {
         log.Info($"Exception {ex}");
-        return req.CreateResponse(HttpStatusCode.BadRequest, new
+        return req.CreateResponse(HttpStatusCode.InternalServerError, new
         {
             Error = ex.ToString()
         });
     }
-
-    for (int i = 1; i <= 3; i++) // let's wait 3 times 5 seconds (15 seconds)
-    {
-        log.Info($"Job {job.Id} status is {job.State}");
-
-        if (job.State == JobState.Finished || job.State == JobState.Canceled || job.State == JobState.Error)
-        {
-            break;
-        }
-
-        log.Info("Waiting 5 s...");
-        System.Threading.Thread.Sleep(5 * 1000);
-        job = _context.Jobs.Where(j => j.Id == job.Id).FirstOrDefault();
-    }
-
-    StringBuilder sberror = new StringBuilder();
-    if (job.State == JobState.Error)
-    {
-        foreach (var task in job.Tasks)
-        {
-            foreach (var details in task.ErrorDetails)
-            {
-                sberror.AppendLine(details.Message);
-            }
-        }
-    }
-
-    string startTime = "";
-    if (job.StartTime != null) startTime = ((DateTime) job.StartTime).ToString("o");
-
-    string endTime = "";
-    if (job.EndTime != null) endTime = ((DateTime) job.EndTime).ToString("o");
-
-    string runningDuration = "";
-    if (job.RunningDuration != null) runningDuration = job.RunningDuration.ToString();
 
     if (extendedInfo && (job.State == JobState.Finished || job.State == JobState.Canceled || job.State == JobState.Error))
     {
