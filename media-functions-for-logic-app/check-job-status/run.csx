@@ -119,7 +119,10 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     catch (Exception ex)
     {
         log.Info($"Exception {ex}");
-        return req.CreateResponse(HttpStatusCode.BadRequest);
+        return req.CreateResponse(HttpStatusCode.BadRequest, new
+        {
+            Error = ex.ToString()
+        });
     }
 
     for (int i = 1; i <= 3; i++) // let's wait 3 times 5 seconds (15 seconds)

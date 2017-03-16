@@ -316,7 +316,10 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     catch (Exception ex)
     {
         log.Info($"Exception {ex}");
-        return req.CreateResponse(HttpStatusCode.BadRequest);
+        return req.CreateResponse(HttpStatusCode.BadRequest, new
+        {
+            Error = ex.ToString()
+        });
     }
 
     log.Info("Job Id: " + job.Id);

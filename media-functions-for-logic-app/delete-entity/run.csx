@@ -90,46 +90,59 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     catch (Exception ex)
     {
         log.Info($"Exception {ex}");
-        return req.CreateResponse(HttpStatusCode.BadRequest);
+        return req.CreateResponse(HttpStatusCode.BadRequest, new
+        {
+            Error = ex.ToString()
+        });
     }
 
-
-    if (data.jobId != null)
+    try
     {
-        var jobids = (string)data.jobId;
-        foreach (string jobi in jobids.Split(','))
+        if (data.jobId != null)
         {
-            log.Info($"Using job Id : {jobi}");
-            var job = _context.Jobs.Where(j => j.Id == jobi).FirstOrDefault();
-            if (job != null)
+            var jobids = (string)data.jobId;
+            foreach (string jobi in jobids.Split(','))
             {
-                job.Delete();
-                log.Info("Job deleted.");
+                log.Info($"Using job Id : {jobi}");
+                var job = _context.Jobs.Where(j => j.Id == jobi).FirstOrDefault();
+                if (job != null)
+                {
+                    job.Delete();
+                    log.Info("Job deleted.");
+                }
+                else
+                {
+                    log.Info("Job not found!");
+                }
             }
-            else
+        }
+
+        if (data.assetId != null)
+        {
+            var assetids = (string)data.assetId;
+            foreach (string asseti in assetids.Split(','))
             {
-                log.Info("Job not found!");
+                log.Info($"Using asset Id : {asseti}");
+                var asset = _context.Assets.Where(a => a.Id == asseti).FirstOrDefault();
+                if (asset != null)
+                {
+                    asset.Delete();
+                    log.Info("Asset deleted.");
+                }
+                else
+                {
+                    log.Info("Asset not found!");
+                }
             }
         }
     }
-
-    if (data.assetId != null)
+    catch (Exception ex)
     {
-        var assetids = (string)data.assetId;
-        foreach (string asseti in assetids.Split(','))
+        log.Info($"Exception {ex}");
+        return req.CreateResponse(HttpStatusCode.BadRequest, new
         {
-            log.Info($"Using asset Id : {asseti}");
-            var asset = _context.Assets.Where(a => a.Id == asseti).FirstOrDefault();
-            if (asset != null)
-            {
-                asset.Delete();
-                log.Info("Asset deleted.");
-            }
-            else
-            {
-                log.Info("Asset not found!");
-            }
-        }
+            Error = ex.ToString()
+        });
     }
 
     return req.CreateResponse(HttpStatusCode.OK, new
