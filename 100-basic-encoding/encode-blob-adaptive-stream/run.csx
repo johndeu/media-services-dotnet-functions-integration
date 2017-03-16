@@ -130,17 +130,11 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
             throw new Exception("Job failed encoding .");
         }
 
-        log.Info($"Getting Output Blob from : {outContainer.Name}");
-
         // Step 4: Output the resulting asset to another location - the output Container - so that 
         //         another function could pick up the results of the job. 
 
         IAsset outputAsset = job.OutputMediaAssets[0];
         log.Info($"Output Asset Id:{outputAsset.Id}");
-
-        //Get a reference to the storage account that is associated with the Media Services account. 
-        StorageCredentials mediaServicesStorageCredentials =
-            new StorageCredentials(_storageAccountName, _storageAccountKey);
         _destinationStorageAccount = new CloudStorageAccount(mediaServicesStorageCredentials, false);
 
         IAccessPolicy readPolicy = _context.AccessPolicies.Create("readPolicy",
