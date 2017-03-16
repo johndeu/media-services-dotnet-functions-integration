@@ -184,7 +184,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             }
         }
 
-        if (ttmlContent != "" && vttContent != "" && data.deleteAsset != null && ((bool) data.deleteAsset))
+        if (ttmlContent != "" && vttContent != "" && data.deleteAsset != null && ((bool)data.deleteAsset))
         // If asset deletion was asked
         {
             outputAsset.Delete();
@@ -193,20 +193,23 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     catch (Exception ex)
     {
         log.Info($"Exception {ex}");
-        return req.CreateResponse(HttpStatusCode.BadRequest);
-    }
-
-    log.Info($"");
-    return req.CreateResponse(HttpStatusCode.OK, new
-    {
-        vttUrl = vttUrl,
-        ttmlUrl = ttmlUrl,
-        pathUrl = pathUrl,
-        ttmlDocument = ttmlContent,
-        ttmlDocumentWithOffset = ttmlContentTimeCorrected,
-        vttDocument = vttContent,
-        vttDocumentWithOffset = vttContentTimeCorrected
+        return req.CreateResponse(HttpStatusCode.BadRequestOK, new
+        {
+            Error = ex.Message;
     });
+}
+
+log.Info($"");
+return req.CreateResponse(HttpStatusCode.OK, new
+{
+    vttUrl = vttUrl,
+    ttmlUrl = ttmlUrl,
+    pathUrl = pathUrl,
+    ttmlDocument = ttmlContent,
+    ttmlDocumentWithOffset = ttmlContentTimeCorrected,
+    vttDocument = vttContent,
+    vttDocumentWithOffset = vttContentTimeCorrected
+});
 }
 
 public static string ReturnContent(IAssetFile assetFile)
