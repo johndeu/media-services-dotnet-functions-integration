@@ -21,7 +21,9 @@ Output:
         "jobId" :  // job id
         "outputAssetId" : "", 
         "outputAssetIndexV1Id" : "",
+        "indexV1Language" : "", 
         "outputAssetIndexV2Id" : "",
+        "indexV2Language" : "",
         "outputAssetOCRId" : "",
         "outputAssetFaceDetectionId" : "",
         "outputAssetMotionDetectionId" : "",
@@ -336,7 +338,9 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         channelName = channelName,
         programName = programName,
         documentId = id,
-        programId = programid
+        programId = programid,
+        indexV1Language = (string)data.indexV1Language,
+        indexV2Language = (string)data.indexV2Language
     });
 }
 
