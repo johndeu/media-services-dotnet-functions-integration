@@ -38,9 +38,11 @@ private static readonly string _mediaServicesAccountKey = Environment.GetEnviron
 
 static string _storageAccountName = Environment.GetEnvironmentVariable("MediaServicesStorageAccountName");
 static string _storageAccountKey = Environment.GetEnvironmentVariable("MediaServicesStorageAccountKey");
-
-
 private static CloudStorageAccount _destinationStorageAccount = null;
+
+// Set the output container name here.
+private static string _outputContainerName = "output";
+
 
 // Field for service context.
 private static CloudMediaContext _context = null;
