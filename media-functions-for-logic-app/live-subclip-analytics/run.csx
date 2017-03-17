@@ -14,6 +14,7 @@ Input:
     "motionDetectionLevel" : "medium",          // Optional
     "summarizationDuration" : "0.0",            // Optional. 0.0 for automatic
     "hyperlapseSpeed" : "8"                     // Optional
+    "priority" : 10                             // Optional. Priority of the job
 }
 
 Output:
@@ -241,9 +242,15 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         string ConfigurationSubclip = File.ReadAllText(@"D:\home\site\wwwroot\Presets\LiveSubclip.json").Replace("0:00:00.000000", starttime.Subtract(TimeSpan.FromMilliseconds(100)).ToString()).Replace("0:00:30.000000", duration.Add(TimeSpan.FromMilliseconds(200)).ToString());
 
 
+        int priority = 10;
+        if (data.priority != null)
+        {
+            priority = (int)data.priority;
+        }
+
         // MES Subclipping TASK
         // Declare a new encoding job with the Standard encoder
-        job = _context.Jobs.Create("Azure Function - Job for Live Analytics");
+        job = _context.Jobs.Create("Azure Function - Job for Live Analytics", priority);
         // Get a media processor reference, and pass to it the name of the 
         // processor to use for the specific task.
         IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
@@ -423,10 +430,10 @@ static public ManifestTimingData GetManifestTimingData(IAsset asset, TraceWriter
         if (myuri != null)
         {
             log.Info($"Asset URI {myuri.ToString()}");
-   
+
             XDocument manifest = XDocument.Load(myuri.ToString());
 
-             log.Info($"manifest {manifest}");
+            log.Info($"manifest {manifest}");
             var smoothmedia = manifest.Element("SmoothStreamingMedia");
             var videotrack = smoothmedia.Elements("StreamIndex").Where(a => a.Attribute("Type").Value == "video");
 
@@ -456,10 +463,10 @@ static public ManifestTimingData GetManifestTimingData(IAsset asset, TraceWriter
             foreach (var chunk in videotrack.Elements("c"))
             {
                 durationchunk = chunk.Attribute("d") != null ? ulong.Parse(chunk.Attribute("d").Value) : 0;
-                 log.Info($"duration d {durationchunk}");
+                log.Info($"duration d {durationchunk}");
 
                 repeatchunk = chunk.Attribute("r") != null ? int.Parse(chunk.Attribute("r").Value) : 1;
-                  log.Info($"repeat r {repeatchunk}");
+                log.Info($"repeat r {repeatchunk}");
                 totalduration += durationchunk * (ulong)repeatchunk;
 
                 if (chunk.Attribute("t") != null)

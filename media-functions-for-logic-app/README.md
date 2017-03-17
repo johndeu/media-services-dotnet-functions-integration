@@ -75,6 +75,7 @@ Input:
     "motionDetectionLevel" : "medium", // Optional, required for motion detection
     "summarizationDuration" : "0.0", // Optional. Required to create video summarization. "0.0" for automatic
     "hyperlapseSpeed" : "8" // Optional, required to hyperlapse the video
+    "priority" : 10 // Optional, priority of the job
 }
 
 Output:

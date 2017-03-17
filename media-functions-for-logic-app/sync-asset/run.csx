@@ -68,8 +68,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
-    IAsset newAsset = null;
-
     try
     {
         // Create and cache the Media Services credentials in a static class variable.
