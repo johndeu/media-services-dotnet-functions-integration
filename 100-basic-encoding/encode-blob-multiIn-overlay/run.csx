@@ -118,7 +118,7 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
         // Step 2: Create an Encoding Job
 
         // Declare a new encoding job with the Standard encoder
-        IJob job = _context.Jobs.Create("Function - encode blob multi-in");
+        IJob job = _context.Jobs.Create("Function - Encode blob multi-in");
         // Get a media processor reference, and pass to it the name of the 
         // processor to use for the specific task.
         IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
