@@ -109,7 +109,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     int OutputIndex1 = -1;
     int OutputIndex2 = -1;
     int OutputOCR = -1;
-    int OutputFace = -1;
+    int OutputFaceDetection = -1;
     int OutputMotion = -1;
     int OutputSummarization = -1;
     int OutputHyperlapse = -1;
