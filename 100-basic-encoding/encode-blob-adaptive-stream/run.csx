@@ -84,7 +84,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
 
         // Declare a new encoding job with the Standard encoder
         IJob job = _context.Jobs.Create("Function - encode-blob-adaptive-stream");
-
+        
         // Get a media processor reference, and pass to it the name of the 
         // processor to use for the specific task.
         IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
@@ -95,6 +95,9 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
             processor,
             "Adaptive Streaming",
             TaskOptions.None); 
+        
+        // Set the Task Priority
+        task.Priority = 100;
 
         // Specify the input asset to be encoded.
         task.InputAssets.Add(newAsset);
