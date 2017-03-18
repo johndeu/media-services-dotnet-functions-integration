@@ -7,8 +7,9 @@ author: johndeu
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
-# Media Services: Integrating Azure Media Services with Azure Functions
+# Media Services: Integrating Azure Media Services with Azure Functions and Logic Apps
 This project contains examples of using Azure Functions with Azure Media Services. 
+
 The project includes several folders of sample Azure Functions for use with Azure Media Services that show workflows related
 to ingesting content directly from blob storage, encoding, and writing content back to blob storage. It also includes examples of
 how to monitor job notifications via WebHooks and Azure Queues. 
@@ -34,9 +35,14 @@ The Media Services engineering and product management team monitors the followin
 While we do our best to help out in a timely basis, we don't have any promise around the above resources. If you need an SLA on support from us, it's recommended you invest in an [Azure Support plan](https://azure.microsoft.com/en-us/support/options/).
 
 
-### Contributions
+## Contributions and Best Practices
 Ideas and contributions are always welcome. We are trying to build a community around creating unique Media workflows that combine
 the power of Azure Media Services with Azure Functions and Logic Apps. 
+
+Please follow the **Contribution Guides** in the "1-CONTRIBUTION-GUIDE" folder. 
++ Read the [Contribution Guide](/1-CONTRIBUTION-GUIDE/README.md)
++ Follow the [Best Practices](/1-CONTRIBUTION-GUIDE/best-practices.md)
++ Get started quickly with the [Git Tutorial](/1-CONTRIBUTION-GUIDE/git-tutorial.md)
 
 If you have questions or ideas, please reach out to us on our [MSDN forum](https://social.msdn.microsoft.com/forums/azure/en-US/home?forum=MediaServices), Twitter at [@MSFTAzureMedia](https://twitter.com/MSFTAzureMedia), or on StackOverflow using the tag [azure-media-services](http://stackoverflow.com/questions/tagged/azure-media-services)
 
@@ -61,10 +67,13 @@ To edit the code, you have a few options:
 
 ## How to run the sample
 
-To run the samples, first fork this project into your own repository, and then deploy the Functions with the [azuredeploy.json](azuredeploy.json) template
-Make sure to update the path to point to your github fork.  
+To run the samples:
++ first fork this project into your own repository, and then deploy the Functions with the [azuredeploy.json](azuredeploy.json) template
++ Make sure to update the path to point to your github fork
++ Set the **Project** app setting to the desired folder name for the solution sample that you wish to deploy.  
++ If you wish to switch sample projects after deployment, you can simple update the **Project** app setting and then force a GIT Sync through the Continuous Integration settings of your deployed Functions App
 
-The deploymnet template will automatically create the following resources:
+The deployment template will automatically create the following Azure resources:
 * Azure Media Services Account.
 * Storage account attached to your media account.
 * This Azure Functions application with your source code configured for continuous integration.
@@ -74,15 +83,16 @@ The deploymnet template will automatically create the following resources:
 The following applications settings are created upon deployment and are automatically linked to the resources
 deployed with the azuredeploy.json template.
 
-* **AMSAccount** - your Media Services Account name. 
-* **AMSKey** - your Media Services key. 
-* **MediaServicesStorageAccountName** - the storage account name tied to your Media Services account. 
-* **MediaServicesStorageAccountKey** - the storage account key tied to your Media Services account. 
-* **StorageConnection** -  the functions.json file contains a "StorageConnection" property which must be set to an App Setting value that 
++ **Project** - this tells the Continuous Integration system which folder to sync the Function App to.  You can modify this at any time to point to a different folder in the main solution repo to try other sample Functions. 
++ **AMSAccount** - your Media Services Account name. 
++ **AMSKey** - your Media Services key. 
++ **MediaServicesStorageAccountName** - the storage account name tied to your Media Services account. 
++ **MediaServicesStorageAccountKey** - the storage account key tied to your Media Services account. 
++ **StorageConnection** -  the functions.json file contains a "StorageConnection" property which must be set to an App Setting value that 
   contains a connection string for your input storage account. Otherwise, you may end up with an error message at startup.
   Make sure to add a new AppSetting to your Functions project with the storage account name and connection string, and update
   the functions.json file if you see this error:
-* **SigningKey** - the 64-byte Base64 encoded signing key to use to protect and secure your WebHooks callbacks from Azure Media Services.
++ **SigningKey** - the 64-byte Base64 encoded signing key to use to protect and secure your WebHooks callbacks from Azure Media Services.
     This key is for sample purposes only and you should replace this key with your own. 
     
     Example value: `wOlDEUJ4/VN1No8HxVxpsRvej0DZrO5DXvImGLjFhfctPGFiMkUA0Cj8HSfJW7lePX9XsfHAMhw30p0yYqG+1A==`
@@ -99,6 +109,7 @@ deployed with the azuredeploy.json template.
   The output container name can be modifed in run.csx by changing the value of the static string _outputContainerName.
   It's set to "output" by default. 
 
+# 100 Basic Encoding
 ## EncodeBlob_SingleOut_Function
 The EncodeBlob_SingleOut_Function demonstrates how to use an Output binding and the "InOut" direction binding to 
 allow the Azure functions framework to create the output blob for you automatically. 
@@ -190,6 +201,7 @@ The format of the json file is:
       }
     ]
 
+# Media Services Functions for Logic Apps
 ## media-functions-for-logic-app
 Functions : create-empty-asset, sync-asset, live-analytics, submit-job, check-job-status, publish-asset, return-subtitles.
 These functions are designed to be called by a Logic App.
@@ -209,9 +221,9 @@ This sample project is licensed under [the MIT License](LICENSE.txt)
 ## To-DO and Roadmap
 - [ ] The Azure Queue notification function is not yet complete
 - [ ] Copy Blobs currently is using Streams, and copies in an inefficient way.
-- [ ] Document the Logic Apps functions
-- [X] DONE: We are still working on improving the ARM template and we also plan to modify the 
-directoy structure of this project to make it easier to understand and deploy smaller "scenarios"
+- [X] Contribution Guide and Best practices
+- [X] Document the Logic Apps functions
+
 
 ---
 _This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments._
