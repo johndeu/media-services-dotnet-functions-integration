@@ -125,7 +125,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
         // Get the task
         string taskid = (string)data.taskId;
-        task = _context.Tasks.Where(j => j.Id == taskid).FirstOrDefault();
+        task = job.Tasks.Where(j => j.Id == taskid).FirstOrDefault();
 
         if (task == null)
         {
@@ -149,7 +149,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
             log.Info("Waiting 5 s...");
             System.Threading.Thread.Sleep(5 * 1000);
-            task = _context.Tasks.Where(j => j.Id == taskid).FirstOrDefault();
+            task = job.Tasks.Where(j => j.Id == taskid).FirstOrDefault();
         }
 
         if (task.State == JobState.Error)
