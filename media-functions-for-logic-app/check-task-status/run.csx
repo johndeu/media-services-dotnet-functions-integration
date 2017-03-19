@@ -1,16 +1,17 @@
 /*
-This function check a job status.
+This function check a task status.
 
 Input:
 {
     "jobId" : "nb:jid:UUID:1ceaa82f-2607-4df9-b034-cd730dad7097", // Mandatory, Id of the source asset
+    "taskId" : "nb:tid:UUID:cdc25b10-3ed7-4005-bcf9-6222b35b5be3", // Mandatory
     "extendedInfo" : true // optional. Returns ams account unit size, nb units, nb of jobs in queue, scheduled and running states. Only if job is complete or error
  }
 
 Output:
 {
-    "jobState" : 2, // The state of the job (int)
-    "errorText" : "" // error(s) text if job state is error
+    "taskState" : 2, // The state of the task (int)
+    "errorText" : "" // error(s) text if task state is error
     "startTime" :""
     "endTime" : "",
     "runningDuration" : ""
@@ -72,19 +73,20 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     log.Info(jsonContent);
 
-    if (data.jobId == null)
+    if (data.jobId == null || data.taskId == null)
     {
         // used to test the function
         //data.jobId = "nb:jid:UUID:acf38b8a-aef9-4789-9f0f-f69bf6ccb8e5";
         return req.CreateResponse(HttpStatusCode.BadRequest, new
         {
-            error = "Please pass the job ID in the input object (JobId)"
+            error = "Please pass the job and task ID in the input object (jobId, taskId)"
         });
     }
 
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
     IJob job = null;
+    ITask task = null;
     string startTime = "";
     string endTime = "";
     StringBuilder sberror = new StringBuilder();
@@ -121,37 +123,48 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             });
         }
 
+        // Get the task
+        string taskid = (string)data.taskId;
+        task = _context.Tasks.Where(j => j.Id == taskid).FirstOrDefault();
+
+        if (task == null)
+        {
+            log.Info($"Task not found {taskid}");
+
+            return req.CreateResponse(HttpStatusCode.InternalServerError, new
+            {
+                error = "Task not found"
+            });
+        }
+
 
         for (int i = 1; i <= 3; i++) // let's wait 3 times 5 seconds (15 seconds)
         {
-            log.Info($"Job {job.Id} status is {job.State}");
+            log.Info($"Task {task.Id} status is {task.State}");
 
-            if (job.State == JobState.Finished || job.State == JobState.Canceled || job.State == JobState.Error)
+            if (task.State == JobState.Finished || task.State == JobState.Canceled || task.State == JobState.Error)
             {
                 break;
             }
 
             log.Info("Waiting 5 s...");
             System.Threading.Thread.Sleep(5 * 1000);
-            job = _context.Jobs.Where(j => j.Id == job.Id).FirstOrDefault();
+            task = _context.Tasks.Where(j => j.Id == taskid).FirstOrDefault();
         }
 
-        if (job.State == JobState.Error)
+        if (task.State == JobState.Error)
         {
-            foreach (var task in job.Tasks)
+            foreach (var details in task.ErrorDetails)
             {
-                foreach (var details in task.ErrorDetails)
-                {
-                    sberror.AppendLine(details.Message);
-                }
+                sberror.AppendLine(details.Message);
             }
         }
 
-        if (job.StartTime != null) startTime = ((DateTime)job.StartTime).ToString("o");
+        if (task.StartTime != null) startTime = ((DateTime)task.StartTime).ToString("o");
 
-        if (job.EndTime != null) endTime = ((DateTime)job.EndTime).ToString("o");
+        if (task.EndTime != null) endTime = ((DateTime)task.EndTime).ToString("o");
 
-        if (job.RunningDuration != null) runningDuration = job.RunningDuration.ToString();
+        if (task.RunningDuration != null) runningDuration = task.RunningDuration.ToString();
 
     }
     catch (Exception ex)
@@ -163,7 +176,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         });
     }
 
-    if (extendedInfo && (job.State == JobState.Finished || job.State == JobState.Canceled || job.State == JobState.Error))
+    if (extendedInfo && (task.State == JobState.Finished || task.State == JobState.Canceled || task.State == JobState.Error))
     {
         dynamic stats = new JObject();
         stats.mediaUnitNumber = _context.EncodingReservedUnits.FirstOrDefault().CurrentReservedUnits;
@@ -174,7 +187,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
         return req.CreateResponse(HttpStatusCode.OK, new
         {
-            jobState = job.State,
+            taskState = task.State,
             errorText = sberror.ToString(),
             startTime = startTime,
             endTime = endTime,
@@ -186,7 +199,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     {
         return req.CreateResponse(HttpStatusCode.OK, new
         {
-            jobState = job.State,
+            taskState = task.State,
             errorText = sberror.ToString(),
             startTime = startTime,
             endTime = endTime,
