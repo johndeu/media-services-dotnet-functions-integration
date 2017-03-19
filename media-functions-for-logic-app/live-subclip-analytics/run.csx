@@ -339,7 +339,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         outputAssetId = ReturnId(job, OutputMES),
         outputAssetIndexV1Id = ReturnId(job, OutputIndex1),
         outputAssetIndexV2Id = ReturnId(job, OutputIndex2),
-        taskIndexV2Id = ReturnTaskId(job, OutputIndex2);
+        taskIndexV2Id = ReturnTaskId(job, OutputIndex2),
         outputAssetOCRId = ReturnId(job, OutputOCR),
         outputAssetFaceDetectionId = ReturnId(job, OutputFace),
         outputAssetMotionDetectionId = ReturnId(job, OutputMotion),
