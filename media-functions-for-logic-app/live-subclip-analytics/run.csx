@@ -11,6 +11,7 @@ Input:
     "indexV2Language" : "EnUs",     // Optional
     "ocrLanguage" : "AutoDetect" or "English",  // Optional
     "faceDetectionMode" : "PerFaceEmotion,      // Optional
+    "faceRedactionMode" : "analyze",            // Optional, but required for face redaction
     "motionDetectionLevel" : "medium",          // Optional
     "summarizationDuration" : "0.0",            // Optional. 0.0 for automatic
     "hyperlapseSpeed" : "8"                     // Optional
@@ -122,7 +123,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     int OutputIndex1 = -1;
     int OutputIndex2 = -1;
     int OutputOCR = -1;
-    int OutputFace = -1;
+    int OutputFaceDetection = -1;
+    int OutputFaceRedaction = -1;
     int OutputMotion = -1;
     int OutputSummarization = -1;
     int OutputHyperlapse = -1;
@@ -281,7 +283,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         OutputIndex1 = AddTask(job, subclipasset, (string)data.indexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English", ref taskindex);
         OutputIndex2 = AddTask(job, subclipasset, (string)data.indexV2Language, "Azure Media Indexer 2 Preview", "IndexerV2.json", "EnUs", ref taskindex);
         OutputOCR = AddTask(job, subclipasset, (string)data.ocrLanguage, "Azure Media OCR", "OCR.json", "AutoDetect", ref taskindex);
-        OutputFace = AddTask(job, subclipasset, (string)data.faceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion", ref taskindex);
+        OutputFaceDetection = AddTask(job, subclipasset, (string)data.faceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion", ref taskindex);
+        OutputFaceRedaction = AddTask(job, asset, (string)data.faceRedactionMode, "Azure Media Redactor", "FaceRedaction.json", "combined", ref taskindex);
         OutputMotion = AddTask(job, subclipasset, (string)data.motionDetectionLevel, "Azure Media Motion Detector", "MotionDetection.json", "medium", ref taskindex);
         OutputSummarization = AddTask(job, subclipasset, (string)data.summarizationDuration, "Azure Media Video Thumbnails", "Summarization.json", "0.0", ref taskindex);
         OutputHyperlapse = AddTask(job, subclipasset, (string)data.hyperlapseSpeed, "Azure Media Hyperlapse", "Hyperlapse.json", "8", ref taskindex);
@@ -341,7 +344,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         outputAssetIndexV2Id = ReturnId(job, OutputIndex2),
         taskIndexV2Id = ReturnTaskId(job, OutputIndex2),
         outputAssetOCRId = ReturnId(job, OutputOCR),
-        outputAssetFaceDetectionId = ReturnId(job, OutputFace),
+        outputAssetFaceDetectionId = ReturnId(job, OutputFaceDetection),
+        outputAssetFaceRedactionId = ReturnId(job, OutputFaceRedaction),
         outputAssetMotionDetectionId = ReturnId(job, OutputMotion),
         outputAssetSummarizationId = ReturnId(job, OutputSummarization),
         outputAssetHyperlapseId = ReturnId(job, OutputHyperlapse),
