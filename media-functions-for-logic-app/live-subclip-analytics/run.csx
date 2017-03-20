@@ -20,6 +20,7 @@ Input:
 
 Output:
 {
+        "triggerStart" : "" // date and time when the function was called
         "jobId" :  // job id
         "outputAssetId" : "", 
         "outputAssetIndexV1Id" : "",
@@ -90,34 +91,8 @@ private static CloudStorageAccount _destinationStorageAccount = null;
 
 public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 {
+    // Variables
     int taskindex = 0;
-
-    log.Info($"Webhook was triggered!");
-
-    string jsonContent = await req.Content.ReadAsStringAsync();
-    dynamic data = JsonConvert.DeserializeObject(jsonContent);
-
-    log.Info(jsonContent);
-
-    if (data.channelName == null || data.programName == null)
-    {
-        return req.CreateResponse(HttpStatusCode.BadRequest, new
-        {
-            error = "Please pass channel name and program name in the input object (channelName, programName)"
-        });
-    }
-
-    int intervalsec = 30; // Interval for each subclip job (sec)
-    if (data.intervalSec != null)
-    {
-        intervalsec = (int)data.intervalSec;
-    }
-
-    log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
-
-    IJob job = null;
-    ITask taskEncoding = null;
-
     int OutputMES = -1;
     int OutputPremium = -1;
     int OutputIndex1 = -1;
@@ -132,9 +107,36 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     string programid = "";
     string programName = "";
     string channelName = "";
+    IJob job = null;
+    ITask taskEncoding = null;
+
+    int intervalsec = 60; // Interval for each subclip job (sec). Default is 60
 
     TimeSpan starttime = TimeSpan.FromSeconds(0);
     TimeSpan duration = TimeSpan.FromSeconds(intervalsec);
+
+    log.Info($"Webhook was triggered!");
+    string triggerStart = DateTime.UtcNow.ToString("o");
+
+    string jsonContent = await req.Content.ReadAsStringAsync();
+    dynamic data = JsonConvert.DeserializeObject(jsonContent);
+
+    log.Info(jsonContent);
+
+    if (data.channelName == null || data.programName == null)
+    {
+        return req.CreateResponse(HttpStatusCode.BadRequest, new
+        {
+            error = "Please pass channel name and program name in the input object (channelName, programName)"
+        });
+    }
+
+    if (data.intervalSec != null)
+    {
+        intervalsec = (int)data.intervalSec;
+    }
+
+    log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
     try
     {
@@ -338,6 +340,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     return req.CreateResponse(HttpStatusCode.OK, new
     {
+        triggerStart = triggerStart,
         jobId = job.Id,
         outputAssetId = ReturnId(job, OutputMES),
         outputAssetIndexV1Id = ReturnId(job, OutputIndex1),
