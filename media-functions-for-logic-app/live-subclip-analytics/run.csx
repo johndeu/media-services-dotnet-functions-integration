@@ -33,7 +33,6 @@ Output:
         "outputAssetMotionDetectionId" : "",
         "outputAssetSummarizationId" : "",
         "outputAssetHyperlapseId" : "",
-        // "documentId" = ,  // 0, 1, 2, 3...
         "programId" = programid,
         "subclipStart" = "",
         "subclipduration" = "",
