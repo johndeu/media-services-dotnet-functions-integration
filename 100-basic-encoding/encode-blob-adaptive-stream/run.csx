@@ -2,14 +2,15 @@
 This function monitors a storage account container location folder named "input" for new MP4 files. 
 Once a file is dropped into the storage container, the blob trigger will execute the function.
 
-This sample shows how to ingest the asset into Media Services, point to a custom preset and submit a job running Media Encoder Standard.
+This sample shows how to ingest the asset into Media Services, use the system preset for "Adaptive Streaming" and submit a job running Media Encoder Standard.
 The result of the job is output to another container called "output" that is bound in the function.json settings with the 
 file naming convention of {filename}-Output.mp4.  
 
-This function is a basic example of single file input to single file output encoding. 
+This function is a basic example of single file input to multiple bitrate adaptive streaming files output. 
+See the documentation page on Adaptive Streaming preset for more details on the encoding settings
+https://docs.microsoft.com/en-us/azure/media-services/media-services-autogen-bitrate-ladder-with-mes
 
 For a multi-file encoding sample, please look next at encode-blob-multiIn-overlay
-
 */
 
 #r "Microsoft.WindowsAzure.Storage"
@@ -37,9 +38,11 @@ private static readonly string _mediaServicesAccountKey = Environment.GetEnviron
 
 static string _storageAccountName = Environment.GetEnvironmentVariable("MediaServicesStorageAccountName");
 static string _storageAccountKey = Environment.GetEnvironmentVariable("MediaServicesStorageAccountKey");
-
-
 private static CloudStorageAccount _destinationStorageAccount = null;
+
+// Set the output container name here.
+private static string _outputContainerName = "output";
+
 
 // Field for service context.
 private static CloudMediaContext _context = null;
@@ -80,30 +83,21 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         // Step 2: Create an Encoding Job
 
         // Declare a new encoding job with the Standard encoder
-        IJob job = _context.Jobs.Create("Function - Encode blob single input");
-
+        IJob job = _context.Jobs.Create("Function - Encode-blob-adaptive-stream");
+        
         // Get a media processor reference, and pass to it the name of the 
         // processor to use for the specific task.
         IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
-
-        // Read in custom preset string
-        string homePath = Environment.GetEnvironmentVariable("HOME", EnvironmentVariableTarget.Process);
-        log.Info("Home= " + homePath);
-        string presetPath;
         
-        if (homePath == String.Empty){
-            presetPath = @"../presets/singleMP4.json"; 
-        }else{
-            presetPath =  Path.Combine(homePath, @"site\repository\100-basic-encoding\presets\singleMP4.json");
-        }
 
-        string preset = File.ReadAllText(presetPath);
-
-        // Create a task with the encoding details, using a custom preset
-        ITask task = job.Tasks.AddNew("Encode with Custom Preset",
+        // Create a task with the encoding details, using the Adaptive Streaming System Preset.
+        ITask task = job.Tasks.AddNew("Encode with Adaptive Streaming",
             processor,
-            preset,
+            "Adaptive Streaming",
             TaskOptions.None); 
+        
+        // Set the Task Priority
+        task.Priority = 100;
 
         // Specify the input asset to be encoded.
         task.InputAssets.Add(newAsset);
@@ -125,7 +119,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
             job.Refresh();
             // Refresh every 5 seconds
             Thread.Sleep(5000);
-            log.Info($"Job ID:{job.Id} State: {job.State.ToString()}");
+            log.Info($"Job: {job.Id}    State: {job.State.ToString()}");
 
             if (job.State == JobState.Error || job.State == JobState.Finished || job.State == JobState.Canceled)
                 break;
@@ -144,8 +138,6 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
 
         IAsset outputAsset = job.OutputMediaAssets[0];
         log.Info($"Output Asset Id:{outputAsset.Id}");
-
-        //Get a reference to the storage account that is associated with the Media Services account. 
         _destinationStorageAccount = new CloudStorageAccount(mediaServicesStorageCredentials, false);
 
         IAccessPolicy readPolicy = _context.AccessPolicies.Create("readPolicy",
@@ -156,40 +148,16 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         // Get the asset container reference
         string outContainerName = (new Uri(outputLocator.Path)).Segments[1];
         CloudBlobContainer outContainer = destBlobStorage.GetContainerReference(outContainerName);
+        CloudBlobContainer targetContainer = inputBlob.Container.ServiceClient.GetContainerReference(_outputContainerName);
 
-        log.Info($"Getting Output Blob from : {outContainer.Name}");
-
-        CloudBlockBlob jobOutput = null;
-
-            // Get only the single MP4 output file. 
-            var blobs = outContainer.ListBlobs().OfType<CloudBlob>()
-                        .Where(b=>b.Name.ToLower().EndsWith(".mp4"));
-
-
-        foreach (var blob in blobs)
-        {
-            log.Info($"Blob URI:  {blob.Uri}");
-            if (blob is CloudBlockBlob)
-            {
-                jobOutput = (CloudBlockBlob)blob;
-                break;
-            }
-        }
-
-        CopyBlob(jobOutput, outputBlob).Wait();
-        log.Info("Copy Blob succeeded.");
-
-        // Change some settings on the output blob.
-        outputBlob.Metadata["Custom1"] = "Some Custom Metadata";
-        outputBlob.Properties.ContentType = "video/mp4";
-        outputBlob.SetProperties();
-
+        log.Info($"TargetContainer = {targetContainer.Name}");
+        CopyBlobsToTargetContainer(outContainer, targetContainer, log).Wait();
         log.Info("Done!");
 
     }
     catch (Exception ex)
     {
-        log.Error("ERROR: failed.");
+        log.Error("ERROR: Job Failed.");
         log.Info($"StackTrace : {ex.StackTrace}");
         throw ex;
     }
