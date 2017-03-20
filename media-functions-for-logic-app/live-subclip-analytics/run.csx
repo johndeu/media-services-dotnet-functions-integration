@@ -39,6 +39,7 @@ Output:
         "subclipduration" = "",
         "channelName" : "",
         "programName" : "",
+        "programUrl":""
 }
 */
 
@@ -104,6 +105,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     string programid = "";
     string programName = "";
     string channelName = "";
+    string programUrl = "";
     IJob job = null;
     ITask taskEncoding = null;
 
@@ -322,6 +324,15 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             index2assetrefreshed.AlternateId = JsonConvert.SerializeObject(new SubclipInfo() { programId = programid, subclipStart = starttime, subclipDuration = duration });
             index2assetrefreshed.Update();
         }
+
+        // Get program URL
+        var publishurlsmooth = GetValidOnDemandURI(asset);
+
+        if (publishurlsmooth != null)
+        {
+            programUrl = publishurlsmooth.ToString();
+         }
+
     }
     catch (Exception ex)
     {
@@ -356,7 +367,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         //documentId = id,
         programId = programid,
         indexV1Language = (string)data.indexV1Language,
-        indexV2Language = (string)data.indexV2Language
+        indexV2Language = (string)data.indexV2Language,
+        programUrl = programUrl
     });
 }
 
