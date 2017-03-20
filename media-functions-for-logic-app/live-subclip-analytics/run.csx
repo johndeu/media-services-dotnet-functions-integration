@@ -35,13 +35,10 @@ Output:
         "outputAssetHyperlapseId" : "",
         "documentId" = ,  // 0, 1, 2, 3...
         "programId" = programid,
-        "subclipInfo" :
-        {
-            "subclipStart" = "",
-            "subclipduration" = "",
-            "channelName" : "",
-            "programName" : "",
-        }
+        "subclipStart" = "",
+        "subclipduration" = "",
+        "channelName" : "",
+        "programName" : "",
 }
 */
 
