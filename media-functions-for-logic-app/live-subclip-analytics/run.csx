@@ -33,7 +33,7 @@ Output:
         "outputAssetMotionDetectionId" : "",
         "outputAssetSummarizationId" : "",
         "outputAssetHyperlapseId" : "",
-        "documentId" = ,  // 0, 1, 2, 3...
+        // "documentId" = ,  // 0, 1, 2, 3...
         "programId" = programid,
         "subclipStart" = "",
         "subclipduration" = "",
@@ -353,7 +353,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         subclipDuration = duration,
         channelName = channelName,
         programName = programName,
-        documentId = id,
+        //documentId = id,
         programId = programid,
         indexV1Language = (string)data.indexV1Language,
         indexV2Language = (string)data.indexV2Language
