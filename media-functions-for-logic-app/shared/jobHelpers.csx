@@ -65,3 +65,8 @@ public static string ReturnId(IJob job, int index)
 {
     return index > -1 ? job.OutputMediaAssets[index].Id : null;
 }
+
+public static string ReturnTaskId(IJob job, int index)
+{
+    return index > -1 ? job.Tasks[index].Id : null;
+}

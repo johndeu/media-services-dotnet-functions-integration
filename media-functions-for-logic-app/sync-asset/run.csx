@@ -68,8 +68,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
-    IAsset newAsset = null;
-
     try
     {
         // Create and cache the Media Services credentials in a static class variable.
@@ -136,7 +134,10 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     catch (Exception ex)
     {
         log.Info($"Exception {ex}");
-        return req.CreateResponse(HttpStatusCode.BadRequest);
+        return req.CreateResponse(HttpStatusCode.InternalServerError, new
+        {
+            Error = ex.ToString()
+        });
     }
 
 

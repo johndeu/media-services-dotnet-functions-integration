@@ -93,7 +93,10 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     catch (Exception ex)
     {
         log.Info($"Exception {ex}");
-        return req.CreateResponse(HttpStatusCode.BadRequest);
+        return req.CreateResponse(HttpStatusCode.InternalServerError, new
+        {
+            Error = ex.ToString()
+        });
     }
 
     log.Info("asset Id: " + newAsset.Id);

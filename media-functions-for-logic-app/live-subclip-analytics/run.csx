@@ -11,33 +11,34 @@ Input:
     "indexV2Language" : "EnUs",     // Optional
     "ocrLanguage" : "AutoDetect" or "English",  // Optional
     "faceDetectionMode" : "PerFaceEmotion,      // Optional
+    "faceRedactionMode" : "analyze",            // Optional, but required for face redaction
     "motionDetectionLevel" : "medium",          // Optional
     "summarizationDuration" : "0.0",            // Optional. 0.0 for automatic
     "hyperlapseSpeed" : "8"                     // Optional
+    "priority" : 10                             // Optional. Priority of the job
 }
 
 Output:
 {
+        "triggerStart" : "" // date and time when the function was called
         "jobId" :  // job id
         "outputAssetId" : "", 
         "outputAssetIndexV1Id" : "",
         "indexV1Language" : "", 
         "outputAssetIndexV2Id" : "",
+        "taskIndexV2Id" : "",
         "indexV2Language" : "",
         "outputAssetOCRId" : "",
         "outputAssetFaceDetectionId" : "",
         "outputAssetMotionDetectionId" : "",
         "outputAssetSummarizationId" : "",
         "outputAssetHyperlapseId" : "",
-        "documentId" = ,  // 0, 1, 2, 3...
         "programId" = programid,
-        "subclipInfo" :
-        {
-            "subclipStart" = "",
-            "subclipduration" = "",
-            "channelName" : "",
-            "programName" : "",
-        }
+        "subclipStart" = "",
+        "subclipduration" = "",
+        "channelName" : "",
+        "programName" : "",
+        "programUrl":""
 }
 */
 
@@ -87,9 +88,33 @@ private static CloudStorageAccount _destinationStorageAccount = null;
 
 public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 {
+    // Variables
     int taskindex = 0;
+    int OutputMES = -1;
+    int OutputPremium = -1;
+    int OutputIndex1 = -1;
+    int OutputIndex2 = -1;
+    int OutputOCR = -1;
+    int OutputFaceDetection = -1;
+    int OutputFaceRedaction = -1;
+    int OutputMotion = -1;
+    int OutputSummarization = -1;
+    int OutputHyperlapse = -1;
+    int id = 0;
+    string programid = "";
+    string programName = "";
+    string channelName = "";
+    string programUrl = "";
+    IJob job = null;
+    ITask taskEncoding = null;
+
+    int intervalsec = 60; // Interval for each subclip job (sec). Default is 60
+
+    TimeSpan starttime = TimeSpan.FromSeconds(0);
+    TimeSpan duration = TimeSpan.FromSeconds(intervalsec);
 
     log.Info($"Webhook was triggered!");
+    string triggerStart = DateTime.UtcNow.ToString("o");
 
     string jsonContent = await req.Content.ReadAsStringAsync();
     dynamic data = JsonConvert.DeserializeObject(jsonContent);
@@ -104,33 +129,12 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         });
     }
 
-    int intervalsec = 30; // Interval for each subclip job (sec)
     if (data.intervalSec != null)
     {
         intervalsec = (int)data.intervalSec;
     }
 
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
-
-    IJob job = null;
-    ITask taskEncoding = null;
-
-    int OutputMES = -1;
-    int OutputPremium = -1;
-    int OutputIndex1 = -1;
-    int OutputIndex2 = -1;
-    int OutputOCR = -1;
-    int OutputFace = -1;
-    int OutputMotion = -1;
-    int OutputSummarization = -1;
-    int OutputHyperlapse = -1;
-    int id = 0;
-    string programid = "";
-    string programName = "";
-    string channelName = "";
-
-    TimeSpan starttime = TimeSpan.FromSeconds(0);
-    TimeSpan duration = TimeSpan.FromSeconds(intervalsec);
 
     try
     {
@@ -241,9 +245,15 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         string ConfigurationSubclip = File.ReadAllText(@"D:\home\site\wwwroot\Presets\LiveSubclip.json").Replace("0:00:00.000000", starttime.Subtract(TimeSpan.FromMilliseconds(100)).ToString()).Replace("0:00:30.000000", duration.Add(TimeSpan.FromMilliseconds(200)).ToString());
 
 
+        int priority = 10;
+        if (data.priority != null)
+        {
+            priority = (int)data.priority;
+        }
+
         // MES Subclipping TASK
         // Declare a new encoding job with the Standard encoder
-        job = _context.Jobs.Create("Azure Function - Job for Live Analytics");
+        job = _context.Jobs.Create("Azure Function - Job for Live Analytics", priority);
         // Get a media processor reference, and pass to it the name of the 
         // processor to use for the specific task.
         IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
@@ -273,7 +283,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         OutputIndex1 = AddTask(job, subclipasset, (string)data.indexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English", ref taskindex);
         OutputIndex2 = AddTask(job, subclipasset, (string)data.indexV2Language, "Azure Media Indexer 2 Preview", "IndexerV2.json", "EnUs", ref taskindex);
         OutputOCR = AddTask(job, subclipasset, (string)data.ocrLanguage, "Azure Media OCR", "OCR.json", "AutoDetect", ref taskindex);
-        OutputFace = AddTask(job, subclipasset, (string)data.faceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion", ref taskindex);
+        OutputFaceDetection = AddTask(job, subclipasset, (string)data.faceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion", ref taskindex);
+        OutputFaceRedaction = AddTask(job, asset, (string)data.faceRedactionMode, "Azure Media Redactor", "FaceRedaction.json", "combined", ref taskindex);
         OutputMotion = AddTask(job, subclipasset, (string)data.motionDetectionLevel, "Azure Media Motion Detector", "MotionDetection.json", "medium", ref taskindex);
         OutputSummarization = AddTask(job, subclipasset, (string)data.summarizationDuration, "Azure Media Video Thumbnails", "Summarization.json", "0.0", ref taskindex);
         OutputHyperlapse = AddTask(job, subclipasset, (string)data.hyperlapseSpeed, "Azure Media Hyperlapse", "Hyperlapse.json", "8", ref taskindex);
@@ -312,11 +323,23 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             index2assetrefreshed.AlternateId = JsonConvert.SerializeObject(new SubclipInfo() { programId = programid, subclipStart = starttime, subclipDuration = duration });
             index2assetrefreshed.Update();
         }
+
+        // Get program URL
+        var publishurlsmooth = GetValidOnDemandURI(asset);
+
+        if (publishurlsmooth != null)
+        {
+            programUrl = publishurlsmooth.ToString();
+         }
+
     }
     catch (Exception ex)
     {
         log.Info($"Exception {ex}");
-        return req.CreateResponse(HttpStatusCode.BadRequest);
+        return req.CreateResponse(HttpStatusCode.InternalServerError, new
+        {
+            Error = ex.ToString()
+        });
     }
 
     log.Info("Job Id: " + job.Id);
@@ -324,12 +347,15 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     return req.CreateResponse(HttpStatusCode.OK, new
     {
+        triggerStart = triggerStart,
         jobId = job.Id,
         outputAssetId = ReturnId(job, OutputMES),
         outputAssetIndexV1Id = ReturnId(job, OutputIndex1),
         outputAssetIndexV2Id = ReturnId(job, OutputIndex2),
+        taskIndexV2Id = ReturnTaskId(job, OutputIndex2),
         outputAssetOCRId = ReturnId(job, OutputOCR),
-        outputAssetFaceDetectionId = ReturnId(job, OutputFace),
+        outputAssetFaceDetectionId = ReturnId(job, OutputFaceDetection),
+        outputAssetFaceRedactionId = ReturnId(job, OutputFaceRedaction),
         outputAssetMotionDetectionId = ReturnId(job, OutputMotion),
         outputAssetSummarizationId = ReturnId(job, OutputSummarization),
         outputAssetHyperlapseId = ReturnId(job, OutputHyperlapse),
@@ -337,10 +363,11 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         subclipDuration = duration,
         channelName = channelName,
         programName = programName,
-        documentId = id,
+        //documentId = id,
         programId = programid,
         indexV1Language = (string)data.indexV1Language,
-        indexV2Language = (string)data.indexV2Language
+        indexV2Language = (string)data.indexV2Language,
+        programUrl = programUrl
     });
 }
 
@@ -420,10 +447,10 @@ static public ManifestTimingData GetManifestTimingData(IAsset asset, TraceWriter
         if (myuri != null)
         {
             log.Info($"Asset URI {myuri.ToString()}");
-   
+
             XDocument manifest = XDocument.Load(myuri.ToString());
 
-             log.Info($"manifest {manifest}");
+            log.Info($"manifest {manifest}");
             var smoothmedia = manifest.Element("SmoothStreamingMedia");
             var videotrack = smoothmedia.Elements("StreamIndex").Where(a => a.Attribute("Type").Value == "video");
 
@@ -453,10 +480,10 @@ static public ManifestTimingData GetManifestTimingData(IAsset asset, TraceWriter
             foreach (var chunk in videotrack.Elements("c"))
             {
                 durationchunk = chunk.Attribute("d") != null ? ulong.Parse(chunk.Attribute("d").Value) : 0;
-                 log.Info($"duration d {durationchunk}");
+                log.Info($"duration d {durationchunk}");
 
                 repeatchunk = chunk.Attribute("r") != null ? int.Parse(chunk.Attribute("r").Value) : 1;
-                  log.Info($"repeat r {repeatchunk}");
+                log.Info($"repeat r {repeatchunk}");
                 totalduration += durationchunk * (ulong)repeatchunk;
 
                 if (chunk.Attribute("t") != null)
