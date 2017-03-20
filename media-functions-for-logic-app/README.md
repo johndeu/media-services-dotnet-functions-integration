@@ -28,7 +28,7 @@ If not already done : fork the repo, deploy Azure Functions and select the **"me
 
 It is recommended to use the same resource group for the functions and the logic app.
 The functions and Logic App must be deployed in the same region.
-Please specify the name of the storage account used by Media Services.
+Please specify the name of the storage account used by Media Services..
 
 ## Functions documentation
 This section list the functions available and describes the input and output parameters.
