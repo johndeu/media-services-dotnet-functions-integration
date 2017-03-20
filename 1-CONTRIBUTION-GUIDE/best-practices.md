@@ -37,4 +37,4 @@ You are currently reading the best practices.
 + It is a good practice to pass your ARM template through a JSON linter to remove extraneous commas, parenthesis, brackets that may break the "Deploy to Azure" experience. Try http://jsonlint.com/ or a linter package for your favorite editing environment (Visual Studio Code, Atom, Sublime Text, Visual Studio etc.)
 + It's also a good idea to format your JSON for better readability. You can use a JSON formatter package for your local editor or [format online using this link](https://www.bing.com/search?q=json+formatter).
 
-For more best practices on creating a custom ARM template for deploying your solution please follow the guidelines in the [**Azure Quick Start Best Practices}(https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md)]
+For more best practices on creating a custom ARM template for deploying your solution please follow the guidelines in the [**Azure Quick Start Best Practices**](https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md)]
