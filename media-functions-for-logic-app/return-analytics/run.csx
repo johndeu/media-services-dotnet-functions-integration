@@ -71,6 +71,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     string jsonFaceRedaction = "";
     string jsonFaceRedactionOffset = "";
     dynamic jpgFaces = new JArray() as dynamic;
+    dynamic obj = new JObject();
 
     string jsonContent = await req.Content.ReadAsStringAsync();
     dynamic data = JsonConvert.DeserializeObject(jsonContent);
@@ -151,7 +152,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             if (data.timeOffset != null) // let's update the json with new timecode
             {
                 var tsoffset = TimeSpan.Parse((string)data.timeOffset);
-                dynamic obj = Newtonsoft.Json.JsonConvert.DeserializeObject(jsonFaceRedaction);
+                obj = Newtonsoft.Json.JsonConvert.DeserializeObject(jsonFaceRedaction);
                 foreach (var frag in obj.fragments)
                 {
                     frag.start = (long)frag.start + tsoffset.Ticks;
