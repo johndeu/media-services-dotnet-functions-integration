@@ -72,6 +72,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     string jsonFaceRedactionOffset = "";
     dynamic jpgFaces = new JArray() as dynamic;
     dynamic obj = new JObject();
+    dynamic objOffset = new JObject();
+
 
     string jsonContent = await req.Content.ReadAsStringAsync();
     dynamic data = JsonConvert.DeserializeObject(jsonContent);
@@ -153,11 +155,12 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             {
                 var tsoffset = TimeSpan.Parse((string)data.timeOffset);
                 obj = Newtonsoft.Json.JsonConvert.DeserializeObject(jsonFaceRedaction);
-                foreach (var frag in obj.fragments)
+                objOffset = obj;
+                foreach (var frag in objOffset.fragments)
                 {
                     frag.start = (long)frag.start + tsoffset.Ticks;
                 }
-                jsonFaceRedactionOffset = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+                //jsonFaceRedactionOffset = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
             }
         }
 
@@ -180,7 +183,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     return req.CreateResponse(HttpStatusCode.OK, new
     {
         jsonFaceRedaction = obj, //jsonFaceRedaction,
-        jsonFaceRedactionOffset = jsonFaceRedactionOffset,
+        jsonFaceRedactionOffset = objOffset,
         jpgFaces = jpgFaces
         
     });
