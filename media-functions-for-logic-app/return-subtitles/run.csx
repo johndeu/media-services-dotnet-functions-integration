@@ -211,33 +211,3 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         vttDocumentWithOffset = vttContentTimeCorrected
     });
 }
-
-public static string ReturnContent(IAssetFile assetFile)
-{
-    string datastring = null;
-
-    try
-    {
-        string tempPath = System.IO.Path.GetTempPath();
-        string filePath = Path.Combine(tempPath, assetFile.Name);
-
-        if (File.Exists(filePath))
-        {
-            File.Delete(filePath);
-        }
-        assetFile.Download(filePath);
-
-        StreamReader streamReader = new StreamReader(filePath);
-        Encoding fileEncoding = streamReader.CurrentEncoding;
-        datastring = streamReader.ReadToEnd();
-        streamReader.Close();
-
-        File.Delete(filePath);
-    }
-    catch
-    {
-
-    }
-
-    return datastring;
-}

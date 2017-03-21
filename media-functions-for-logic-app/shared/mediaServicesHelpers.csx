@@ -4,6 +4,8 @@
 using System;
 using System.ServiceModel;
 using Microsoft.WindowsAzure.MediaServices.Client;
+using System.IO;
+using System.Text;
 
 private static IMediaProcessor GetLatestMediaProcessorByName(string mediaProcessorName)
 {
@@ -126,4 +128,34 @@ public enum StreamEndpointType
     Classic = 0,
     Standard,
     Premium
+}
+
+public static string ReturnContent(IAssetFile assetFile)
+{
+    string datastring = null;
+
+    try
+    {
+        string tempPath = System.IO.Path.GetTempPath();
+        string filePath = Path.Combine(tempPath, assetFile.Name);
+
+        if (File.Exists(filePath))
+        {
+            File.Delete(filePath);
+        }
+        assetFile.Download(filePath);
+
+        StreamReader streamReader = new StreamReader(filePath);
+        Encoding fileEncoding = streamReader.CurrentEncoding;
+        datastring = streamReader.ReadToEnd();
+        streamReader.Close();
+
+        File.Delete(filePath);
+    }
+    catch
+    {
+
+    }
+
+    return datastring;
 }
