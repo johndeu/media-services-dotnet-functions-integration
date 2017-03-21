@@ -178,7 +178,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info($"");
     return req.CreateResponse(HttpStatusCode.OK, new
     {
-        jsonFaceRedaction = jsonFaceRedaction,
+        jsonFaceRedaction = obj, //jsonFaceRedaction,
         jsonFaceRedactionOffset = jsonFaceRedactionOffset,
         jpgFaces = jpgFaces
         
