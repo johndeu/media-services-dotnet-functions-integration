@@ -350,6 +350,16 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         triggerStart = triggerStart,
         jobId = job.Id,
         outputAssetId = ReturnId(job, OutputMES),
+        indexV1 = new
+        {
+            assetId = ReturnId(job, OutputIndex1),
+            taskId = ReturnTaskId(job, OutputIndex1)
+        },
+        indexV2 = new
+        {
+            assetId = ReturnId(job, OutputIndex2),
+            taskId = ReturnTaskId(job, OutputIndex2)
+        },
         outputAssetIndexV1Id = ReturnId(job, OutputIndex1),
         outputAssetIndexV2Id = ReturnId(job, OutputIndex2),
         taskIndexV2Id = ReturnTaskId(job, OutputIndex2),
