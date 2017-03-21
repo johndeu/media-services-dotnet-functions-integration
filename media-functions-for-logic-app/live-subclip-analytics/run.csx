@@ -349,34 +349,54 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     {
         triggerStart = triggerStart,
         jobId = job.Id,
-        outputAssetId = ReturnId(job, OutputMES),
+        subclip = new
+        {
+            assetId = ReturnId(job, OutputMES),
+            taskId = ReturnTaskId(job, OutputMES),
+            start = starttime,
+            duration = duration,
+        },
         indexV1 = new
         {
             assetId = ReturnId(job, OutputIndex1),
-            taskId = ReturnTaskId(job, OutputIndex1)
+            taskId = ReturnTaskId(job, OutputIndex1),
+            language = (string)data.indexV1Language
         },
         indexV2 = new
         {
             assetId = ReturnId(job, OutputIndex2),
-            taskId = ReturnTaskId(job, OutputIndex2)
+            taskId = ReturnTaskId(job, OutputIndex2),
+            language = (string)data.indexV2Language,
         },
-        outputAssetIndexV1Id = ReturnId(job, OutputIndex1),
-        outputAssetIndexV2Id = ReturnId(job, OutputIndex2),
-        taskIndexV2Id = ReturnTaskId(job, OutputIndex2),
-        outputAssetOCRId = ReturnId(job, OutputOCR),
-        outputAssetFaceDetectionId = ReturnId(job, OutputFaceDetection),
-        outputAssetFaceRedactionId = ReturnId(job, OutputFaceRedaction),
-        outputAssetMotionDetectionId = ReturnId(job, OutputMotion),
-        outputAssetSummarizationId = ReturnId(job, OutputSummarization),
-        outputAssetHyperlapseId = ReturnId(job, OutputHyperlapse),
-        subclipStart = starttime,
-        subclipDuration = duration,
+        ocr = new
+        {
+            assetId = ReturnId(job, OutputOCR),
+            taskId = ReturnTaskId(job, OutputOCR)
+        },
+        faceDetection = new
+        {
+            assetId = ReturnId(job, OutputFaceDetection),
+            taskId = ReturnTaskId(job, OutputFaceDetection)
+        },
+        motionDetection = new
+        {
+            assetId = ReturnId(job, OutputMotion),
+            taskId = ReturnTaskId(job, OutputMotion)
+        },
+        summarization = new
+        {
+            assetId = ReturnId(job, OutputSummarization),
+            taskId = ReturnTaskId(job, OutputSummarization)
+        },
+        hyperlapse = new
+        {
+            assetId = ReturnId(job, OutputHyperlapse),
+            taskId = ReturnTaskId(job, OutputHyperlapse)
+        },
+      
         channelName = channelName,
         programName = programName,
-        //documentId = id,
         programId = programid,
-        indexV1Language = (string)data.indexV1Language,
-        indexV2Language = (string)data.indexV2Language,
         programUrl = programUrl
     });
 }
