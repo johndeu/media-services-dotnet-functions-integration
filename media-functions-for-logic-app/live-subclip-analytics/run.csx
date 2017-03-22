@@ -316,7 +316,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         log.Info($"Adding media analytics tasks");
 
         // Media Analytics
-        OutputIndex1 = AddTask(job, subclipasset, (string)data.indexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English", ref taskindext);
+        OutputIndex1 = AddTask(job, subclipasset, (string)data.indexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English", ref taskindex);
         OutputIndex2 = AddTask(job, subclipasset, (string)data.indexV2Language, "Azure Media Indexer 2 Preview", "IndexerV2.json", "EnUs", ref taskindex);
         OutputOCR = AddTask(job, subclipasset, (string)data.ocrLanguage, "Azure Media OCR", "OCR.json", "AutoDetect", ref taskindex);
         OutputFaceDetection = AddTask(job, subclipasset, (string)data.faceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion", ref taskindex);
