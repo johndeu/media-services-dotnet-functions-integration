@@ -520,7 +520,7 @@ static public ManifestTimingData GetManifestTimingData(IAsset asset, TraceWriter
 
             XDocument manifest = XDocument.Load(myuri.ToString());
 
-            log.Info($"manifest {manifest}");
+            //log.Info($"manifest {manifest}");
             var smoothmedia = manifest.Element("SmoothStreamingMedia");
             var videotrack = smoothmedia.Elements("StreamIndex").Where(a => a.Attribute("Type").Value == "video");
 
