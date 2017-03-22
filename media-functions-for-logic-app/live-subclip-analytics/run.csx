@@ -378,6 +378,11 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             assetId = ReturnId(job, OutputFaceDetection),
             taskId = ReturnTaskId(job, OutputFaceDetection)
         },
+          faceRedaction = new
+        {
+            assetId = ReturnId(job, OutputFaceRedaction),
+            taskId = ReturnTaskId(job, OutputFaceRedaction)
+        },
         motionDetection = new
         {
             assetId = ReturnId(job, OutputMotion),
