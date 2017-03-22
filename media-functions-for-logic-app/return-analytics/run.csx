@@ -182,9 +182,9 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info($"");
     return req.CreateResponse(HttpStatusCode.OK, new
     {
-        jsonFaceRedaction = obj, //jsonFaceRedaction,
-        jsonFaceRedactionOffset = objOffset,
-        jpgFaces = jpgFaces
+        jsonFaceRedaction = obj.ToString(), //jsonFaceRedaction,
+        jsonFaceRedactionOffset = objOffset.ToString(),
+        jpgFaces = jpgFaces.ToString()
         
     });
 }
