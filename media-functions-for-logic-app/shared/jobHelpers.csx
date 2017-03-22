@@ -19,7 +19,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.Azure.WebJobs;
 
-public static int AddTask(IJob job, IAsset sourceAsset, string value, string processor, string presetfilename, string stringtoreplace, ref int taskindex, int priority = 10)
+public static int AddTask(IJob job, IAsset sourceAsset, string value, string processor, string presetfilename, string stringtoreplace, ref int taskindex, string nameappend = "", int priority = 10)
 {
     if (value != null)
     {
@@ -48,12 +48,12 @@ public static int AddTask(IJob job, IAsset sourceAsset, string value, string pro
            TaskOptions.None);
 
         task.Priority = priority;
-        
+
         // Specify the input asset to be indexed.
         task.InputAssets.Add(sourceAsset);
 
         // Add an output asset to contain the results of the job.
-        task.OutputAssets.AddNew(processor + " Output Asset", AssetCreationOptions.None);
+        task.OutputAssets.AddNew(processor + " Output Asset " + nameappend, AssetCreationOptions.None);
 
         return taskindex++;
     }
