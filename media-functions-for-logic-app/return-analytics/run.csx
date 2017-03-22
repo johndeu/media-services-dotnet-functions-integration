@@ -150,12 +150,12 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         if (jsonFile != null)
         {
             jsonFaceRedaction = ReturnContent(jsonFile);
+            obj = Newtonsoft.Json.JsonConvert.DeserializeObject(jsonFaceRedaction);
+            objOffset = Newtonsoft.Json.JsonConvert.DeserializeObject(jsonFaceRedaction);
 
             if (data.timeOffset != null) // let's update the json with new timecode
             {
                 var tsoffset = TimeSpan.Parse((string)data.timeOffset);
-                obj = Newtonsoft.Json.JsonConvert.DeserializeObject(jsonFaceRedaction);
-                objOffset = obj;
                 foreach (var frag in objOffset.fragments)
                 {
                     frag.start = (long)frag.start + tsoffset.Ticks;
@@ -182,9 +182,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info($"");
     return req.CreateResponse(HttpStatusCode.OK, new
     {
-        jsonFaceRedaction = obj.ToString(), //jsonFaceRedaction,
+        jsonFaceRedaction = obj.ToString(),
         jsonFaceRedactionOffset = objOffset.ToString(),
         jpgFaces = jpgFaces.ToString()
-        
     });
 }
