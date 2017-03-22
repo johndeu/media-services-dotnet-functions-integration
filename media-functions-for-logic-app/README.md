@@ -257,20 +257,56 @@ Output:
 {
         "triggerStart" : "" // date and time when the function was called
         "jobId" :  // job id
-        "outputAssetId" : "", 
-        "outputAssetIndexV1Id" : "",
-        "indexV1Language" : "", 
-        "outputAssetIndexV2Id" : "",
-        "taskIndexV2Id" : "",
-        "indexV2Language" : "",
-        "outputAssetOCRId" : "",
-        "outputAssetFaceDetectionId" : "",
-        "outputAssetMotionDetectionId" : "",
-        "outputAssetSummarizationId" : "",
-        "outputAssetHyperlapseId" : "",
+         subclip :
+        {
+            assetId : "",
+            taskId : "",
+            start : "",
+            duration : ""
+        },
+        indexV1 :
+        {
+            assetId : "",
+            taskId : "",
+            language : ""
+        },
+        indexV2 :
+        {
+            assetId : "",
+            taskId : "",
+            language : ""
+        },
+        ocr :
+        {
+            assetId : "",
+            taskId : ""
+        },
+        faceDetection :
+        {
+            assetId : ""
+            taskId : ""
+        },
+          faceRedaction :
+        {
+            assetId : ""
+            taskId : ""
+        },
+        motionDetection :
+        {
+            assetId : "",
+            taskId : ""
+        },
+        summarization :
+        {
+            assetId : "",
+            taskId : ""
+        },
+        hyperlapse :
+        {
+            assetId : "",
+            taskId : ""
+        },
         "programId" = programid,
-        "subclipStart" = "",
-        "subclipduration" = "",
         "channelName" : "",
         "programName" : "",
         "programUrl":""

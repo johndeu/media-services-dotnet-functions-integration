@@ -22,20 +22,56 @@ Output:
 {
         "triggerStart" : "" // date and time when the function was called
         "jobId" :  // job id
-        "outputAssetId" : "", 
-        "outputAssetIndexV1Id" : "",
-        "indexV1Language" : "", 
-        "outputAssetIndexV2Id" : "",
-        "taskIndexV2Id" : "",
-        "indexV2Language" : "",
-        "outputAssetOCRId" : "",
-        "outputAssetFaceDetectionId" : "",
-        "outputAssetMotionDetectionId" : "",
-        "outputAssetSummarizationId" : "",
-        "outputAssetHyperlapseId" : "",
+         subclip :
+        {
+            assetId : "",
+            taskId : "",
+            start : "",
+            duration : ""
+        },
+        indexV1 :
+        {
+            assetId : "",
+            taskId : "",
+            language : ""
+        },
+        indexV2 :
+        {
+            assetId : "",
+            taskId : "",
+            language : ""
+        },
+        ocr :
+        {
+            assetId : "",
+            taskId : ""
+        },
+        faceDetection :
+        {
+            assetId : ""
+            taskId : ""
+        },
+          faceRedaction :
+        {
+            assetId : ""
+            taskId : ""
+        },
+        motionDetection :
+        {
+            assetId : "",
+            taskId : ""
+        },
+        summarization :
+        {
+            assetId : "",
+            taskId : ""
+        },
+        hyperlapse :
+        {
+            assetId : "",
+            taskId : ""
+        },
         "programId" = programid,
-        "subclipStart" = "",
-        "subclipduration" = "",
         "channelName" : "",
         "programName" : "",
         "programUrl":""
@@ -284,7 +320,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         OutputIndex2 = AddTask(job, subclipasset, (string)data.indexV2Language, "Azure Media Indexer 2 Preview", "IndexerV2.json", "EnUs", ref taskindex);
         OutputOCR = AddTask(job, subclipasset, (string)data.ocrLanguage, "Azure Media OCR", "OCR.json", "AutoDetect", ref taskindex);
         OutputFaceDetection = AddTask(job, subclipasset, (string)data.faceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion", ref taskindex);
-        OutputFaceRedaction = AddTask(job, asset, (string)data.faceRedactionMode, "Azure Media Redactor", "FaceRedaction.json", "combined", ref taskindex, priority-1);
+        OutputFaceRedaction = AddTask(job, subclipasset, (string)data.faceRedactionMode, "Azure Media Redactor", "FaceRedaction.json", "combined", ref taskindex, priority-1);
         OutputMotion = AddTask(job, subclipasset, (string)data.motionDetectionLevel, "Azure Media Motion Detector", "MotionDetection.json", "medium", ref taskindex);
         OutputSummarization = AddTask(job, subclipasset, (string)data.summarizationDuration, "Azure Media Video Thumbnails", "Summarization.json", "0.0", ref taskindex);
         OutputHyperlapse = AddTask(job, subclipasset, (string)data.hyperlapseSpeed, "Azure Media Hyperlapse", "Hyperlapse.json", "8", ref taskindex);
@@ -398,7 +434,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             assetId = ReturnId(job, OutputHyperlapse),
             taskId = ReturnTaskId(job, OutputHyperlapse)
         },
-      
         channelName = channelName,
         programName = programName,
         programId = programid,
