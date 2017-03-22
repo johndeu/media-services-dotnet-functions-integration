@@ -53,7 +53,7 @@ public static int AddTask(IJob job, IAsset sourceAsset, string value, string pro
         task.InputAssets.Add(sourceAsset);
 
         // Add an output asset to contain the results of the job.
-        task.OutputAssets.AddNew(processor + " Output Asset " + nameappend, AssetCreationOptions.None);
+        task.OutputAssets.AddNew(sourceAsset.Name + " "+ processor + " Output Asset " + nameappend, AssetCreationOptions.None);
 
         return taskindex++;
     }
