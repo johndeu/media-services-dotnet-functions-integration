@@ -12,7 +12,9 @@ This template creates a Logic app that listens to an onedrive folder and will co
 [See the detailed view of the logic app.](logicapp-simplevod-screen.md)
 
 ### 1. Prerequisite
-If not already done : fork the repo, deploy Azure Functions and select the **"media-functions-for-logic-app"** Project (important !)
+If not already done : fork the repo, deploy Azure Functions and select the **"media-functions-for-logic-app"** Project (IMPORTANT!)
+
+Follow the guidelines in the [git tutorial](1-CONTRIBUTION-GUIDE/git-tutorial.md) for details on how to fork the project and use Git properly with this project. 
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2Fmedia-services-dotnet-functions-integration%2Fmaster%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>

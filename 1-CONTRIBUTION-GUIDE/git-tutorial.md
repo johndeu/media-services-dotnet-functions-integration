@@ -96,13 +96,20 @@ origin  https://github.com/johndeu/media-services-dotnet-functions-integration (
 origin  https://github.com/johndeu/media-services-dotnet-functions-integration (push)
 ```
 
-As you can see, we're connected to your fork of the media-services-dotnet-functions-integration (called "origin"), but currently not connected to the upstream version living in `catalystcode/media-services-dotnet-functions-integration`. To change that, we can simply add remotes. Run the following command:
+As you can see, we're connected to your fork of the media-services-dotnet-functions-integration (called "origin"), but currently not connected to the upstream version living in `Azure-Samples/media-services-dotnet-functions-integration`. To change that, we can simply add remotes. Run the following command:
 
 ```
 git remote add upstream https://github.com/Azure-Samples/media-services-dotnet-functions-integration
 ```
 
-Entering `git remote -v` again should give you both repositories - both yours (called "origin") and the one for the whole team (called "upstream").
+Entering `git remote -v` again should give you both repositories - both yours (called "origin") and the one for the public samples (called "upstream").
+
+You won't be able to push directly to the upstream, but this is a very useful technique to sync (pull) down any changes to the public branch and merge with your own fork.  A typical workflow might be:
+
++ Work in your local disk branch
++ Push changes to your Github Fork 
++ Submit Pull Request to the Upstream samples repository (see details on Pull Requests below)
++ Sync changes made by others back to your local disk branch using `git pull upstream master`
 
 ### Creating a new Branch for your template
 In modern Git development, every single change that you want to make to the code base will be made in a "branch". Like a tree branch, the branch is "based" on a different branch, and unlike other SCM systems Git branches are very lightweight. In our case, your base branch will always be `master`, which is the default branch name for GitHub pages. In order to create a new branch, you can always run:
@@ -153,7 +160,7 @@ git push -u origin NAME_OF_YOUR_BRANCH
 ```
 
 ### Make a Pull Request
-Now, head over to the [catalystcode/media-services-dotnet-functions-integrations](https://github.com/CatalystCode/media-services-dotnet-functions-integration) repository. In most cases, GitHub will pick up on the fact that you just pushed a branch with some changes to your local fork, assuming that you probably want for those changes to end up in the upstream branch. To help you, it'll show a little box right above the code asking you if you want to make a pull request.
+Now, head over to the [Azure-Samples/media-services-dotnet-functions-integrations](https://github.com/Azure-Samples/media-services-dotnet-functions-integration) repository. In most cases, GitHub will pick up on the fact that you just pushed a branch with some changes to your local fork, assuming that you probably want for those changes to end up in the upstream branch. To help you, it'll show a little box right above the code asking you if you want to make a pull request.
 
 
 Click that button. GitHub will open up the 'Create a Pull Request Page'. It is probably a good idea to notify potential reviewers in your pull request. You can do this by doing an @mention to the maintainer of the repository.
@@ -202,7 +209,7 @@ Rewriting Git history is a little bit scary, but it's easy to do. Here's the set
 git rebase -i HEAD~6
 ```
 
-It is important that you change only commits that *you* made, since your branch will not be compatible with "upstream" (catalystcode/media-services-dotnet-functions-integration) if you rewrite history that is already present in the repository there. You can however mess with your own fork as much as you want to, since you should be the only person working with it.
+It is important that you change only commits that *you* made, since your branch will not be compatible with "upstream" (Azure-Samples/media-services-dotnet-functions-integration) if you rewrite history that is already present in the repository there. You can however mess with your own fork as much as you want to, since you should be the only person working with it.
 
 Once you run the command, you will be presented with a screen that looks like this:
 
