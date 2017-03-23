@@ -130,7 +130,7 @@
               "inputs": {
                 "body": {
                   "assetId": "@{body('create-empty-asset')['assetId']}",
-                  "mesPreset": "H264 Multiple Bitrate 720p with thumbnail.json"
+                  "mesPreset": "Adaptive Streaming"
                 },
                 "function": {
                   "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/submit-job')]"
@@ -177,7 +177,7 @@
                   "type": "Function",
                   "inputs": {
                     "body": {
-                      "assetId": "@{body('submit-job')['outputAssetMESId']}"
+                      "assetId": "@{body('submit-job')['mes']['assetId']}"
                     },
                     "function": {
                       "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/publish-asset')]"

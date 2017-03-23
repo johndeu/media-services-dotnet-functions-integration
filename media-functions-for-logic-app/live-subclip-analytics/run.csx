@@ -22,51 +22,51 @@ Output:
 {
         "triggerStart" : "" // date and time when the function was called
         "jobId" :  // job id
-         subclip :
+        "subclip" :
         {
             assetId : "",
             taskId : "",
             start : "",
             duration : ""
         },
-        indexV1 :
+        "indexV1" :
         {
             assetId : "",
             taskId : "",
             language : ""
         },
-        indexV2 :
+        "indexV2" :
         {
             assetId : "",
             taskId : "",
             language : ""
         },
-        ocr :
+        "ocr" :
         {
             assetId : "",
             taskId : ""
         },
-        faceDetection :
+        "faceDetection" :
         {
             assetId : ""
             taskId : ""
         },
-          faceRedaction :
+        "faceRedaction" :
         {
             assetId : ""
             taskId : ""
         },
-        motionDetection :
+        "motionDetection" :
         {
             assetId : "",
             taskId : ""
         },
-        summarization :
+        "summarization" :
         {
             assetId : "",
             taskId : ""
         },
-        hyperlapse :
+        "hyperlapse" :
         {
             assetId : "",
             taskId : ""
