@@ -184,6 +184,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     {
         jsonFaceRedaction = Newtonsoft.Json.JsonConvert.SerializeObject(obj),
         jsonFaceRedactionOffset = Newtonsoft.Json.JsonConvert.SerializeObject(objOffset),
-        jpgFaces = jpgFaces.ToString()
+        jpgFaces = Newtonsoft.Json.JsonConvert.SerializeObject(jpgFaces)
     });
 }
