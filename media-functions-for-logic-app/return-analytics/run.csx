@@ -183,7 +183,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     return req.CreateResponse(HttpStatusCode.OK, new
     {
         jsonFaceRedaction = obj.ToString(),
-        jsonFaceRedactionOffset = objOffset.ToString(),
+        jsonFaceRedactionOffset = Newtonsoft.Json.JsonConvert.SerializeObject(objOffset),
         jpgFaces = jpgFaces.ToString()
     });
 }
