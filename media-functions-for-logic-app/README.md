@@ -14,7 +14,9 @@ This template creates a Logic app that listens to an onedrive folder and will co
 ### 1. Prerequisite
 If not already done : fork the repo, deploy Azure Functions and select the **"media-functions-for-logic-app"** Project (IMPORTANT!)
 
-Follow the guidelines in the [git tutorial](1-CONTRIBUTION-GUIDE/git-tutorial.md) for details on how to fork the project and use Git properly with this project. 
+Follow the guidelines in the [git tutorial](1-CONTRIBUTION-GUIDE/git-tutorial.md) for details on how to fork the project and use Git properly with this project.
+
+Note : if you never provided your GituHb account in the Azure portal before, the continous integration probably will probably fail and you won't see the functions. In that case, you need to setup it manually. Go to your azure functions deployment / Functions app settings / Configure continous integration. Select GitHub as a source and configure it to use your fork.
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2Fmedia-services-dotnet-functions-integration%2Fmaster%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
@@ -32,7 +34,17 @@ It is recommended to use the same resource group for the functions and the logic
 The functions and Logic App must be deployed in the same region.
 Please specify the name of the storage account used by Media Services.
 
+### 3. Fix the connections
+
 When deployed, go to the Logic App Designer and fix the connections (Onedrive, Outlook.com...)
+
+### 4. Start the AMS streaming endpoint
+
+To enable streaming, go to the Azure portal, select the Azure Media Services account which as been created, and start the default streaming endpoint.
+
+![Screen capture](images/start-se-1.png?raw=true)
+
+![Screen capture](images/start-se-2.png?raw=true)
 
 ## Functions documentation
 This section list the functions available and describes the input and output parameters.
