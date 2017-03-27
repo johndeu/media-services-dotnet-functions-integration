@@ -46,6 +46,23 @@ To enable streaming, go to the Azure portal, select the Azure Media Services acc
 
 ![Screen capture](images/start-se-2.png?raw=true)
 
+## Second Logic App : An advanced VOD workflow
+
+This template creates a Logic app which
+
+* listens to an onedrive folder,
+* copy it to an Azure Media Services asset,
+* triggers an encoding job,
+* indexes the English audio (audio to text),
+* translates the English subtitles to French,
+* copies back the French subtiles to the subtitles asset,
+* publishes the output assets,
+* sends an email when the process is complete. In the email, the playback link includes the two subtitles.
+
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2Fmedia-services-dotnet-functions-integration%2Fmaster%2Fmedia-functions-for-logic-app%2Flogicapp-advancedvod-deploy.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
+
 ## Functions documentation
 This section list the functions available and describes the input and output parameters.
 
