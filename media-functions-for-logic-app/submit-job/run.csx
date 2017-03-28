@@ -15,7 +15,8 @@ Input:
     "motionDetectionLevel" : "medium",          // Optional, required for motion detection
     "summarizationDuration" : "0.0",            // Optional. Required to create video summarization. "0.0" for automatic
     "hyperlapseSpeed" : "8",                    // Optional, required to hyperlapse the video
-    "priority" : 10                             // Optional, priority of the job
+    "priority" : 10,                            // Optional, priority of the job
+    "useEncoderOutputForAnalytics" : true       // Optional, use generated asset by MES or Premium Workflow as a source for media analytics
 }
 
 Output:
@@ -116,6 +117,8 @@ private static CloudStorageAccount _destinationStorageAccount = null;
 public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 {
     int taskindex = 0;
+    bool useEncoderOutputForAnalytics = false;
+    IAsset outputEncoding = null;
 
     log.Info($"Webhook was triggered!");
 
@@ -180,6 +183,12 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             });
         }
 
+        if (data.useEncoderOutputForAnalytics != null && (data.mesPreset != null || data.mesPreset != null))  // User wants to use encoder output for media analytics
+        {
+            useEncoderOutputForAnalytics = (bool)data.useEncoderOutputForAnalytics;
+        }
+
+
         // Declare a new encoding job with the Standard encoder
         int priority = 10;
         if (data.priority != null)
@@ -232,7 +241,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             // Add an output asset to contain the results of the job. 
             // This output is specified as AssetCreationOptions.None, which 
             // means the output asset is not encrypted. 
-            taskEncoding.OutputAssets.AddNew(asset.Name + " MES encoded", AssetCreationOptions.None);
+            outputEncoding = taskEncoding.OutputAssets.AddNew(asset.Name + " MES encoded", AssetCreationOptions.None);
         }
 
         if (data.workflowAssetId != null)// Premium Encoder Task
@@ -275,18 +284,21 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             // Add an output asset to contain the results of the job. 
             // This output is specified as AssetCreationOptions.None, which 
             // means the output asset is not encrypted. 
-            taskEncoding.OutputAssets.AddNew(asset.Name + " Premium encoded", AssetCreationOptions.None);
+            outputEncoding = taskEncoding.OutputAssets.AddNew(asset.Name + " Premium encoded", AssetCreationOptions.None);
         }
 
+        IAsset an_asset = useEncoderOutputForAnalytics ? outputEncoding : asset;
 
         // Media Analytics
-        OutputIndex1 = AddTask(job, asset, (string)data.indexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English", ref taskindex);
-        OutputIndex2 = AddTask(job, asset, (string)data.indexV2Language, "Azure Media Indexer 2 Preview", "IndexerV2.json", "EnUs", ref taskindex);
-        OutputOCR = AddTask(job, asset, (string)data.ocrLanguage, "Azure Media OCR", "OCR.json", "AutoDetect", ref taskindex);
-        OutputFaceDetection = AddTask(job, asset, (string)data.faceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion", ref taskindex);
-        OutputFaceRedaction = AddTask(job, asset, (string)data.faceRedactionMode, "Azure Media Redactor", "FaceRedaction.json", "combined", ref taskindex);
-        OutputMotion = AddTask(job, asset, (string)data.motionDetectionLevel, "Azure Media Motion Detector", "MotionDetection.json", "medium", ref taskindex);
-        OutputSummarization = AddTask(job, asset, (string)data.summarizationDuration, "Azure Media Video Thumbnails", "Summarization.json", "0.0", ref taskindex);
+        OutputIndex1 = AddTask(job, an_asset, (string)data.indexV1Language, "Azure Media Indexer", "IndexerV1.xml", "English", ref taskindex);
+        OutputIndex2 = AddTask(job, an_asset, (string)data.indexV2Language, "Azure Media Indexer 2 Preview", "IndexerV2.json", "EnUs", ref taskindex);
+        OutputOCR = AddTask(job, an_asset, (string)data.ocrLanguage, "Azure Media OCR", "OCR.json", "AutoDetect", ref taskindex);
+        OutputFaceDetection = AddTask(job, an_asset, (string)data.faceDetectionMode, "Azure Media Face Detector", "FaceDetection.json", "PerFaceEmotion", ref taskindex);
+        OutputFaceRedaction = AddTask(job, an_asset, (string)data.faceRedactionMode, "Azure Media Redactor", "FaceRedaction.json", "combined", ref taskindex);
+        OutputMotion = AddTask(job, an_asset, (string)data.motionDetectionLevel, "Azure Media Motion Detector", "MotionDetection.json", "medium", ref taskindex);
+        OutputSummarization = AddTask(job, an_asset, (string)data.summarizationDuration, "Azure Media Video Thumbnails", "Summarization.json", "0.0", ref taskindex);
+
+        // Hyperlapse
         OutputHyperlapse = AddTask(job, asset, (string)data.hyperlapseSpeed, "Azure Media Hyperlapse", "Hyperlapse.json", "8", ref taskindex);
 
         job.Submit();
