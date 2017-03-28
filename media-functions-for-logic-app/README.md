@@ -99,7 +99,7 @@ This function submits a job wth encoding and/or analytics.
 Input:
 {
     "assetId" : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc", // Mandatory, Id of the source asset
-    "mesPreset" : "Adaptive Streaming",         // Optional but required to encode with Media Encoder Standard (MES). If MESPreset contains an extension "H264 Multiple Bitrate 720p with thumbnail.json" then it loads this file from ..\Presets
+    "mesPreset" : "Adaptive Streaming",         // Optional but required to encode with Media Encoder Standard (MES). If mesPreset contains an extension "H264 Multiple Bitrate 720p with thumbnail.json" then it loads this file from ..\Presets
     "workflowAssetId" : "nb:cid:UUID:2d0d78a2-685a-4b14-9cf0-9afb0bb5dbfc", // Optional, but required to encode the asset with Premium Workflow Encoder. Id for the workflow asset
     "indexV1Language" : "English",              // Optional but required to index the asset with Indexer v1
     "indexV2Language" : "EnUs",                 // Optional but required to index the asset with Indexer v2
@@ -109,7 +109,8 @@ Input:
     "motionDetectionLevel" : "medium",          // Optional, required for motion detection
     "summarizationDuration" : "0.0",            // Optional. Required to create video summarization. "0.0" for automatic
     "hyperlapseSpeed" : "8",                    // Optional, required to hyperlapse the video
-    "priority" : 10                             // Optional, priority of the job
+    "priority" : 10,                            // Optional, priority of the job
+    "useEncoderOutputForAnalytics" : true       // Optional, use generated asset by MES or Premium Workflow as a source for media analytics (except hyperlapse)
 }
 
 Output:
