@@ -124,7 +124,7 @@
                   "inputs": {
                     "host": {
                       "api": {
-                        "runtimeUrl": "https://logic-apis-westeurope.azure-apim.net/apim/bitly"
+                        "runtimeUrl": "[concat('https://logic-apis-', variables('logicAppLocation'), '.azure-apim.net/apim/bitly')]"
                       },
                       "connection": {
                         "name": "@parameters('$connections')['bitly']['connectionId']"
