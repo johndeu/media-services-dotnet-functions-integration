@@ -10,14 +10,14 @@ Input:
 
 Output:
 {
-    "taskState" : 2, // The state of the task (int)
+    "taskState" : 2,        // The state of the task (int)
     "isRunning" : true,     // true if job is running
-    "failed" : false,       // true is job failed
-    "errorText" : "" // error(s) text if task state is error
+    "isSuccessful" : true,  // true is job is a success. Only valid if IsRunning = false
+    "errorText" : ""        // error(s) text if task state is error
     "startTime" :""
     "endTime" : "",
     "runningDuration" : ""
-    "extendedInfo" :  // if extendedInfo is true and job is finished or in error
+    "extendedInfo" :           // if extendedInfo is true and job is finished or in error
     {
         mediaUnitNumber = 2,
         mediaUnitSize = "S2",
@@ -94,7 +94,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     StringBuilder sberror = new StringBuilder();
     string runningDuration = "";
     bool isRunning = true;
-    bool jobFailed = false;
+    bool isSuccessful = true;
 
     bool extendedInfo = false;
     if (data.extendedInfo != null && ((bool)data.extendedInfo) == true)
@@ -180,7 +180,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     }
 
     isRunning = !(job.State == JobState.Finished || job.State == JobState.Canceled || job.State == JobState.Error);
-    jobFailed = (job.State == JobState.Canceled || job.State == JobState.Error);
+    isSuccessful = (job.State == JobState.Finished);
 
     if (extendedInfo && (task.State == JobState.Finished || task.State == JobState.Canceled || task.State == JobState.Error))
     {
@@ -200,7 +200,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             runningDuration = runningDuration,
             extendedInfo = stats.ToString(),
             isRunning = isRunning,
-            failed = jobFailed
+            isSuccessful = isSuccessful
         });
     }
     else
@@ -213,7 +213,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             endTime = endTime,
             runningDuration = runningDuration,
             isRunning = isRunning,
-            failed = jobFailed
+            isSuccessful = isSuccessful
         });
     }
 }

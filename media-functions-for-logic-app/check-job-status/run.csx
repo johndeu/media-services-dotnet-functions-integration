@@ -11,7 +11,7 @@ Output:
 {
     "jobState" : 2,         // The state of the job (int)
     "isRunning" : true,     // true if job is running
-    "failed" : false,       // true is job failed
+    "isSuccessful" : true,  // true is job is a success. Only valid if IsRunning = false
     "errorText" : ""        // error(s) text if job state is error
     "startTime" :""
     "endTime" : "",
@@ -92,9 +92,9 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     StringBuilder sberror = new StringBuilder();
     string runningDuration = "";
     bool isRunning = true;
-    bool jobFailed = false;
-
+    bool isSuccessful = true;
     bool extendedInfo = false;
+
     if (data.extendedInfo != null && ((bool)data.extendedInfo) == true)
     {
         extendedInfo = true;
@@ -123,7 +123,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
                 error = "Job not found"
             });
         }
-
 
         for (int i = 1; i <= 3; i++) // let's wait 3 times 5 seconds (15 seconds)
         {
@@ -167,7 +166,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     }
 
     isRunning = !(job.State == JobState.Finished || job.State == JobState.Canceled || job.State == JobState.Error);
-    jobFailed = (job.State == JobState.Canceled || job.State == JobState.Error);
+    isSuccessful = (job.State == JobState.Finished);
 
     if (extendedInfo && (job.State == JobState.Finished || job.State == JobState.Canceled || job.State == JobState.Error))
     {
@@ -187,7 +186,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             runningDuration = runningDuration,
             extendedInfo = stats.ToString(),
             isRunning = isRunning,
-            failed = jobFailed
+            isSuccessful = isSuccessful
         });
     }
     else
@@ -200,7 +199,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             endTime = endTime,
             runningDuration = runningDuration,
             isRunning = isRunning,
-            failed = jobFailed
+            isSuccessful = isSuccessful
         });
     }
 }
