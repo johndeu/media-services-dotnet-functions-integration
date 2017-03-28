@@ -9,8 +9,10 @@ Input:
 
 Output:
 {
-    "jobState" : 2, // The state of the job (int)
-    "errorText" : "" // error(s) text if job state is error
+    "jobState" : 2,         // The state of the job (int)
+    "isRunning" : true,     // true if job is running
+    "failed" : false,       // true is job failed
+    "errorText" : ""        // error(s) text if job state is error
     "startTime" :""
     "endTime" : "",
     "runningDuration" : ""
@@ -89,7 +91,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     string endTime = "";
     StringBuilder sberror = new StringBuilder();
     string runningDuration = "";
-
+    bool isRunning = true;
+    bool jobFailed = false;
 
     bool extendedInfo = false;
     if (data.extendedInfo != null && ((bool)data.extendedInfo) == true)
@@ -163,6 +166,9 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         });
     }
 
+    isRunning = !(job.State == JobState.Finished || job.State == JobState.Canceled || job.State == JobState.Error);
+    jobFailed = (job.State == JobState.Canceled || job.State == JobState.Error);
+
     if (extendedInfo && (job.State == JobState.Finished || job.State == JobState.Canceled || job.State == JobState.Error))
     {
         dynamic stats = new JObject();
@@ -179,7 +185,9 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             startTime = startTime,
             endTime = endTime,
             runningDuration = runningDuration,
-            extendedInfo = stats.ToString()
+            extendedInfo = stats.ToString(),
+            isRunning = isRunning,
+            failed = jobFailed
         });
     }
     else
@@ -190,7 +198,9 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             errorText = sberror.ToString(),
             startTime = startTime,
             endTime = endTime,
-            runningDuration = runningDuration
+            runningDuration = runningDuration,
+            isRunning = isRunning,
+            failed = jobFailed
         });
     }
 }
