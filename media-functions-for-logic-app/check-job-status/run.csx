@@ -185,8 +185,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             endTime = endTime,
             runningDuration = runningDuration,
             extendedInfo = stats.ToString(),
-            isRunning = isRunning,
-            isSuccessful = isSuccessful
+            isRunning = isRunning.ToString(),
+            isSuccessful = isSuccessful.ToString()
         });
     }
     else
@@ -198,8 +198,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             startTime = startTime,
             endTime = endTime,
             runningDuration = runningDuration,
-            isRunning = isRunning,
-            isSuccessful = isSuccessful
+            isRunning = isRunning.ToString(),
+            isSuccessful = isSuccessful.ToString()
         });
     }
 }
