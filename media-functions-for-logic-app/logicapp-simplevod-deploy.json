@@ -144,7 +144,7 @@
             },
             "Until": {
               "type": "Until",
-              "expression": "@greater(body('check-job-status')['isSuccessful'], 'True')",
+              "expression": "@greater(body('check-job-status')['isRunning'], 'False')",
               "limit": {
                 "count": 60,
                 "timeout": "PT1H"
@@ -171,7 +171,7 @@
             },
             "Condition": {
               "type": "If",
-              "expression": "@equals(body('check-job-status')['isRunning'], 'False')",
+              "expression": "@equals(body('check-job-status')['isSuccessful'], 'True')",
               "actions": {
                 "publish-asset": {
                   "type": "Function",
