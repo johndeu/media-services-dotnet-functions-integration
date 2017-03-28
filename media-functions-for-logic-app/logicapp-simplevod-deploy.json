@@ -89,7 +89,7 @@
               "inputs": {
                 "host": {
                   "api": {
-                    "runtimeUrl": "https://logic-apis-westeurope.azure-apim.net/apim/azureblob"
+                    "runtimeUrl": "[concat('https://logic-apis-', variables('logicAppLocation'), '.azure-apim.net/apim/azureblob')]"
                   },
                   "connection": {
                     "name": "@parameters('$connections')['azureblob']['connectionId']"
@@ -190,7 +190,7 @@
                   "inputs": {
                     "host": {
                       "api": {
-                        "runtimeUrl": "https://logic-apis-westeurope.azure-apim.net/apim/bitly"
+                        "runtimeUrl": "[concat('https://logic-apis-', variables('logicAppLocation'), '.azure-apim.net/apim/bitly')]"
                       },
                       "connection": {
                         "name": "@parameters('$connections')['bitly']['connectionId']"
@@ -213,7 +213,7 @@
                   "inputs": {
                     "host": {
                       "api": {
-                        "runtimeUrl": "https://logic-apis-westeurope.azure-apim.net/apim/outlook"
+                        "runtimeUrl": "[concat('https://logic-apis-', variables('logicAppLocation'), '.azure-apim.net/apim/outlook')]"
                       },
                       "connection": {
                         "name": "@parameters('$connections')['outlook']['connectionId']"
@@ -247,7 +247,7 @@
                     "inputs": {
                       "host": {
                         "api": {
-                          "runtimeUrl": "https://logic-apis-westeurope.azure-apim.net/apim/outlook"
+                          "runtimeUrl": "[concat('https://logic-apis-', variables('logicAppLocation'), '.azure-apim.net/apim/outlook')]"
                         },
                         "connection": {
                           "name": "@parameters('$connections')['outlook_1']['connectionId']"
@@ -279,7 +279,7 @@
               "inputs": {
                 "host": {
                   "api": {
-                    "runtimeUrl": "https://logic-apis-westeurope.azure-apim.net/apim/onedrive"
+                    "runtimeUrl": "[concat('https://logic-apis-', variables('logicAppLocation'), '.azure-apim.net/apim/onedrive')]"
                   },
                   "connection": {
                     "name": "@parameters('$connections')['onedrive']['connectionId']"

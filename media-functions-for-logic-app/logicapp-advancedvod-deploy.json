@@ -171,7 +171,7 @@
                     },
                     "host": {
                       "api": {
-                        "runtimeUrl": "https://logic-apis-westeurope.azure-apim.net/apim/office365"
+                        "runtimeUrl": "[concat('https://logic-apis-', variables('logicAppLocation'), '.azure-apim.net/apim/office365')]"
                       },
                       "connection": {
                         "name": "@parameters('$connections')['office365']['connectionId']"
@@ -191,7 +191,7 @@
                   "inputs": {
                     "host": {
                       "api": {
-                        "runtimeUrl": "https://logic-apis-westeurope.azure-apim.net/apim/microsofttranslator"
+                        "runtimeUrl": "[concat('https://logic-apis-', variables('logicAppLocation'), '.azure-apim.net/apim/microsofttranslator')]"
                       },
                       "connection": {
                         "name": "@parameters('$connections')['microsofttranslator_1']['connectionId']"
@@ -288,7 +288,7 @@
                 "body": "@triggerBody()",
                 "host": {
                   "api": {
-                    "runtimeUrl": "https://logic-apis-westeurope.azure-apim.net/apim/azureblob"
+                    "runtimeUrl": "[concat('https://logic-apis-', variables('logicAppLocation'), '.azure-apim.net/apim/azureblob')]"
                   },
                   "connection": {
                     "name": "@parameters('$connections')['azureblob']['connectionId']"
