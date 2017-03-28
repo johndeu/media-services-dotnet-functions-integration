@@ -168,6 +168,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     isRunning = !(job.State == JobState.Finished || job.State == JobState.Canceled || job.State == JobState.Error);
     isSuccessful = (job.State == JobState.Finished);
 
+    log.Info($"isSuccessful {isSuccessful.ToString()}");
+
     if (extendedInfo && (job.State == JobState.Finished || job.State == JobState.Canceled || job.State == JobState.Error))
     {
         dynamic stats = new JObject();
