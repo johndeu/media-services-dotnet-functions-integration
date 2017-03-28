@@ -10,14 +10,14 @@ Input:
 
 Output:
 {
-    "taskState" : 2,        // The state of the task (int)
-    "isRunning" : true,     // true if job is running
-    "isSuccessful" : true,  // true is job is a success. Only valid if IsRunning = false
-    "errorText" : ""        // error(s) text if task state is error
+    "taskState" : 2,            // The state of the task (int)
+    "isRunning" : "False",      // True if job is running
+    "isSuccessful" : "True",    // True is job is a success. Only valid if IsRunning = False
+    "errorText" : ""            // error(s) text if task state is error
     "startTime" :""
     "endTime" : "",
     "runningDuration" : ""
-    "extendedInfo" :           // if extendedInfo is true and job is finished or in error
+    "extendedInfo" :            // if extendedInfo is true and job is finished or in error
     {
         mediaUnitNumber = 2,
         mediaUnitSize = "S2",
@@ -199,8 +199,8 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             endTime = endTime,
             runningDuration = runningDuration,
             extendedInfo = stats.ToString(),
-            isRunning = isRunning,
-            isSuccessful = isSuccessful
+            isRunning = isRunning.ToString(),
+            isSuccessful = isSuccessful.ToString()
         });
     }
     else

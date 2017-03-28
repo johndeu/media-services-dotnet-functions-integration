@@ -9,14 +9,14 @@ Input:
 
 Output:
 {
-    "jobState" : 2,         // The state of the job (int)
-    "isRunning" : true,     // true if job is running
-    "isSuccessful" : true,  // true is job is a success. Only valid if IsRunning = false
-    "errorText" : ""        // error(s) text if job state is error
+    "jobState" : 2,             // The state of the job (int)
+    "isRunning" : "False",      // True if job is running
+    "isSuccessful" : "True",    // True is job is a success. Only valid if IsRunning = False
+    "errorText" : ""            // error(s) text if job state is error
     "startTime" :""
     "endTime" : "",
     "runningDuration" : ""
-    "extendedInfo" :  // if extendedInfo is true and job is finished or in error
+    "extendedInfo" :            // if extendedInfo is true and job is finished or in error
     {
         mediaUnitNumber = 2,
         mediaUnitSize = "S2",

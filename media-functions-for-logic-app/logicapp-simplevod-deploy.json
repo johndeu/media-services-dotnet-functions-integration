@@ -144,7 +144,7 @@
             },
             "Until": {
               "type": "Until",
-              "expression": "@greater(body('check-job-status')['jobState'], 2)",
+              "expression": "@greater(body('check-job-status')['isSuccessful'], 'True')",
               "limit": {
                 "count": 60,
                 "timeout": "PT1H"
@@ -171,7 +171,7 @@
             },
             "Condition": {
               "type": "If",
-              "expression": "@equals(body('check-job-status')['jobState'], 3)",
+              "expression": "@equals(body('check-job-status')['isRunning'], 'False')",
               "actions": {
                 "publish-asset": {
                   "type": "Function",
@@ -222,10 +222,10 @@
                     "method": "post",
                     "path": "/Mail",
                     "body": {
-                        "Body": "<html><body><p><a href=\"@{body('Create_a_bitlink')['url']}\">Playback the entire video</a></p></body></html>",
-                        "IsHtml": true,
-                        "Subject": "New video published!",
-                        "To": "[parameters('outlookSendEmailTo')]"
+                      "Body": "<html><body><p><a href=\"@{body('Create_a_bitlink')['url']}\">Playback the entire video</a></p></body></html>",
+                      "IsHtml": true,
+                      "Subject": "New video published!",
+                      "To": "[parameters('outlookSendEmailTo')]"
                     }
                   },
                   "runAfter": {

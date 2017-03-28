@@ -274,7 +274,7 @@
                   "Succeeded"
                 ]
               },
-              "expression": "@equals(body('check-job-status')['jobState'], 3)",
+              "expression": "@equals(body('check-job-status')['isSuccessful'], 'True')",
               "type": "If"
             },
             "Create_blob": {
@@ -322,7 +322,7 @@
                   "Succeeded"
                 ]
               },
-              "expression": "@greater(body('check-job-status')['jobState'], 2)",
+              "expression": "@greater(body('check-job-status')['isRunning'], 'False')",
               "limit": {
                 "count": 60,
                 "timeout": "PT1H"
