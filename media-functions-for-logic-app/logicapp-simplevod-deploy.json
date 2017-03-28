@@ -18,7 +18,7 @@
         "description": "Name of deployment resource used by the functions."
       }
     },
-    "functionsDeploymentName": {
+    "functionsAppName": {
       "type": "string",
       "minLength": 1,
       "maxLength": 80,
@@ -79,7 +79,7 @@
                   "assetName": "@{triggerOutputs()['headers']['x-ms-file-name']}"
                 },
                 "function": {
-                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/create-empty-asset')]"
+                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsAppName'), '/functions/create-empty-asset')]"
                 }
               },
               "runAfter": {}
@@ -116,7 +116,7 @@
                   "assetId": "@{body('create-empty-asset')['assetId']}"
                 },
                 "function": {
-                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/sync-asset')]"
+                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsAppName'), '/functions/sync-asset')]"
                 }
               },
               "runAfter": {
@@ -133,7 +133,7 @@
                   "mesPreset": "Adaptive Streaming"
                 },
                 "function": {
-                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/submit-job')]"
+                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsAppName'), '/functions/submit-job')]"
                 }
               },
               "runAfter": {
@@ -157,7 +157,7 @@
                       "jobId": "@{body('submit-job')['jobId']}"
                     },
                     "function": {
-                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/check-job-status')]"
+                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsAppName'), '/functions/check-job-status')]"
                     }
                   },
                   "runAfter": {}
@@ -180,7 +180,7 @@
                       "assetId": "@{body('submit-job')['mes']['assetId']}"
                     },
                     "function": {
-                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsDeploymentName'), '/functions/publish-asset')]"
+                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', parameters('functionsAppName'), '/functions/publish-asset')]"
                     }
                   },
                   "runAfter": {}

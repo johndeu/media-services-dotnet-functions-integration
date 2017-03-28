@@ -2,7 +2,7 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "appName": {
+    "functionsAppName": {
       "type": "string",
       "metadata": {
         "description": "The name of the Function application to be deployed. The name should be globally unique, all lowercase letters or numbers with no spaces."
@@ -45,12 +45,11 @@
     }
   },
   "variables": {
-    "lowerAppName": "[toLower(parameters('appName'))]",
+    "lowerFunctionsAppName": "[toLower(parameters('functionsAppName'))]",
     "storageAccountid": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
     "mediaServiceName": "[concat('media',uniqueString(resourceGroup().id))]",
-    "functionAppName": "[concat(variables('lowerAppName'),'-functions')]",
     "storageAccountName": "[concat('storage',uniqueString(resourceGroup().id))]",
-    "hostingPlanName": "[concat(variables('lowerAppName'),concat('plan', uniqueString(resourceGroup().id)))]"
+    "hostingPlanName": "[concat(variables('lowerFunctionsAppName'),concat('plan', uniqueString(resourceGroup().id)))]"
   },
   "resources": [
     {
@@ -102,7 +101,7 @@
     },
     {
       "type": "Microsoft.Web/sites",
-      "name": "[variables('functionAppName')]",
+      "name": "[variables('lowerFunctionsAppName')]",
       "apiVersion": "2015-08-01",
       "location": "[resourceGroup().location]",
       "comments": "This function app depends on the media services account and storage account and will pull down the source code from Github",
@@ -130,8 +129,8 @@
           "apiVersion": "2015-08-01",
           "comments": "This section sets up source control for continuous integration on the Function app and pulls the source code down from Github.",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/sites/', variables('functionAppName'))]",
-            "[concat(resourceId('Microsoft.Web/sites/', variables('functionAppName')),'/config/appsettings')]"
+            "[resourceId('Microsoft.Web/sites/', variables('lowerFunctionsAppName'))]",
+            "[concat(resourceId('Microsoft.Web/sites/', variables('lowerFunctionsAppName')),'/config/appsettings')]"
           ],
           "properties": {
             "RepoUrl": "[parameters('sourceCodeRepositoryURL')]",
@@ -146,7 +145,7 @@
           "comments": "These are the default appsettings configured on the functions app.",
           "dependsOn": [
             "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
-            "[resourceId('Microsoft.Web/Sites', variables('functionAppName'))]",
+            "[resourceId('Microsoft.Web/Sites', variables('lowerFunctionsAppName'))]",
             "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
           ],
           "properties": {
@@ -154,7 +153,7 @@
             "FUNCTIONS_EXTENSION_VERSION": "~1",
             "WEBSITE_NODE_DEFAULT_VERSION": "6.5.0",
             "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]",
-            "WEBSITE_CONTENTSHARE": "[toLower(variables('functionAppName'))]",
+            "WEBSITE_CONTENTSHARE": "[toLower(variables('lowerFunctionsAppName'))]",
             "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]",
             "AzureWebJobsDashboard": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]",
             "AMSAccount": "[variables('mediaServiceName')]",
@@ -163,7 +162,7 @@
             "MediaServicesStorageAccountKey": "[listKeys(variables('storageAccountid'),'2015-05-01-preview').key1]",
             "StorageConnection": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]",
             "SigningKey": "wOlDEUJ4/VN1No8HxVxpsRvej0DZrO5DXvImGLjFhfctPGFiMkUA0Cj8HSfJW7lePX9XsfHAMhw30p0yYqG+1A==",
-            "WebHookEndpoint": "[concat(resourceId('Microsoft.Web/sites', variables('functionAppName')),'/api/Notification_Webhook_Function?code=', parameters('functionKey'))]"
+            "WebHookEndpoint": "[concat(resourceId('Microsoft.Web/sites', variables('lowerFunctionsAppName')),'/api/Notification_Webhook_Function?code=', parameters('functionKey'))]"
           }
         }
       ]

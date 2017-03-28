@@ -10,20 +10,20 @@
         "description": "Name of the Logic App."
       }
     },
-    "functionsDeploymentResourceGroup": {
+    "functionsAppResourceGroup": {
       "type": "string",
       "minLength": 1,
       "maxLength": 80,
       "metadata": {
-        "description": "Name of deployment resource used by the functions."
+        "description": "Name of resource group used by the functions app already deployed."
       }
     },
-    "functionsDeploymentName": {
+    "functionsAppName": {
       "type": "string",
       "minLength": 1,
       "maxLength": 80,
       "metadata": {
-        "description": "Name of deployment of the functions."
+        "description": "Name of the functions app already deployed."
       }
     },
     "onedriveFolderToWatch": {
@@ -36,7 +36,7 @@
     "mediaServicesStorageAccountName": {
       "type": "string",
       "metadata": {
-        "description": "Name of the storage account used by the media services account."
+        "description": "Name of the storage account used by the media services account, already deployed."
       }
     },
     "outlookSendEmailTo": {
@@ -61,7 +61,7 @@
     "microsofttranslator_1_Connection_Name": "translator-1",
     "microsofttranslator_1_Connection_DisplayName": "translator-1",
     "trimlogicAppName": "[trim(parameters('logicAppName'))]",
-    "trimfunctionsDeploymentName": "[trim(parameters('functionsDeploymentName'))]",
+    "trimfunctionsAppName": "[trim(parameters('functionsAppName'))]",
     "trimmediaServicesStorageAccountName": "[trim(parameters('mediaServicesStorageAccountName'))]"
   },
   "resources": [
@@ -220,7 +220,7 @@
                       "fileName": "french.vtt"
                     },
                     "function": {
-                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', variables('trimfunctionsDeploymentName'), '/functions/add-textfile-to-asset')]"
+                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsAppResourceGroup'), '/providers/Microsoft.Web/sites/', variables('trimfunctionsAppName'), '/functions/add-textfile-to-asset')]"
                     }
                   }
                 },
@@ -232,7 +232,7 @@
                       "assetId": "@{body('submit-job')['mes']['assetId']}"
                     },
                     "function": {
-                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', variables('trimfunctionsDeploymentName'), '/functions/publish-asset')]"
+                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsAppResourceGroup'), '/providers/Microsoft.Web/sites/', variables('trimfunctionsAppName'), '/functions/publish-asset')]"
                     }
                   }
                 },
@@ -248,7 +248,7 @@
                       "assetId": "@{body('submit-job')['indexV2']['assetId']}"
                     },
                     "function": {
-                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', variables('trimfunctionsDeploymentName'), '/functions/publish-asset')]"
+                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsAppResourceGroup'), '/providers/Microsoft.Web/sites/', variables('trimfunctionsAppName'), '/functions/publish-asset')]"
                     }
                   }
                 },
@@ -264,7 +264,7 @@
                       "assetId": "@{body('submit-job')['indexV2']['assetId']}"
                     },
                     "function": {
-                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', variables('trimfunctionsDeploymentName'), '/functions/return-subtitles')]"
+                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsAppResourceGroup'), '/providers/Microsoft.Web/sites/', variables('trimfunctionsAppName'), '/functions/return-subtitles')]"
                     }
                   }
                 }
@@ -312,7 +312,7 @@
                       "jobId": "@{body('submit-job')['jobId']}"
                     },
                     "function": {
-                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', variables('trimfunctionsDeploymentName'), '/functions/check-job-status')]"
+                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsAppResourceGroup'), '/providers/Microsoft.Web/sites/', variables('trimfunctionsAppName'), '/functions/check-job-status')]"
                     }
                   }
                 }
@@ -337,7 +337,7 @@
                   "assetName": "@{triggerOutputs()['headers']['x-ms-file-name']}"
                 },
                 "function": {
-                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', variables('trimfunctionsDeploymentName'), '/functions/create-empty-asset')]"
+                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsAppResourceGroup'), '/providers/Microsoft.Web/sites/', variables('trimfunctionsAppName'), '/functions/create-empty-asset')]"
                 }
               }
             },
@@ -356,7 +356,7 @@
                   "useEncoderOutputForAnalytics": true
                 },
                 "function": {
-                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', variables('trimfunctionsDeploymentName'), '/functions/submit-job')]"
+                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsAppResourceGroup'), '/providers/Microsoft.Web/sites/', variables('trimfunctionsAppName'), '/functions/submit-job')]"
                 }
               }
             },
@@ -372,7 +372,7 @@
                   "assetId": "@{body('create-empty-asset')['assetId']}"
                 },
                 "function": {
-                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsDeploymentResourceGroup'), '/providers/Microsoft.Web/sites/', variables('trimfunctionsDeploymentName'), '/functions/sync-asset')]"
+                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('functionsAppResourceGroup'), '/providers/Microsoft.Web/sites/', variables('trimfunctionsAppName'), '/functions/sync-asset')]"
                 }
               }
             }
