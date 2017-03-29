@@ -6,10 +6,10 @@
 
 This template creates a Logic app that listens to an onedrive folder and will copy it to an Azure Media Services asset, triggers an encoding job, publish the output asset and send an email when the process is complete.
 
-![Screen capture](images/simplevod-1.png?raw=true)
-![Screen capture](images/simplevod-2.png?raw=true)
+![Screen capture](images/logicapp1-simplevod-1.png?raw=true)
+![Screen capture](images/logicapp1-simplevod-2.png?raw=true)
 
-[See the detailed view of the logic app.](logicapp-simplevod-screen.md)
+[See the detailed view of the logic app.](logicapp1-simplevod-screen.md)
 
 ### 1. Prerequisite
 If not already done : fork the repo, deploy Azure Functions and select the **"media-functions-for-logic-app"** Project (IMPORTANT!)
@@ -24,11 +24,11 @@ Note : if you never provided your GituHb account in the Azure portal before, the
 
 ### 2. Deploy the logic app
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2Fmedia-services-dotnet-functions-integration%2Fmaster%2Fmedia-functions-for-logic-app%2Flogicapp-simplevod-deploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2Fmedia-services-dotnet-functions-integration%2Fmaster%2Fmedia-functions-for-logic-app%2Flogicapp1-simplevod-deploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
-![Screen capture](images/form-simplevod.png?raw=true)
+![Screen capture](images/form-logicapp1-simplevod.png?raw=true)
 
 It is recommended to use the same resource group for the functions and the logic app.
 The functions and Logic App must be deployed in the same region.
@@ -59,7 +59,7 @@ This template creates a Logic app which
 * publishes the output assets,
 * sends an email when the process is complete. In the email, the playback link includes the two subtitles.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2Fmedia-services-dotnet-functions-integration%2Fmaster%2Fmedia-functions-for-logic-app%2Flogicapp-advancedvod-deploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2Fmedia-services-dotnet-functions-integration%2Fmaster%2Fmedia-functions-for-logic-app%2Flogicapp2-advancedvod-deploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
