@@ -16,7 +16,7 @@ If not already done : fork the repo, deploy Azure Functions and select the **"me
 
 Follow the guidelines in the [git tutorial](1-CONTRIBUTION-GUIDE/git-tutorial.md) for details on how to fork the project and use Git properly with this project.
 
-Note : if you never provided your GituHb account in the Azure portal before, the continous integration probably will probably fail and you won't see the functions. In that case, you need to setup it manually. Go to your azure functions deployment / Functions app settings / Configure continous integration. Select GitHub as a source and configure it to use your fork.
+Note : if you never provided your GitHub account in the Azure portal before, the continous integration probably will probably fail and you won't see the functions. In that case, you need to setup it manually. Go to your azure functions deployment / Functions app settings / Configure continous integration. Select GitHub as a source and configure it to use your fork.
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2Fmedia-services-dotnet-functions-integration%2Fmaster%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
@@ -53,15 +53,19 @@ This template creates a Logic app which
 * listens to an onedrive folder,
 * copy it to an Azure Media Services asset,
 * triggers an encoding job,
-* indexes the English audio (audio to text),
-* translates the English subtitles to French,
+* converts the English audio to text (using Media Indexer v2),
+* translates the English subtitles to French (using Bing translator),
 * copies back the French subtiles to the subtitles asset,
 * publishes the output assets,
-* sends an email when the process is complete. In the email, the playback link includes the two subtitles.
+* generates a short playback URL (using bitlink)
+* sends an email with Office365 when the process is complete or if the job failed. In the email, the playback link includes the two subtitles.
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2Fmedia-services-dotnet-functions-integration%2Fmaster%2Fmedia-functions-for-logic-app%2Flogicapp2-advancedvod-deploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
+
+![Screen capture](images/logicapp2-advancedvod-1.png?raw=true)
+![Screen capture](images/logicapp2-advancedvod-2.png?raw=true)
 
 ## Functions documentation
 This section list the functions available and describes the input and output parameters.

@@ -79,6 +79,8 @@ The deployment template will automatically create the following Azure resources:
 * This Azure Functions application with your source code configured for continuous integration.
 * The required function's application settings will be updated to point to the new resources automatically. You can modify any of these settings after deployment.
 
+Note : if you never provided your GitHub account in the Azure portal before, the continous integration probably will probably fail and you won't see the functions. In that case, you need to setup it manually. Go to your azure functions deployment / Functions app settings / Configure continous integration. Select GitHub as a source and configure it to use your fork.
+
 ### Function Application Settings 
 The following applications settings are created upon deployment and are automatically linked to the resources
 deployed with the azuredeploy.json template.
