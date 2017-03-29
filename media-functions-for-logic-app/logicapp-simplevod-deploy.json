@@ -146,8 +146,8 @@
               "type": "Until",
               "expression": "@equals(body('check-job-status')['isRunning'], 'False')",
               "limit": {
-                "count": 60,
-                "timeout": "PT1H"
+                "count": 600,
+                "timeout": "PT2H"
               },
               "actions": {
                 "check-job-status": {

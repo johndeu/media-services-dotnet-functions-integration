@@ -36,7 +36,7 @@ Please specify the name of the storage account used by Media Services.
 
 ### 3. Fix the connections
 
-When deployed, go to the Logic App Designer and fix the connections (Onedrive, Outlook.com...)
+When deployed, go to the Logic App Designer and fix the connections (Onedrive, Outlook.com...). Make sure to (re)select the OneDrive folder that you want to use for the ingest.
 
 ### 4. Start the AMS streaming endpoint
 
