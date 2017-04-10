@@ -55,7 +55,7 @@ This template creates a Logic app which
 * triggers an encoding job,
 * converts the English audio to text (using Media Indexer v2),
 * translates the English subtitles to French (using Bing translator),
-* copies back the French subtiles to the subtitles asset,
+* copies back the French subtitles to the subtitles asset,
 * publishes the output assets,
 * generates a short playback URL (using bitlink)
 * sends an email with Office365 when the process is complete or if the job failed. In the email, the playback link includes the two subtitles.
