@@ -296,6 +296,18 @@
                       "method": "post",
                       "path": "/Mail"
                     }
+                  },
+                  "Terminate": {
+                    "inputs": {
+                      "runError": {},
+                      "runStatus": "Failed"
+                    },
+                    "runAfter": {
+                      "Send_an_email_error": [
+                        "Succeeded"
+                      ]
+                    },
+                    "type": "Terminate"
                   }
                 }
               },
