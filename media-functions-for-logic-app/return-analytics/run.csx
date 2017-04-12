@@ -158,7 +158,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
                 var tsoffset = TimeSpan.Parse((string)data.timeOffset);
                 foreach (var frag in objOffset.fragments)
                 {
-                    frag.start = (long)frag.start + tsoffset.Ticks;
+                    frag.start = ((long)(frag.start / objOffset.timescale) * 10000000) + tsoffset.Ticks;
                 }
                 //jsonFaceRedactionOffset = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
             }
