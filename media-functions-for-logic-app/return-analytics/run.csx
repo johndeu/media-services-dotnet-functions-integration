@@ -78,13 +78,11 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     // Init variables
     string pathUrl = "";
     string jsonFaceRedaction = "";
-    string jsonFaceRedactionOffset = "";
     dynamic jpgFaces = new JArray() as dynamic;
     dynamic objFaceDetection = new JObject();
     dynamic objFaceDetectionOffset = new JObject();
 
     string jsonMotionDetection = "";
-    string jsonMotionDetectionOffset = "";
     dynamic objMotionDetection = new JObject();
     dynamic objMotionDetectionOffset = new JObject();
 
@@ -209,7 +207,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
                 });
             }
 
-            var jsonFile2 = outputAsset.AssetFiles.Where(a => a.Name.ToUpper().EndsWith(".JSON")).FirstOrDefault();
+            var jsonFile2 = outputAsset2.AssetFiles.Where(a => a.Name.ToUpper().EndsWith(".JSON")).FirstOrDefault();
 
             if (jsonFile2 != null)
             {
