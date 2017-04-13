@@ -2,7 +2,7 @@
   "Version": "1.0",
   "Options": {
     "SensitivityLevel": "medium",
-    "FrameSamplingValue": 1,
+    "FrameSamplingValue": 25,
     "DetectLightChange": "False",
     "MergeTimeThreshold": "00:00:00"
   }
