@@ -1,4 +1,7 @@
 {
   "version": "1.0",
-  "options": { "mode": "combined" }
+  "options": {
+    "mode": "combined",
+    "DetectionFrameRate" :  12
+  }
 }
