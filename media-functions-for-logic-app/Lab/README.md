@@ -1,23 +1,3 @@
-Microsoft Cloud Workshops
-
-Media and Modern Apps
-
-Lab guide
-
-April 2017
-
-© 2017 Microsoft Corporation. All rights reserved. This document is confidential
-and proprietary to Microsoft. Internal use only. This document is for
-informational purposes only. MICROSOFT MAKES NO WARRANTIES, EXPRESS OR IMPLIED,
-IN THIS SUMMARY.
-
-This document is provided "as-is." Information and views expressed in this
-document, including URL and other Internet Web site references, may change
-without notice. You bear the risk of using it.
-
-Some examples are for illustration only and are fictitious. No real association
-is intended or inferred.
-
 Media and Modern Apps cloud hackathon
 =====================================
 
