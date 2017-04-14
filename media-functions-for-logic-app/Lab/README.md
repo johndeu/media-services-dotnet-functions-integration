@@ -43,8 +43,7 @@ Requirements
 
     -   IDE ([Visual Studio Code](https://code.visualstudio.com/) or other)
 
-    -   [Azure Media Services
-        Explorer](https://github.com/Azure/Azure-Media-Services-Explorer/releases)
+    -   [Azure Media Services Explorer](http://aka.ms/amse)
 
     -   [Postman](https://www.getpostman.com/)
 
@@ -129,8 +128,8 @@ Once deployed and tested, this workflow will serve as your reference.
 
 #### Tasks to complete
 
--   Go to
-    <https://github.com/Azure-Samples/media-services-dotnet-functions-integration>
+-   Go to <http://aka.ms/amsfunctions> (redirected to
+    <https://github.com/Azure-Samples/media-services-dotnet-functions-integration>)
     and fork the project to your own GitHub account.
 
 -   From your GitHub account, deploy the azuredeploy.json template into your
@@ -515,8 +514,7 @@ installed, you should install the following pieces of software:
     are relying on the VM, it already contains Visual Studio that you will be
     able to use as an IDE.
 
--   [Azure Media Services
-    Explorer](https://github.com/Azure/Azure-Media-Services-Explorer/releases)
+-   [Azure Media Services Explorer](http://aka.ms/amse)
 
 -   [Postman](https://www.getpostman.com/)
 
@@ -532,8 +530,8 @@ links to playback the content and download the subtitles.
 
 Once deployed and tested, this workflow will serve as your reference.
 
-1.  Go to
-    <https://github.com/Azure-Samples/media-services-dotnet-functions-integration>
+1.  Go to <http://aka.ms/amsfunctions> (redirected to
+    <https://github.com/Azure-Samples/media-services-dotnet-functions-integration>)
     and fork the project to your own GitHub account (Figure 3).
 
 >   [./media/image2.png](./media/image2.png)
@@ -541,35 +539,35 @@ Once deployed and tested, this workflow will serve as your reference.
 Figure 3: Forking the Azure-Samples/media-services-dotnet-functions-integration
 project
 
-1.  Clone the forked project in your local git repository, and update the
-    “sourceCodeRepositoryURL” in the azuredeploy.json template to reflect your
-    forked repository.
+1.  Optional but needed if you want to edit the functions later: clone the
+    forked project in your local git repository.
 
-2.  In Azure Portal, type “deploy” in the search bar, and select “Deploy a
-    custom template” (Figure 4).
+2.  In GitHub, on your fork, go to the *media-functions-for-logic-app* folder
+    and click on the first “Deploy to Azure” button to deploy the functions
+    (Figure 4).  
+      
+    (Please note that this button deploys the ARM template which is in the
+    public repo, not the one in your fork (file
+    <https://github.com/Azure-Samples/media-services-dotnet-functions-integration/blob/master/azuredeploy.json>).
+    This is not a problem as they are identical. If you edit the ARM template
+    and want to deploy this new version, then you need to edit the link in
+    README.md).  
+      
+    
 
-    ![](media/7037c1054a18bf81292090e8086ec329.png)
+    ![](media/ecc445acf69ed5fa5f565ed48d00b8e3.png)
 
-Figure 4: Finding the template deployment option
+Figure 4: Deploy to Azure button
 
-1.  Click on “Edit” and “Load File”. Select the azuredeploy.json file at the
-    root of the “media-services-dotnet-functions-integrations” repository
-    (Figure 5).
-
-    ![](media/1dc5cea74bb570f78536e9a81c5cea67.png)
-
-Figure 5: Loading a custom deployment template
-
-Click Save.
-
-1.  This opens up a deployment template (Figure 6). Create a new or use an
-    existing Resource Group. This name will be important for the next
-    deployment. Select the appropriate region, and provide a “Functions App
-    Name”, which you will need to reuse as well later.
+1.  This opens up a deployment template. Create a new or use an existing
+    Resource Group. This name will be important for the next deployment. Select
+    the appropriate region, and provide a “Functions App Name”, which you will
+    need to reuse as well later.
 
     Select “media-functions-for-logic-app” as your project.
 
-    Verify that your own GitHub repository is used for the source code.
+    Important: set your forked GitHub repository for the source code repository
+    URL.
 
     After approving the Terms and Conditions, click on “Purchase”.
 
@@ -577,27 +575,42 @@ Click Save.
 
     ![](media/1df5a452d5d87e700f4a7098df604a89.png)
 
-Figure 6: Custom template deployment
+Figure : Custom template deployment
 
-1.  Once the template is deployed, you can then deploy the second template for
-    the VOD complex Logic App. Follow the same steps as above to deploy the
-    “logicapp2-advancedvod-deploy.json” template in the
-    “media-functions-for-logic-app” folder. **Do make sure to use the same name
-    for the Functions App Name and the same Resource Group.**
+1.  Once the template is deployed, you can then deploy the other template for
+    the VOD complex Logic App. In the README in the
+    “media-functions-for-logic-app” folder, there is a section “Second logic app
+    : an advanced VOD workflow”. **Do make sure to use the same name for the
+    Functions App Name and the same Resource Group.**  
+      
+    (Please note that this button deploys the ARM template which is in the
+    public repo, not the one in your fork (file
+    <https://github.com/Azure-Samples/media-services-dotnet-functions-integration/blob/master/media-functions-for-logic-app/logicapp2-advancedvod-deploy.json>).
+    This is not a problem as they are identical. If you edit the ARM template
+    and want to deploy this new version, then you need to edit the link in
+    README.md).  
+      
+      
+    
 
-2.  Once the second template is deployed, edit the Logic App et fix the
-    connections for OneDrive, Bitlink and Gmail.
+    ![](media/743af35ea7b53de9338f5cfcbad25ba1.png)
 
-3.  To speed the processing, using Azure Media Services Explorer, allocate one
+Figure : Deploy the advanced logic app
+
+1.  Once the second template is deployed, edit the Logic App et fix the
+    connections for OneDrive, Bitlink and Gmail. Make sure to (re)select the
+    OneDrive folder.
+
+2.  To speed the processing, using Azure Media Services Explorer, allocate one
     S3 encoding unit to your instance of Azure Media Services (“Jobs” tab). See
     Figure 7.
 
 ![](media/3230a792427e3147aa6a32b881b26243.png)
 
-Figure 7: selecting the number and type of Reserved Units
+Figure : selecting the number and type of Reserved Units
 
-1.  With Azure Media Services Explorer, start the default steaming endpoint, in
-    order for the streaming to work.
+1.  Within Azure Media Services Explorer, start the default steaming endpoint in
+    order to enable streaming.
 
 2.  Drop a file in your OneDrive folder, and verify that the Logic App gets
     triggered. Observe the processes being triggered one by one in the workflow.
