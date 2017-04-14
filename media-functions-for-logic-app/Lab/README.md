@@ -514,7 +514,7 @@ Once deployed and tested, this workflow will serve as your reference.
     <https://github.com/Azure-Samples/media-services-dotnet-functions-integration>)
     and fork the project to your own GitHub account (Figure 3).
 
->   [./media/image2.png](./media/image2.png)
+    ![](media/image2.png)
 
 Figure 3: Forking the Azure-Samples/media-services-dotnet-functions-integration
 project
@@ -525,7 +525,7 @@ project
 
 2.  Deploy the Azure functions for Media Services template.
 
-    1.  Option 1 : In GitHub, on your fork, go to the
+    a.  Option 1 : In GitHub, on your fork, go to the
         *media-functions-for-logic-app* folder and click on the first “Deploy to
         Azure” button to deploy the functions (Figure 4).  
           
@@ -542,7 +542,7 @@ project
 
 Figure : Deploy to Azure button
 
-1.  Option 2: In Azure Portal, type “deploy” in the search bar, and select
+b.  Option 2: In Azure Portal, type “deploy” in the search bar, and select
     “Deploy a custom template” (Figure 5).  
       
     
