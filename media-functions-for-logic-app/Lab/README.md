@@ -92,7 +92,7 @@ and Azure SDK 2.9.+, complete this task.
 
     ![](media/0d7aa3b9f7cb00e5d1b947eb7027ff63.png)
 
-Figure : Setting up a Virtual Machine in the Azure Portal
+Figure 1: Setting up a Virtual Machine in the Azure Portal
 
 We *highly* recommended using a DS2 or D2 instance size for this virtual machine
 (VM).
@@ -496,7 +496,7 @@ and Azure SDK 2.9.+, complete this task.
 
     ![](media/0d7aa3b9f7cb00e5d1b947eb7027ff63.png)
 
-Figure : setting up a Virtual Machine in the Azure Portal
+Figure 2: setting up a Virtual Machine in the Azure Portal
 
 We *highly* recommended using a DS2 or D2 instance size for this virtual machine
 (VM).
@@ -536,7 +536,7 @@ Once deployed and tested, this workflow will serve as your reference.
 
 >   [./media/image2.png](./media/image2.png)
 
-Figure : Forking the Azure-Samples/media-services-dotnet-functions-integration
+Figure 3: Forking the Azure-Samples/media-services-dotnet-functions-integration
 project
 
 1.  Optional but needed if you want to edit the functions later or access the
@@ -560,7 +560,7 @@ project
 
         ![](media/ecc445acf69ed5fa5f565ed48d00b8e3.png)
 
-Figure 4: Deploy to Azure button
+Figure : Deploy to Azure button
 
 1.  Option 2: In Azure Portal, type “deploy” in the search bar, and select
     “Deploy a custom template” (Figure 5).  
@@ -569,7 +569,7 @@ Figure 4: Deploy to Azure button
 
     ![](media/7037c1054a18bf81292090e8086ec329.png)
 
-Figure : Finding the template deployment option
+Figure 5: Finding the template deployment option
 
 Click on “Edit” and “Load File”. Select the azuredeploy.json file at the root of
 the “media-services-dotnet-functions-integrations” repository (Figure 6).  
@@ -578,7 +578,7 @@ the “media-services-dotnet-functions-integrations” repository (Figure 6).
 
 ![](media/1dc5cea74bb570f78536e9a81c5cea67.png)
 
-Figure : Loading a custom deployment template
+Figure 6: Loading a custom deployment template
 
 Click Save.
 
@@ -598,7 +598,7 @@ Click Save.
 
     ![](media/1df5a452d5d87e700f4a7098df604a89.png)
 
-Figure 8: Custom template deployment
+Figure : Custom template deployment
 
 1.  Once the template is deployed, you can then deploy the other template for
     the VOD complex Logic App. In the README in the
@@ -618,7 +618,7 @@ Figure 8: Custom template deployment
 
     ![](media/743af35ea7b53de9338f5cfcbad25ba1.png)
 
-Figure 9: Deploy the advanced logic app
+Figure : Deploy the advanced logic app
 
 1.  Once the second template is deployed, edit the Logic App et fix the
     connections for OneDrive, Bitlink and Gmail. Make sure to (re)select the
@@ -630,7 +630,7 @@ Figure 9: Deploy the advanced logic app
 
 ![](media/3230a792427e3147aa6a32b881b26243.png)
 
-Figure 10: selecting the number and type of Reserved Units
+Figure : selecting the number and type of Reserved Units
 
 1.  Within Azure Media Services Explorer, start the default steaming endpoint in
     order to enable streaming.
@@ -642,7 +642,7 @@ Figure 10: selecting the number and type of Reserved Units
 
 ![](media/fb34a96d1c6d39fbef181c9b5dcbb263.png)
 
-Figure : Example of e-mail containing a thumbnail and links
+Figure 11: Example of e-mail containing a thumbnail and links
 
 Exercise 3: Modify the VOD workflow for moderation
 --------------------------------------------------
@@ -670,7 +670,7 @@ thumbnail.
 
     ![](media/b72ad034f3f70db490d54922b3c296cf.png)
 
-Figure : Cloning and disabling a Logic App
+Figure 12: Cloning and disabling a Logic App
 
 1.  Edit your Logic App, et select the “submit-job” stage. As described in
     Figure 10, the preset used by the encoder is provided as a local json file.
@@ -679,7 +679,7 @@ Figure : Cloning and disabling a Logic App
 
     ![](media/7e9b54b56c54ca56c05e12ed33fb1020.png)
 
-Figure : MES encoding preset preferences
+Figure 13: MES encoding preset preferences
 
 1.  We will now create this preset.
 
@@ -713,20 +713,20 @@ characteristics of the asset. For that purpose, we will rely on DocumentDB
 
 ![](media/c7424a6e339be251f2be13456610967d.png)
 
-Figure : Locating the DocumentDB instances in the Azure Portal
+Figure 14: Locating the DocumentDB instances in the Azure Portal
 
 1.  Make sure to deploy the instance in the same ResourceGroup, and to pick the
     type “DocumentDB” (Figure 12).
 
 ![](media/aa17dc7f63ff993df67540c6e03e5bc8.png)
 
-Figure : initialization of the DocumentDB instance
+Figure 15: initialization of the DocumentDB instance
 
 1.  Once the instance is deployed, click on “Add Collection…” (Figure 13):
 
 >   [./media/image15.png](./media/image15.png)
 
-Figure : adding a Collection to the DocumentDB instance
+Figure 16: adding a Collection to the DocumentDB instance
 
 >   On the next screen, set the Collection Id to “Assets”, select the 10 GB
 >   Storage capacity, and set the Database name to “Media” (Figure 14). You will
@@ -734,7 +734,7 @@ Figure : adding a Collection to the DocumentDB instance
 
 >   [./media/image16.png](./media/image16.png)
 
-Figure : Initialization of the Collection
+Figure 17: Initialization of the Collection
 
 1.  Edit the Logic App, and click on the “+” sign (overlay your mouse on top of
     the link) between the Bitlink connector and the E-mail connector at the
@@ -742,20 +742,20 @@ Figure : Initialization of the Collection
 
     ![](media/da8b57ebac328f6465fb8e488e965b0c.png)
 
-Figure : Adding an action to the Logic App
+Figure 18: Adding an action to the Logic App
 
 In the “Choose Action” dialog, type “DocumentDB” in the search bar, and select
 “Create or Update Document” (Figure 16).
 
 ![](media/f6c6feeddc18d05b8b1d93b0b7bfe393.png)
 
-Figure : Adding a document to DocumentDB
+Figure 19: Adding a document to DocumentDB
 
 **Type** the name of the instance in the “Connection Name” field (Figure 17).
 
 ![](media/06c3d18c4967d46f4a52f339feee537d.png)
 
-Figure : selecting the correct instance of DocumentDB
+Figure 20: selecting the correct instance of DocumentDB
 
 You will then need to select the names of the database and the collections, and
 enter a JSON structure as a new Document. The JSON structure should look like
@@ -763,7 +763,7 @@ this:
 
 ![](media/ec39e62baa3c0384ed000ae6c681c340.png)
 
-Figure : JSON structure to enter in the DocumentDB connector
+Figure 21: JSON structure to enter in the DocumentDB connector
 
 To do so, you can switch to the “Code View” of the Logic App, and locate the
 “input” parameters of the DocumentDB connector by its name, and copy the
@@ -807,11 +807,11 @@ assetID in the body of the returned body (Figure 20).
 
 ![](media/cddb809e4c56e66b176b9ec692435488.png)
 
-Figure : Selecting the correct "Body" for the JSON item
+Figure 22: Selecting the correct "Body" for the JSON item
 
 ![](media/c35afb2c726d0c8d7326c61e304576db.png)
 
-Figure : Referencing the "assetID" field in the Body
+Figure 23: Referencing the "assetID" field in the Body
 
 After saving the Logic App and returning to the Design view, we can see the
 assetId being reported (Figure 21). We need to do the same for all fields of the
@@ -820,7 +820,7 @@ extract the correct information from them.
 
 ![](media/2be0f59512917c6549d4591db696ca5c.png)
 
-Figure : AssetId field being referenced properly
+Figure 24: AssetId field being referenced properly
 
 1.  Once this step is complete, we can once again run the end-to-end flow and
     verify that the asset is correctly set “for review” in DocumentDB. To do so,
@@ -829,7 +829,7 @@ Figure : AssetId field being referenced properly
 
 >   [./media/image26.png](./media/image26.png)
 
-Figure : Finding documents in DocumentDB
+Figure 25: Finding documents in DocumentDB
 
 1.  To finish this exercise, we will modify the body of the e-mail to include
     two links to Approve or Reject the asset.
@@ -893,7 +893,7 @@ the e-mail previously generated.
 
 ![](media/830e900a59a449eea27cf09234fb01a0.png)
 
-Figure : Creating a Logic App
+Figure 26: Creating a Logic App
 
 1.  In the “Start with a common trigger”, select “When a HTTP request is
     received”.
@@ -904,7 +904,7 @@ Figure : Creating a Logic App
 
     ![](media/c230ee797228c0ca5e38bc2dc3b21f6e.png)
 
-Figure : URL to trigger the Logic App
+Figure 27: URL to trigger the Logic App
 
 1.  We will now edit the Logic App so that it handles a specific body syntax.
     Click on “Edit”, and then “Use sample payload to generate schema” (Figure
@@ -912,7 +912,7 @@ Figure : URL to trigger the Logic App
 
 ![](media/e56657eedef262927e29e10c73ba82c0.png)
 
-Figure : Defining a schema for the body of the HTTP request
+Figure 28: Defining a schema for the body of the HTTP request
 
 In the textbox, enter the following JSON structure, and click OK:
 
@@ -924,7 +924,7 @@ This will automatically generate a schema (Figure 26).
 
 ![](media/45758a16f5dc618c3216f1806387ca67.png)
 
-Figure : Automated schema generation
+Figure 29: Automated schema generation
 
 Save the Logic App, et verify with Postman that you can trigger it. You can also
 check in the Azure portal that the trigger was successful.
@@ -934,7 +934,7 @@ check in the Azure portal that the trigger was successful.
 
     ![](media/70f9eb82e51a45b939238ed6cc115f2f.png)
 
-Figure : Providing the AssetD to retrieve the correct document
+Figure 30: Providing the AssetD to retrieve the correct document
 
 This step will retrieve the JSON document from the DocumentDB instance.
 
@@ -951,7 +951,7 @@ This step will retrieve the JSON document from the DocumentDB instance.
 
     ![](media/fab03885fb7ec60c2df24d3aed13d872.png)
 
-Figure : Implementation of the multi-bitrate encoding workflow
+Figure 31: Implementation of the multi-bitrate encoding workflow
 
 1.  Right after the “publish-asset” step, we want to update the DocumentDB
     document to reflect the ID of the multibitrate asset, and also update the
@@ -965,11 +965,11 @@ Figure : Implementation of the multi-bitrate encoding workflow
 
     ![](media/29a508fac02ef10f300a12f13da91646.png)
 
-Figure : Parse JSON connector in Logic Apps
+Figure 32: Parse JSON connector in Logic Apps
 
 ![](media/e42064d64f52ce933d062af72512aeb1.png)
 
-Figure : selecting the JSON document from DocumentDB
+Figure 33: selecting the JSON document from DocumentDB
 
 Add then a new action on DocumentDB to update the document. You will then use
 the results of the “Parse JSON” step to populate your updated document (Figure
@@ -977,14 +977,14 @@ the results of the “Parse JSON” step to populate your updated document (Figu
 
 ![](media/d1dc173569d85a2fa0068cccf155b9f7.png)
 
-Figure : selecting the fields from the "Parse JSON" step
+Figure 34: selecting the fields from the "Parse JSON" step
 
 1.  You can finish this exercise by generating a new e-mail with the link to the
     new multibitrate asset, and add the previously generated subtitles as well.
 
     ![](media/8d3fbf9b725edef9e8c0e1c61cd0486f.png)
 
-Figure : Bitlink to be used in e-mail
+Figure 35: Bitlink to be used in e-mail
 
 1.  Using Postman, you can trigger this new Logic App end-to-end and verify that
     DocumentDB document is indeed updated. You can also check that the playback
@@ -1060,15 +1060,15 @@ assetID passed in the request. You will then delete the record in DocumentDB.
 
 ![](media/9f7efbc45513ac983f154ee7ed4092a3.png)
 
-Figure : initial "Reject" Logic App
+Figure 36: initial "Reject" Logic App
 
 ![](media/7278993780046f20af08d04bcbea76c4.png)
 
-Figure : "Delete-entity" function
+Figure 37: "Delete-entity" function
 
 ![](media/b3a6dc8b782236cb4109c819f3194040.png)
 
-Figure : "Reject" final workflow
+Figure 38: "Reject" final workflow
 
 Exercise 5: Environment Clean-up
 --------------------------------
@@ -1083,8 +1083,8 @@ Resource Group for verification.
 
 ![](media/9f2ab67408847119ddfa05037da803aa.png)
 
-Figure : Accessing the list of Resource Groups
+Figure 39: Accessing the list of Resource Groups
 
 ![](media/957ee5e11cacd3bc69df72b3ab2cf477.png)
 
-Figure : Deleting a Resource Group
+Figure 40: Deleting a Resource Group
