@@ -1,0 +1,397 @@
+{
+    "$connections": {
+        "value": {
+            "azureblob": {
+                "connectionId": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/connections/azureblob-2",
+                "connectionName": "azureblob-2",
+                "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/providers/Microsoft.Web/locations/northeurope/managedApis/azureblob"
+            },
+            "bitly": {
+                "connectionId": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/connections/bitly-2",
+                "connectionName": "bitly-2",
+                "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/providers/Microsoft.Web/locations/northeurope/managedApis/bitly"
+            },
+            "documentdb": {
+                "connectionId": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/connections/documentdb",
+                "connectionName": "documentdb",
+                "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/providers/Microsoft.Web/locations/northeurope/managedApis/documentdb"
+            },
+            "gmail": {
+                "connectionId": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/connections/gmail",
+                "connectionName": "gmail",
+                "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/providers/Microsoft.Web/locations/northeurope/managedApis/gmail"
+            },
+            "microsofttranslator": {
+                "connectionId": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/connections/translator-2",
+                "connectionName": "translator-2",
+                "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/providers/Microsoft.Web/locations/northeurope/managedApis/microsofttranslator"
+            },
+            "onedrive_1": {
+                "connectionId": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/connections/onedrive-1",
+                "connectionName": "onedrive-1",
+                "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/providers/Microsoft.Web/locations/northeurope/managedApis/onedrive"
+            }
+        }
+    },
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Condition": {
+                "actions": {
+                    "Create_a_bitlink": {
+                        "inputs": {
+                            "host": {
+                                "api": {
+                                    "runtimeUrl": "https://logic-apis-northeurope.azure-apim.net/apim/bitly"
+                                },
+                                "connection": {
+                                    "name": "@parameters('$connections')['bitly']['connectionId']"
+                                }
+                            },
+                            "method": "get",
+                            "path": "/shorten",
+                            "queries": {
+                                "longUrl": "@{body('publish-asset')['playerUrl']}&subtitles=English,en,@{body('return-subtitles')['vttUrl']};French,fr,@{body('publish-subtitles-asset')['pathUrl']}french.vtt"
+                            }
+                        },
+                        "runAfter": {
+                            "add-textfile-to-asset": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ApiConnection"
+                    },
+                    "Create_or_update_document": {
+                        "inputs": {
+                            "body": {
+                                "id": "@body('create-empty-asset')['assetId']",
+                                "multiBitrateAssetId": "",
+                                "previewAssetId": "@{body('submit-job')['mes']['assetId']}",
+                                "status": "forReview",
+                                "subtitlesAssetId": "@{body('submit-job')['indexV2']['assetId']}",
+                                "subtitles_en_url": "@{body('return-subtitles')['vttUrl']}",
+                                "subtitles_fr_url": "@{body('publish-subtitles-asset')['pathUrl']}french.vtt"
+                            },
+                            "headers": {
+                                "x-ms-documentdb-is-upsert": true
+                            },
+                            "host": {
+                                "api": {
+                                    "runtimeUrl": "https://logic-apis-northeurope.azure-apim.net/apim/documentdb"
+                                },
+                                "connection": {
+                                    "name": "@parameters('$connections')['documentdb']['connectionId']"
+                                }
+                            },
+                            "method": "post",
+                            "path": "/dbs/@{encodeURIComponent('Media')}/colls/@{encodeURIComponent('Assets')}/docs"
+                        },
+                        "runAfter": {
+                            "Create_a_bitlink": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ApiConnection"
+                    },
+                    "HTTP_Get_Thumbnail": {
+                        "inputs": {
+                            "method": "GET",
+                            "uri": "@{body('publish-asset')['pathUrl']}Thumbnail_000001.png"
+                        },
+                        "runAfter": {
+                            "return-subtitles": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "Http"
+                    },
+                    "Send_Success_e-mail": {
+                        "inputs": {
+                            "body": {
+                                "Attachments": [
+                                    {
+                                        "ContentBytes": "@{base64(body('HTTP_Get_Thumbnail'))}",
+                                        "Name": "Thumbnail.png"
+                                    }
+                                ],
+                                "Body": "<html><body><strong>There is a new video encoded ready for your approval</strong><p><a href=\"@{body('Create_a_bitlink')['url']}\"><img src=\"cid:Thumbnail.png\"></p><p><a href=\"@{body('Create_a_bitlink')['url']}\">Playback the video</a></p><p><a href=\"@{body('return-subtitles')['vttUrl']}\">Download Subtitles (English)</a></p>\n<p>ID of the asset to approve: \"@{body('create-empty-asset')['assetId']}\"</p>\n<div>\n<a href=\"http://localhost:3000/approve?assetId=@{body('create-empty-asset')['assetId']}\">Approve</a><p/>\n<a href=\"http://localhost:3000/reject?assetId=@{body('create-empty-asset')['assetId']}\">Reject</a>\n</div>\n</body></html>",
+                                "IsHtml": true,
+                                "Subject": "There is a video waiting for your approval!",
+                                "To": "npintaux@hotmail.com"
+                            },
+                            "host": {
+                                "api": {
+                                    "runtimeUrl": "https://logic-apis-northeurope.azure-apim.net/apim/gmail"
+                                },
+                                "connection": {
+                                    "name": "@parameters('$connections')['gmail']['connectionId']"
+                                }
+                            },
+                            "method": "post",
+                            "path": "/Mail"
+                        },
+                        "runAfter": {
+                            "Create_or_update_document": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ApiConnection"
+                    },
+                    "Translate_text": {
+                        "inputs": {
+                            "host": {
+                                "api": {
+                                    "runtimeUrl": "https://logic-apis-northeurope.azure-apim.net/apim/microsofttranslator"
+                                },
+                                "connection": {
+                                    "name": "@parameters('$connections')['microsofttranslator']['connectionId']"
+                                }
+                            },
+                            "method": "get",
+                            "path": "/Translate",
+                            "queries": {
+                                "languageTo": "vi",
+                                "query": "@{body('return-subtitles')['vttDocument']}"
+                            }
+                        },
+                        "runAfter": {
+                            "HTTP_Get_Thumbnail": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ApiConnection"
+                    },
+                    "add-textfile-to-asset": {
+                        "inputs": {
+                            "body": {
+                                "assetId": "@{body('submit-job')['indexV2']['assetId']}",
+                                "convertTtml": false,
+                                "document": "@{body('Translate_text')}",
+                                "fileName": "french.vtt"
+                            },
+                            "function": {
+                                "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/sites/npmedia/functions/add-textfile-to-asset"
+                            }
+                        },
+                        "runAfter": {
+                            "Translate_text": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "Function"
+                    },
+                    "publish-asset": {
+                        "inputs": {
+                            "body": {
+                                "assetId": "@{body('submit-job')['mes']['assetId']}"
+                            },
+                            "function": {
+                                "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/sites/npmedia/functions/publish-asset"
+                            }
+                        },
+                        "runAfter": {},
+                        "type": "Function"
+                    },
+                    "publish-subtitles-asset": {
+                        "inputs": {
+                            "body": {
+                                "assetId": "@{body('submit-job')['indexV2']['assetId']}"
+                            },
+                            "function": {
+                                "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/sites/npmedia/functions/publish-asset"
+                            }
+                        },
+                        "runAfter": {
+                            "publish-asset": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "Function"
+                    },
+                    "return-subtitles": {
+                        "inputs": {
+                            "body": {
+                                "assetId": "@{body('submit-job')['indexV2']['assetId']}"
+                            },
+                            "function": {
+                                "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/sites/npmedia/functions/return-subtitles"
+                            }
+                        },
+                        "runAfter": {
+                            "publish-subtitles-asset": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "Function"
+                    }
+                },
+                "else": {
+                    "actions": {
+                        "Send_Error_E-mail": {
+                            "inputs": {
+                                "body": {
+                                    "Body": "There is a job error when processing file @{triggerOutputs()['headers']['x-ms-file-name']}. Error is : @{body('check-job-status')['errorText']}",
+                                    "Subject": "Your video encoding job failed",
+                                    "To": "npintaux@hotmail.com"
+                                },
+                                "host": {
+                                    "api": {
+                                        "runtimeUrl": "https://logic-apis-northeurope.azure-apim.net/apim/gmail"
+                                    },
+                                    "connection": {
+                                        "name": "@parameters('$connections')['gmail']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/Mail"
+                            },
+                            "runAfter": {},
+                            "type": "ApiConnection"
+                        }
+                    }
+                },
+                "expression": "@equals(body('check-job-status')['isSuccessful'], 'True')",
+                "runAfter": {
+                    "Until": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "If"
+            },
+            "Create_blob": {
+                "inputs": {
+                    "body": "@triggerBody()",
+                    "host": {
+                        "api": {
+                            "runtimeUrl": "https://logic-apis-northeurope.azure-apim.net/apim/azureblob"
+                        },
+                        "connection": {
+                            "name": "@parameters('$connections')['azureblob']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/datasets/default/files",
+                    "queries": {
+                        "folderPath": "@{body('create-empty-asset')['containerPath']}",
+                        "name": "@{triggerOutputs()['headers']['x-ms-file-name']}"
+                    }
+                },
+                "runAfter": {
+                    "create-empty-asset": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "Until": {
+                "actions": {
+                    "check-job-status": {
+                        "inputs": {
+                            "body": {
+                                "jobId": "@{body('submit-job')['jobId']}"
+                            },
+                            "function": {
+                                "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/sites/npmedia/functions/check-job-status"
+                            }
+                        },
+                        "runAfter": {},
+                        "type": "Function"
+                    }
+                },
+                "expression": "@equals(body('check-job-status')['isRunning'], 'False')",
+                "limit": {
+                    "count": 600,
+                    "timeout": "PT2H"
+                },
+                "runAfter": {
+                    "submit-job": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Until"
+            },
+            "create-empty-asset": {
+                "inputs": {
+                    "body": {
+                        "assetName": "@{triggerOutputs()['headers']['x-ms-file-name']}"
+                    },
+                    "function": {
+                        "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/sites/npmedia/functions/create-empty-asset"
+                    }
+                },
+                "runAfter": {},
+                "type": "Function"
+            },
+            "submit-job": {
+                "inputs": {
+                    "body": {
+                        "assetId": "@{body('create-empty-asset')['assetId']}",
+                        "indexV2Language": "EnUs",
+                        "mesPreset": "H264 Single Bitrate 720p with thumbnail.json",
+                        "useEncoderOutputForAnalytics": true
+                    },
+                    "function": {
+                        "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/sites/npmedia/functions/submit-job"
+                    }
+                },
+                "runAfter": {
+                    "sync-asset": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Function"
+            },
+            "sync-asset": {
+                "inputs": {
+                    "body": {
+                        "assetId": "@{body('create-empty-asset')['assetId']}"
+                    },
+                    "function": {
+                        "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/sites/npmedia/functions/sync-asset"
+                    }
+                },
+                "runAfter": {
+                    "Create_blob": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Function"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "When_a_file_is_created": {
+                "inputs": {
+                    "host": {
+                        "api": {
+                            "runtimeUrl": "https://logic-apis-northeurope.azure-apim.net/apim/onedrive"
+                        },
+                        "connection": {
+                            "name": "@parameters('$connections')['onedrive_1']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/datasets/default/triggers/onnewfile",
+                    "queries": {
+                        "folderId": "A2027C568B0CD772!390290"
+                    }
+                },
+                "metadata": {
+                    "A2027C568B0CD772!390290": "/IngestVideos"
+                },
+                "recurrence": {
+                    "frequency": "Minute",
+                    "interval": 1
+                },
+                "type": "ApiConnection"
+            }
+        }
+    }
+}

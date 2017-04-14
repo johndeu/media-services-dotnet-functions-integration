@@ -1,0 +1,161 @@
+{
+    "$connections": {
+        "value": {
+            "documentdb": {
+                "connectionId": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/connections/documentdb",
+                "connectionName": "documentdb",
+                "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/providers/Microsoft.Web/locations/northeurope/managedApis/documentdb"
+            }
+        }
+    },
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Delete_Original_Asset": {
+                "inputs": {
+                    "body": {
+                        "assetId": "@{body('Parse_JSON')?['id']}"
+                    },
+                    "function": {
+                        "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/sites/npmedia/functions/delete-entity"
+                    }
+                },
+                "runAfter": {
+                    "Delete_Subtitles_Asset": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Function"
+            },
+            "Delete_Preview_Asset": {
+                "inputs": {
+                    "body": {
+                        "assetId": "@{body('Parse_JSON')?['previewAssetId']}"
+                    },
+                    "function": {
+                        "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/sites/npmedia/functions/delete-entity"
+                    }
+                },
+                "runAfter": {
+                    "Parse_JSON": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Function"
+            },
+            "Delete_Subtitles_Asset": {
+                "inputs": {
+                    "body": {
+                        "assetId": "@{body('Parse_JSON')?['subtitlesAssetId']}"
+                    },
+                    "function": {
+                        "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/sites/npmedia/functions/delete-entity"
+                    }
+                },
+                "runAfter": {
+                    "Delete_Preview_Asset": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Function"
+            },
+            "Delete_a_document": {
+                "inputs": {
+                    "host": {
+                        "api": {
+                            "runtimeUrl": "https://logic-apis-northeurope.azure-apim.net/apim/documentdb"
+                        },
+                        "connection": {
+                            "name": "@parameters('$connections')['documentdb']['connectionId']"
+                        }
+                    },
+                    "method": "delete",
+                    "path": "/dbs/@{encodeURIComponent('Media')}/colls/@{encodeURIComponent('Assets')}/docs/@{encodeURIComponent(body('Parse_JSON')?['id'])}"
+                },
+                "runAfter": {
+                    "Delete_Original_Asset": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "Parse_JSON": {
+                "inputs": {
+                    "content": "@body('Retrieve_Asset_Information_from_DocumentDB')",
+                    "schema": {
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "multiBitrateAssetId": {
+                                "type": "string"
+                            },
+                            "previewAssetId": {
+                                "type": "string"
+                            },
+                            "status": {
+                                "type": "string"
+                            },
+                            "subtitlesAssetId": {
+                                "type": "string"
+                            },
+                            "subtitles_en_url": {
+                                "type": "string"
+                            },
+                            "subtitles_fr_url": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "runAfter": {
+                    "Retrieve_Asset_Information_from_DocumentDB": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ParseJson"
+            },
+            "Retrieve_Asset_Information_from_DocumentDB": {
+                "inputs": {
+                    "host": {
+                        "api": {
+                            "runtimeUrl": "https://logic-apis-northeurope.azure-apim.net/apim/documentdb"
+                        },
+                        "connection": {
+                            "name": "@parameters('$connections')['documentdb']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/dbs/@{encodeURIComponent('Media')}/colls/@{encodeURIComponent('Assets')}/docs/@{encodeURIComponent(triggerBody()?['id'])}"
+                },
+                "runAfter": {},
+                "type": "ApiConnection"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "manual": {
+                "inputs": {
+                    "schema": {
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "kind": "Http",
+                "type": "Request"
+            }
+        }
+    }
+}

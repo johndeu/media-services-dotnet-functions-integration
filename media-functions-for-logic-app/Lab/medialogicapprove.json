@@ -1,0 +1,253 @@
+{
+    "$connections": {
+        "value": {
+            "bitly": {
+                "connectionId": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/connections/bitly-1",
+                "connectionName": "bitly-1",
+                "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/providers/Microsoft.Web/locations/northeurope/managedApis/bitly"
+            },
+            "documentdb": {
+                "connectionId": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/connections/documentdb",
+                "connectionName": "documentdb",
+                "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/providers/Microsoft.Web/locations/northeurope/managedApis/documentdb"
+            },
+            "gmail": {
+                "connectionId": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/connections/gmail",
+                "connectionName": "gmail",
+                "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/providers/Microsoft.Web/locations/northeurope/managedApis/gmail"
+            }
+        }
+    },
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Condition": {
+                "actions": {
+                    "Create_a_bitlink": {
+                        "inputs": {
+                            "host": {
+                                "api": {
+                                    "runtimeUrl": "https://logic-apis-northeurope.azure-apim.net/apim/bitly"
+                                },
+                                "connection": {
+                                    "name": "@parameters('$connections')['bitly']['connectionId']"
+                                }
+                            },
+                            "method": "get",
+                            "path": "/shorten",
+                            "queries": {
+                                "longUrl": "@{body('publish-asset')['playerUrl']}&subtitles=English,en,@{body('Parse_JSON')?['subtitles_en_url']};French,fr,@{body('Parse_JSON')?['subtitles_fr_url']}"
+                            }
+                        },
+                        "runAfter": {
+                            "Update_status_of_Asset_in_DocumentDB": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ApiConnection"
+                    },
+                    "Parse_JSON": {
+                        "inputs": {
+                            "content": "@body('Retrieve_information_about_asset_to_publish')",
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "multiBitrateAssetId": {
+                                        "type": "string"
+                                    },
+                                    "previewAssetId": {
+                                        "type": "string"
+                                    },
+                                    "status": {
+                                        "type": "string"
+                                    },
+                                    "subtitlesAssetId": {
+                                        "type": "string"
+                                    },
+                                    "subtitles_en_url": {
+                                        "type": "string"
+                                    },
+                                    "subtitles_fr_url": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "runAfter": {
+                            "publish-asset": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ParseJson"
+                    },
+                    "Send_email": {
+                        "inputs": {
+                            "body": {
+                                "Body": "<html><body><strong>There is a new video published: @{body('Update_status_of_Asset_in_DocumentDB')?['id']}</strong><p><a href=\"@{body('Create_a_bitlink')['url']}\">Playback the video</a></p></body></html>",
+                                "Subject": "Your asset has been published!",
+                                "To": "npintaux@hotmail.com"
+                            },
+                            "host": {
+                                "api": {
+                                    "runtimeUrl": "https://logic-apis-northeurope.azure-apim.net/apim/gmail"
+                                },
+                                "connection": {
+                                    "name": "@parameters('$connections')['gmail']['connectionId']"
+                                }
+                            },
+                            "method": "post",
+                            "path": "/Mail"
+                        },
+                        "runAfter": {
+                            "Create_a_bitlink": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ApiConnection"
+                    },
+                    "Update_status_of_Asset_in_DocumentDB": {
+                        "inputs": {
+                            "body": {
+                                "id": "@body('Parse_JSON')?['id']",
+                                "multiBitrateAssetId": "@{body('submit-job')['mes']['assetId']}",
+                                "previewAssetId": "@{body('Parse_JSON')?['previewAssetId']}",
+                                "status": "published",
+                                "subtitlesAssetId": "@{body('Parse_JSON')?['subtitlesAssetId']}",
+                                "subtitles_en_url": "@{body('Parse_JSON')?['subtitles_en_url']}",
+                                "subtitles_fr_url": "@{body('Parse_JSON')?['subtitles_fr_url']}"
+                            },
+                            "headers": {
+                                "x-ms-documentdb-is-upsert": true
+                            },
+                            "host": {
+                                "api": {
+                                    "runtimeUrl": "https://logic-apis-northeurope.azure-apim.net/apim/documentdb"
+                                },
+                                "connection": {
+                                    "name": "@parameters('$connections')['documentdb']['connectionId']"
+                                }
+                            },
+                            "method": "post",
+                            "path": "/dbs/@{encodeURIComponent('Media')}/colls/@{encodeURIComponent('Assets')}/docs"
+                        },
+                        "runAfter": {
+                            "Parse_JSON": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ApiConnection"
+                    },
+                    "publish-asset": {
+                        "inputs": {
+                            "body": {
+                                "assetId": "@{body('submit-job')['mes']['assetId']}"
+                            },
+                            "function": {
+                                "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/sites/npmedia/functions/publish-asset"
+                            }
+                        },
+                        "runAfter": {},
+                        "type": "Function"
+                    }
+                },
+                "expression": "@equals(body('check-job-status')['isSuccessful'], 'True')",
+                "runAfter": {
+                    "Until": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "If"
+            },
+            "Retrieve_information_about_asset_to_publish": {
+                "inputs": {
+                    "host": {
+                        "api": {
+                            "runtimeUrl": "https://logic-apis-northeurope.azure-apim.net/apim/documentdb"
+                        },
+                        "connection": {
+                            "name": "@parameters('$connections')['documentdb']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/dbs/@{encodeURIComponent('Media')}/colls/@{encodeURIComponent('Assets')}/docs/@{encodeURIComponent(triggerBody()?['id'])}"
+                },
+                "runAfter": {},
+                "type": "ApiConnection"
+            },
+            "Until": {
+                "actions": {
+                    "check-job-status": {
+                        "inputs": {
+                            "body": {
+                                "jobId": "@{body('submit-job')['jobId']}"
+                            },
+                            "function": {
+                                "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/sites/npmedia/functions/check-job-status"
+                            }
+                        },
+                        "runAfter": {},
+                        "type": "Function"
+                    }
+                },
+                "expression": "@equals(body('check-job-status')['isRunning'], 'False')",
+                "limit": {
+                    "count": 600,
+                    "timeout": "PT2H"
+                },
+                "runAfter": {
+                    "submit-job": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Until"
+            },
+            "submit-job": {
+                "inputs": {
+                    "body": {
+                        "assetId": "@triggerBody()?['id']",
+                        "indexV2Language": "EnUs",
+                        "mesPreset": "H264 Multiple Bitrate 720p with thumbnail.json",
+                        "useEncoderOutputForAnalytics": false
+                    },
+                    "function": {
+                        "id": "/subscriptions/1f17a53a-847a-4b1c-833e-e5b9ab3cb62b/resourceGroups/RG_MEDIA/providers/Microsoft.Web/sites/npmedia/functions/submit-job"
+                    }
+                },
+                "runAfter": {
+                    "Retrieve_information_about_asset_to_publish": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Function"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "request": {
+                "inputs": {
+                    "method": "POST",
+                    "schema": {
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "kind": "Http",
+                "type": "Request"
+            }
+        }
+    }
+}
