@@ -1,0 +1,7 @@
+{
+  "itemDisplayName": "Create a Media Services Account with Aspera ingest",
+  "description": "This template creates an Azure Media Services Account with its Storage account and the Aspera ingest service provisioned",
+  "summary": "Create a Media Services Account with its Storage account and Aspera ingest support",
+  "githubUsername": "johndeu",
+  "dateUpdated": "2017-02-05"
+}
