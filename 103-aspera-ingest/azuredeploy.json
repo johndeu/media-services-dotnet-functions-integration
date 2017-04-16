@@ -132,7 +132,7 @@
           "properties": {
             "RepoUrl": "[variables('functionsRepo')]",
             "branch": "[variables('functionsRepo_branchName')]",
-            "IsManualIntegration": "false"
+            "IsManualIntegration": "true"
           }
         },
         {
