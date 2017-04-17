@@ -3,11 +3,16 @@
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
+## Transfer files to and from Azure BLOB or Office 365 up to 100x faster than TCP or FTP
 This template creates a Media Services Account with its Storage account on Azure. In addition it adds the Aspera On Demand service from the Azure Marketplace (seperately licensed) and connects it directly to the storage account for the Media Services Account. You will need a promo code from Aspera to deploy this template. 
 
 After deployment, ingesting of files through the high-speed Aspera ingest client will drop the files into the deployed storage account in the 'input' container. The Azure Function will be triggered on new files arriving from Aspera in the 'input' container and trigger the ingest of a new Media Services Asset. Finally, the function will submit a standard encoding job for 'Adaptive Streaming' and create another new Media Services Asset. 
 
 The original asset will be removed from the 'input' folder upon completion. 
+
+## About Aspera
+Aspera software simplifies and accelerates the movement of data to and from the cloud at rates up to 100’s of times faster than standard TCP-based transfers. Aspera Server On Demand is software running on Azure that enables high-speed upload and download of large files and ldata sets directly into Azure Blob object storage. Using the patented Aspera FASP® high-speed transfer protocol, Azure customers can quickly move data of any size over any distance to Blob at line speed. The unique Direct-to-Cloud capability integrates with the underlying Azure Blob multi-part HTTP interfaces to enable the fastest file uploads and downloads while adding key transfer management features such as pause, resume, and encryption over the wire and at rest. Server On Demand is available as a subscription service, based on the amount of data transferred.
+
 
 ## Troubleshooting
 
