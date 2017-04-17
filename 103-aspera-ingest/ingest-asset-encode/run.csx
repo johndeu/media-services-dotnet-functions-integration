@@ -82,8 +82,6 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         // processor to use for the specific task.
         IMediaProcessor processor = GetLatestMediaProcessorByName("Media Encoder Standard");
 
-        string preset = File.ReadAllText(presetPath);
-
         // Create a task with the encoding details, using a custom preset
         ITask task = job.Tasks.AddNew("Aspera Ingest Encode to Adaptive",
             processor,
