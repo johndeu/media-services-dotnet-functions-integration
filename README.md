@@ -203,6 +203,24 @@ The format of the json file is:
       }
     ]
 
+# Aspera Ingest
+## 103-aspera-ingets
+
+This function provides a template that you can use to deploy an entire solution for ingesting and encoding using the Aspera On Demand high speed ingest services on Azure.
+
+Aspera On Demand for Microsoft Azure is a product offering that provides access to Aspera’s patented FASP® high-speed transfer software and the Microsoft Azure cloud platform as part of an online usage-based subscription, offered as a service through the [Microsoft Azure Store](http://cloud.asperasoft.com/aspera-on-demand/aspera-on-demand-for-microsoft-azure/)
+An [FAQ](http://cloud.asperasoft.com/ja/aspera-on-demand/aspera-on-demand-for-microsoft-azure-faq/) is provided by Aspera. 
+
+Aspera is seperately priced through the Azure Marketplace and different tiers. For a promotional code to test the services out, you can reach out to Aspera through their [contact form](http://cloud.asperasoft.com/ja/contact-us/)
+
+Use the Deploy to Azure button to launch the template that will install the following resources in your Azure Account:
+    - Media Services Account
+    - Aspera On Demand service from the Marketplace
+    - Azure Storage Account
+    - Azure Function with basic code sample to ingest, encode, create an asset
+
+See the [Read Me for 103-aspera-ingest](/103-aspera-ingest/README.md) for more details. 
+
 # Media Services Functions for Logic Apps
 ## media-functions-for-logic-app
 Functions : create-empty-asset, sync-asset, live-analytics, submit-job, check-job-status, publish-asset, return-subtitles.
