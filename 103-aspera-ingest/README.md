@@ -19,6 +19,6 @@ Aspera software simplifies and accelerates the movement of data to and from the 
 1. If you run into an error on deployment related to Source Control or GitHub, it is likely that you have never configured Github in your subscription before. The easiest way to solve the issue is to create a new empty Azure Functions app, and configure the source control settings for the Function. In this process you will authorize the Azure Portal to work with your Github credentials.
 
 ## Additional Information
-    - For details on Aspera On Demand, usage see [Aspera On Demand For Microsoft Azure FAQ](http://cloud.asperasoft.com/ja/aspera-on-demand/aspera-on-demand-for-microsoft-azure-faq/)
-    - For pricing details on Aspera on Demand see [Aspera On Demand in the Azure Marketplace](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/aspera.sod?tab=PlansAndPrice)
-    - For more information about Azure Media Services, see [Media Services Documentation](https://docs.microsoft.com/en-us/azure/media-services/).
+- For details on Aspera On Demand, usage see [Aspera On Demand For Microsoft Azure FAQ](http://cloud.asperasoft.com/ja/aspera-on-demand/aspera-on-demand-for-microsoft-azure-faq/)
+- For pricing details on Aspera on Demand see [Aspera On Demand in the Azure Marketplace](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/aspera.sod?tab=PlansAndPrice)
+- For more information about Azure Media Services, see [Media Services Documentation](https://docs.microsoft.com/en-us/azure/media-services/).
