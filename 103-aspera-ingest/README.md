@@ -9,4 +9,8 @@ After deployment, ingesting of files through the high-speed Aspera ingest client
 
 The original asset will be removed from the 'input' folder upon completion. 
 
+## Troubleshooting
+
+1. If you run into an error on deployment related to Source Control or GitHub, it is likely that you have never configured Github in your subscription before. The easiest way to solve the issue is to create a new empty Azure Functions app, and configure the source control settings for the Function. In this process you will authorize the Azure Portal to work with your Github credentials.
+
 For more information about Azure Media Services, see [Media Services Documentation](https://docs.microsoft.com/en-us/azure/media-services/).
