@@ -204,7 +204,7 @@ The format of the json file is:
     ]
 
 # Aspera Ingest
-## 103-aspera-ingets
+## 103-aspera-ingest
 
 This function provides a template that you can use to deploy an entire solution for ingesting and encoding using the Aspera On Demand high speed ingest services on Azure.
 
