@@ -79,6 +79,8 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
             new StorageCredentials(_storageAccountName, _storageAccountKey);
 
         IAsset newAsset = CreateAssetFromBlob(inputBlob, fileName, log).GetAwaiter().GetResult();
+        log.Info("Deleting the source asset from the input container");
+        inputBlob.DeleteIfExists();
         
         // Step 2: Create an Encoding Job
 
