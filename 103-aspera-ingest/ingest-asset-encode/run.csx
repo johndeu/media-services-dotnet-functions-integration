@@ -33,6 +33,8 @@ using Microsoft.WindowsAzure.Storage.Auth;
 // Read values from the App.config file.
 private static readonly string _mediaServicesAccountName = Environment.GetEnvironmentVariable("AMSAccount");
 private static readonly string _mediaServicesAccountKey = Environment.GetEnvironmentVariable("AMSKey");
+static string _storageAccountName = Environment.GetEnvironmentVariable("MediaServicesStorageAccountName");
+static string _storageAccountKey = Environment.GetEnvironmentVariable("MediaServicesStorageAccountKey");
 
 
 private static CloudStorageAccount _destinationStorageAccount = null;
@@ -123,7 +125,7 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         }
         log.Info("Deleting the source asset from the input container");
         inputBlob.DeleteIfExists();
-        
+
         log.Info("Aspera Ingest and Adaptive Bitrate Encode Complete!");
 
     }

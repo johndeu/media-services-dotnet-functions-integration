@@ -155,6 +155,8 @@
             "AzureWebJobsDashboard": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageName'), ';AccountKey=', listKeys(variables('storageAccountid'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]",
             "AMSAccount": "[variables('mediaServiceName')]",
             "AMSKey": "[listKeys(variables('mediaServiceName'),'2015-10-01').primaryKey]",
+            "MediaServicesStorageAccountName": "[variables('storageName')]",
+            "MediaServicesStorageAccountKey": "[listKeys(variables('storageAccountid'),providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
             "StorageConnection": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageName'), ';AccountKey=', listKeys(variables('storageAccountid'),providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]"
             }
         }
