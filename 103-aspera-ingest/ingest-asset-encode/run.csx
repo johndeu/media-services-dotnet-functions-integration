@@ -72,8 +72,11 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
 
         IAsset newAsset = CreateAssetFromBlob(inputBlob, fileName, log).GetAwaiter().GetResult();
         log.Info("Aspera Ingest: Asset created:" + newAsset.Id);
+
+        log.Info("Deleting the source asset from the input container");
+        inputBlob.DeleteIfExists();
         
-        // Step 2: Create an Encoding Job
+        // Step 2: Create an Encoding Job and then exit the function. 
 
         // Declare a new encoding job with the Standard encoder
         IJob job = _context.Jobs.Create("Function - Encode blob single input");
@@ -102,29 +105,11 @@ public static void Run(CloudBlockBlob inputBlob, string fileName, string fileExt
         // Step 3: Monitor the Job
         // ** NOTE:  We could just monitor in this function, or create another function that monitors the Queue
         //           or WebHook based notifications. See the Notification_Webhook_Function project.
+        //           For any job that takes longer than 5 minutes, Functions will die, so it is better to monitor
+        //           long running encode jobs in a seperate function, or use WebHook Notifications 
+        //           from Media Services
 
-        while (true)
-        {
-            job.Refresh();
-            // Refresh every 5 seconds
-            Thread.Sleep(5000);
-            log.Info($"Job ID:{job.Id} State: {job.State.ToString()}");
-
-            if (job.State == JobState.Error || job.State == JobState.Finished || job.State == JobState.Canceled)
-                break;
-        }
-
-        if (job.State == JobState.Finished)
-            log.Info($"Job {job.Id} is complete.");
-        else if (job.State == JobState.Error)
-        {
-            log.Error("Job Failed with Error. ");
-            throw new Exception("Job failed encoding .");
-        }
-        log.Info("Deleting the source asset from the input container");
-        inputBlob.DeleteIfExists();
-
-        log.Info("Aspera Ingest and Adaptive Bitrate Encode Complete!");
+        log.Info("Aspera Ingest Complete, Adaptive Bitrate Encode job is queued!");
 
     }
     catch (Exception ex)

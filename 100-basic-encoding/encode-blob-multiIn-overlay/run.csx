@@ -156,9 +156,13 @@ public static void Run(CloudBlockBlob inputBlob, TraceWriter log, string fileNam
         job.Submit();
         log.Info("Job Submitted");
 
-        // Step 3: Monitor the Job
+       // Step 3: Monitor the Job
         // ** NOTE:  We could just monitor in this function, or create another function that monitors the Queue
-        //           or WebHook based notifications. We should create both samples in this project. 
+        //           or WebHook based notifications. See the Notification_Webhook_Function project.
+        //           For any job that takes longer than 5 minutes, Functions will die, so it is better to monitor
+        //           long running encode jobs in a seperate function, or use WebHook Notifications 
+        //           from Media Services
+        
         while (true)
         {
             job.Refresh();
