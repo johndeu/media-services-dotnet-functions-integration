@@ -5,7 +5,7 @@
     "functionsAppName": {
       "type": "string",
       "metadata": {
-        "description": "The name of the Function application to be deployed. The name should be globally unique, all lowercase letters or numbers with no spaces."
+        "description": "The name of the Function application to be deployed. The name will automatically be made unique on deployment, all lowercase letters or numbers with no spaces."
       }
     },
     "functionKey": {
@@ -45,11 +45,11 @@
     }
   },
   "variables": {
-    "lowerFunctionsAppName": "[toLower(parameters('functionsAppName'))]",
+    "functionsAppName": "[concat(toLower(parameters('functionsAppName')),uniqueString(resourceGroup().id))]",
     "storageAccountid": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
     "mediaServiceName": "[concat('media',uniqueString(resourceGroup().id))]",
     "storageAccountName": "[concat('storage',uniqueString(resourceGroup().id))]",
-    "hostingPlanName": "[concat(variables('lowerFunctionsAppName'),concat('plan', uniqueString(resourceGroup().id)))]"
+    "hostingPlanName": "[concat(variables('functionsAppName'),concat('plan', uniqueString(resourceGroup().id)))]"
   },
   "resources": [
     {
@@ -101,7 +101,7 @@
     },
     {
       "type": "Microsoft.Web/sites",
-      "name": "[variables('lowerFunctionsAppName')]",
+      "name": "[variables('functionsAppName')]",
       "apiVersion": "2015-08-01",
       "location": "[resourceGroup().location]",
       "comments": "This function app depends on the media services account and storage account and will pull down the source code from Github",
