@@ -1,0 +1,167 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "mediaServiceName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Media Services account. A Media Services account name is globally unique, all lowercase letters or numbers with no spaces."
+            }
+        },
+        "asperaPromoCode": {
+            "type": "string",
+            "metadata": {
+                "description": "An Aspera promo code for use with the Aspera marketplace offer."
+            }
+        }
+    },
+    "variables": {
+        "functionsRepo": "https://github.com/Azure-Samples/media-services-dotnet-functions-integration",
+        "functionsRepo_branchName" :"master",
+        "functionsRepo_project" : "103-aspera-ingest",
+        "storageContainer" : "input",
+        "storageName": "[concat('storage', uniqueString(resourceGroup().id))]",
+        "storageAccountid": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]",
+        "mediaServiceName" : "[parameters('mediaServiceName')]",
+        "asperaName": "[concat('aspera',uniqueString(resourceGroup().id))]",
+        "asperaPromoCode": "[parameters('asperaPromoCode')]",
+        "functionsAppName": "[concat('asperaFunction',uniqueString(resourceGroup().id))]",
+        "lowerFunctionsAppName": "[toLower(variables('functionsAppName'))]",
+        "hostingPlanName": "[concat(variables('lowerFunctionsAppName'),concat('plan', uniqueString(resourceGroup().id)))]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2015-10-01",
+            "name": "[parameters('mediaServiceName')]",
+            "type": "Microsoft.Media/mediaServices",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+            ],
+            "properties": {
+                "storageAccounts": [
+                    {
+                        "isPrimary": true,
+                        "id": "[resourceId('microsoft.storage/storageaccounts/', variables('storageName'))]"
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "2016-01-01",
+            "name": "[variables('storageName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "kind": "Storage",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS"
+            }
+        },
+        {
+            "apiVersion": "2016-03-25",
+            "name": "[variables('asperaName')]",
+            "type": "Aspera.Transfers/services",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+            ],
+            "properties": {
+                "storageaccount": "[variables('storageName')]",
+                "storagekey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
+                "storagecontainer": "[variables('storageContainer')]"
+            },
+            "plan": {
+                "publisher": "aspera",
+                "product": "sod",
+                "name": "azure_1_500gb",
+                "promotionCode": "[variables('asperaPromoCode')]"
+            }
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "name": "[variables('hostingPlanName')]",
+            "apiVersion": "2015-08-01",
+            "location": "[resourceGroup().location]",
+            "comments": "This hosting plan is created to deploy the function app and set the billing sku tier",
+            "sku": {
+                "name": "Y1",
+                "tier": "Dynamic",
+                "size": "Y1",
+                "family": "Y",
+                "capacity": 0
+            },
+            "kind": "functionapp",
+            "properties": {
+                "name": "[variables('hostingPlanName')]",
+                "computeMode": "0"
+            }
+        },
+        {
+      "type": "Microsoft.Web/sites",
+      "name": "[variables('lowerFunctionsAppName')]",
+      "apiVersion": "2015-08-01",
+      "location": "[resourceGroup().location]",
+      "comments": "This function app depends on the media services account and storage account and will pull down the source code from Github",
+      "dependsOn": [
+        "[resourceId('Microsoft.Media/mediaservices', variables('mediaServiceName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+      ],
+      "kind": "functionapp",
+      "properties": {
+        "serverFarmId": "[variables('hostingPlanName')]",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~1"
+            }
+          ]
+        }
+      },
+       "resources": [
+        {
+          "type": "sourcecontrols",
+          "name": "web",
+          "apiVersion": "2015-08-01",
+          "comments": "This section sets up source control for continuous integration on the Function app and pulls the source code down from Github.",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/sites/', variables('lowerFunctionsAppName'))]",
+            "[concat(resourceId('Microsoft.Web/sites/', variables('lowerFunctionsAppName')),'/config/appsettings')]"
+          ],
+          "properties": {
+            "RepoUrl": "[variables('functionsRepo')]",
+            "branch": "[variables('functionsRepo_branchName')]",
+            "IsManualIntegration": "true"
+          }
+        },
+        {
+          "type": "config",
+          "name": "appsettings",
+          "apiVersion": "2015-08-01",
+          "comments": "These are the default appsettings configured on the functions app.",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+            "[resourceId('Microsoft.Web/Sites', variables('lowerFunctionsAppName'))]",
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]"
+          ],
+          "properties": {
+            "Project": "[variables('functionsRepo_project')]",
+            "FUNCTIONS_EXTENSION_VERSION": "~1",
+            "WEBSITE_NODE_DEFAULT_VERSION": "6.5.0",
+            "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageName'), ';AccountKey=', listKeys(variables('storageAccountid'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]",
+            "WEBSITE_CONTENTSHARE": "[toLower(variables('lowerFunctionsAppName'))]",
+            "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageName'), ';AccountKey=', listKeys(variables('storageAccountid'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]",
+            "AzureWebJobsDashboard": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageName'), ';AccountKey=', listKeys(variables('storageAccountid'), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]",
+            "AMSAccount": "[variables('mediaServiceName')]",
+            "AMSKey": "[listKeys(variables('mediaServiceName'),'2015-10-01').primaryKey]",
+            "MediaServicesStorageAccountName": "[variables('storageName')]",
+            "MediaServicesStorageAccountKey": "[listKeys(variables('storageAccountid'),providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
+            "StorageConnection": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageName'), ';AccountKey=', listKeys(variables('storageAccountid'),providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]"
+            }
+        }
+      ]
+    }
+  ],
+  "outputs": {}
+}
