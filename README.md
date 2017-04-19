@@ -225,10 +225,13 @@ See the [Read Me for 103-aspera-ingest](/103-aspera-ingest/README.md) for more d
 ## media-functions-for-logic-app
 Functions : create-empty-asset, sync-asset, live-analytics, submit-job, check-job-status, publish-asset, return-subtitles.
 These functions are designed to be called by a Logic App.
-A first template to deploy the sample logic app is available in [media-functions-for-logic-app](/media-functions-for-logic-app) 
 
 One specific patterns to pay attention to here include the check-job-status function which is used to poll for 
 job status from a Logic App workflow. 
+
+Two logic apps samples are available as ARM templates in [media-functions-for-logic-app](/media-functions-for-logic-app): One basic VOD worflow (that does encoding), and one more advanced (that does encoding, indexing, subtitles translation). They can be easily deployed through a "Deploy to Azure" button in this section.
+
+In order to practice the deployment of Azure functions for Media Services and the deployment of a Logic App advanced workflow, a detailed hands-on guide was written. You can find the document [here](/media-functions-for-logic-app/Lab)
 
 ## 201-logic-app-workflow-1
 This set of functions shows how to build a complex workflow using Logic Apps and Azure Functions.
