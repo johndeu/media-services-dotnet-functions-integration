@@ -151,8 +151,11 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     }
     catch (Exception ex)
     {
-        WriteLine(string.Format(GetErrorMessage(ex)));
-        return null;
+        log.Info($"Exception {ex}");
+        return req.CreateResponse(HttpStatusCode.InternalServerError, new
+        {
+            Error = ex.ToString()
+        });
     }
 
     IEncodingReservedUnit EncResUnit = _context.EncodingReservedUnits.FirstOrDefault();
