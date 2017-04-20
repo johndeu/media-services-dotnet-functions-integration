@@ -1,11 +1,11 @@
 /*
-This function set the number and type of media reserved units
+
+This function sets the number and speed of media reserved units in the account.
 
 Input:
 {
-    "ruCount" : "+1" // can be a number like "1", or a number with + or - to increase or decrease the number. Example :  "+2" or "-3"
-    "ruSpeed" : "S1" // Can be "S1", "S2" or "S3"
-  
+    "ruCount" : "+1", // can be a number like "1", or a number with + or - to increase or decrease the number. Example :  "+2" or "-3"
+    "ruSpeed" : "S1"  // can be "S1", "S2" or "S3"
 }
 
 Output:
@@ -138,7 +138,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         }
     }
 
-
     try
     {
         // Create and cache the Media Services credentials in a static class variable.
@@ -215,7 +214,6 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info("Media RU unit(s) updated successfully.");
     log.Info("New current speed of media RU  : " + ReturnNewRUName(EncResUnit.ReservedUnitType));
     log.Info("New current count of media RU : " + EncResUnit.CurrentReservedUnits);
-
 
     return req.CreateResponse(HttpStatusCode.OK, new
     {
