@@ -75,7 +75,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info($"Using Azure Media Services account : {_mediaServicesAccountName}");
 
     int targetNbRU = -1;
-    int nbunits = 0;
+    int? nbunits = "";
     bool relative = false;
     string RUspeed = "";
     ReservedUnitType? type = null;
@@ -166,11 +166,11 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
     log.Info("Current count of media RU: " + EncResUnit.CurrentReservedUnits);
     log.Info("Maximum reservable media RUs: " + EncResUnit.MaxReservableUnits);
 
-    if (nbunits != 0)
+    if (nbunits != null)
     {
         if (relative)
         {
-            if (nbunits > 0)
+            if (((int)nbunits) > 0)
             {
                 log.Info($"Adding {nbunits} unit(s)");
             }
@@ -178,12 +178,12 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
             {
                 log.Info($"Removing {nbunits} unit(s)");
             }
-            targetNbRU = Math.Max(targetNbRU + nbunits, 0);
+            targetNbRU = Math.Max(targetNbRU + (int) nbunits, 0);
         }
         else
         {
             log.Info($"Changing to {nbunits} unit(s)");
-            targetNbRU = nbunits;
+            targetNbRU = (int) nbunits;
         }
     }
 
