@@ -205,6 +205,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
         EncResUnit.CurrentReservedUnits = targetNbRU;
         EncResUnit.ReservedUnitType = targetType;
         EncResUnit.Update();
+        EncResUnit = _context.EncodingReservedUnits.FirstOrDefault(); // Refresh
     }
     catch (Exception ex)
     {
@@ -218,7 +219,7 @@ public static async Task<object> Run(HttpRequestMessage req, TraceWriter log)
 
     return req.CreateResponse(HttpStatusCode.OK, new
     {
-        success = Error.ToString(), 
+        success = (!Error).ToString(), 
         maxRu = EncResUnit.MaxReservableUnits,       
         newRuCount = EncResUnit.CurrentReservedUnits,   
         newRuSpeed = ReturnNewRUName(EncResUnit.ReservedUnitType) 
