@@ -315,6 +315,27 @@ Output:
 ```
 
 
+### set-media-ru
+
+This function sets the number and speed of media reserved units in the account.
+
+```c#
+Input:
+{
+    "ruCount" : "+1", // can be a number like "1", or a number with + or - to increase or decrease the number. Example :  "+2" or "-3"
+    "ruSpeed" : "S1"  // can be "S1", "S2" or "S3"
+}
+
+Output:
+{
+    "success" : "True", // return if operation is a success or not
+    "maxRu" : 10,       // number of max units
+    "newRuCount" : 3,   // new count of units
+    "newRuSpeed" : "S2" // new speed of units
+}
+```
+
+
 ### live-subclip-analytics
 
 This function submits a job to process a live stream with media analytics.
